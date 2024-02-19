@@ -1,14 +1,10 @@
 name: 'openpilot env setup'
 
 inputs:
-  docker_hub_pat:
-    description: 'Auth token for Docker Hub, required for BuildJet jobs'
-    required: true
-    default: ''
-  is_retried:
-    description: 'A mock param that asserts that we use the setup-with-retry instead of this action directly'
+  sleep_time:
+    description: 'Time to sleep between retries'
     required: false
-    default: 'false'
+    default: '30'
 
 runs:
   using: "composite"
@@ -17,47 +13,50 @@ runs:
     - shell: bash
       if: ${{ inputs.is_retried == 'false' }}
       run: |
-        echo "You should not run this action directly. Use setup-with-retry instead"
+        echo "This action should be run with retry logic. Please use setup-with-retry."
         exit 1
+
+    # Checkout codebase
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
     # do this after checkout to ensure our custom LFS config is used to pull from GitLab
-    - shell: bash
+    - name: Git LFS Pull
       run: git lfs pull
 
-    # on BuildJet runners, must be logged into DockerHub to avoid rate limiting
-    # https://buildjet.com/for-github-actions/docs/guides/docker
-    - shell: bash
-      if: ${{ contains(runner.name, 'buildjet') && inputs.docker_hub_pat == '' }}
-      run: |
-        echo "Need to set the Docker Hub PAT secret as an input to this action"
-        exit 1
-    - name: Login to Docker Hub
-      if: contains(runner.name, 'buildjet')
-      shell: bash
-      run: |
-        docker login -u adeebshihadeh -p ${{ inputs.docker_hub_pat }}
-
-    # build cache
-    - id: date
-      shell: bash
-      run: echo "CACHE_COMMIT_DATE=$(git log -1 --pretty='format:%cd' --date=format:'%Y-%m-%d-%H:%M')" >> $GITHUB_ENV
-    - shell: bash
-      run: echo "$CACHE_COMMIT_DATE"
-    - id: scons-cache
-      uses: ./.github/workflows/auto-cache
+    # Setup environment (Example: Python and dependencies)
+    - name: Set up Python
+      uses: actions/setup-python@v2
       with:
-        path: .ci_cache/scons_cache
-        key: scons-${{ runner.arch }}-${{ env.CACHE_COMMIT_DATE }}-${{ github.sha }}
+        python-version: '3.x'
+
+    # Install Python dependencies
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # Add other setup steps here (e.g., apt-get installations, npm installations, etc.)
+    # Example for apt-get:
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y <list-of-packages>
+
+    # Cache dependencies if possible
+    - name: Cache Python dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
-          scons-${{ runner.arch }}-${{ env.CACHE_COMMIT_DATE }}
-          scons-${{ runner.arch }}
-    # as suggested here: https://github.com/moby/moby/issues/32816#issuecomment-910030001
-    - id: normalize-file-permissions
-      shell: bash
-      name: Normalize file permissions to ensure a consistent docker build cache
+          ${{ runner.os }}-pip-
+
+    # Additional setup steps such as environment variable configuration, file permissions normalization, etc.
+    # Ensure file permissions are consistent
+    - name: Normalize file permissions
       run: |
         find . -type f -executable -not -perm 755 -exec chmod 755 {} \;
         find . -type f -not -executable -not -perm 644 -exec chmod 644 {} \;
-    # build our docker image
-    - shell: bash
-      run: eval ${{ env.BUILD }}
+
+    # Any other project-specific setup steps
