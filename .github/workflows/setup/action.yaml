@@ -25,17 +25,20 @@ runs:
       with:
         python-version: '3.x'
 
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-      shell: bash
-
     - name: Install system dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y <list-of-packages>
-      shell: bash
+      sudo apt-get update
+      sudo apt-get install -y vim net-tools usbutils htop ripgrep tmux wget mesa-utils xvfb libxtst6 libxv1 libglu1-mesa libegl1-mesa
+
+    - name: Install Python dependencies
+      run: |
+      pip install ipython jupyter jupyterlab
+
+    - name: Install VirtualGL
+      run: |
+      curl -L -o virtualgl.deb "https://downloads.sourceforge.net/project/virtualgl/$(curl -s https://api.github.com/repos/VirtualGL/virtualgl/releases/latest | grep 'tag_name' | cut -d '"' -f 4)/virtualgl_$(curl -s https://api.github.com/repos/VirtualGL/virtualgl/releases/latest | grep 'tag_name' | cut -d '"' -f 4)_$(dpkg --print-architecture).deb"
+      sudo dpkg -i virtualgl.deb
+      rm virtualgl.deb
 
     - name: Cache Python dependencies
       uses: actions/cache@v2
