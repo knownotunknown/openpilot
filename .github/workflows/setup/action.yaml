@@ -34,7 +34,7 @@ runs:
       run: |
         set -e
         sudo apt-get update
-        sudo apt-get install -y vim net-tools usbutils htop ripgrep tmux wget mesa-utils xvfb libxtst6 libxv1 libglu1-mesa libegl1-mesa libosmesa6 libgl1-mesa-glx libgl1-mesa-dri libgles2-mesa libglapi-mesa libglx-mesa0 libglvnd0 libglx0 libgl1-mesa-swx11
+        sudo apt-get install -y vim net-tools usbutils htop ripgrep tmux wget mesa-utils xvfb libxtst6 libxv1 libglu1-mesa libegl1-mesa libosmesa6 libgl1-mesa-glx libgl1-mesa-dri libgles2-mesa libglapi-mesa libglx-mesa0 libglvnd0 libglx0
       shell: bash
 
     - name: Install Python dependencies
