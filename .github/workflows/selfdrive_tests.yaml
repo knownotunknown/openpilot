@@ -184,8 +184,8 @@ jobs:
       with:
         path: .ci_cache/comma_download_cache
         key: regen-${{ hashFiles('.github/workflows/selfdrive_tests.yaml', 'selfdrive/test/process_replay/test_regen.py') }}
-    - name: Set up base environment
-      run: bash selfdrive/test/docker_build.sh base
+    #- name: Set up base environment
+    #  run: bash selfdrive/test/docker_build.sh base
     - name: Build openpilot
       run: |
         scons -j$(nproc)
@@ -206,9 +206,9 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
-    - name: Set up base environment
-      run: bash selfdrive/test/docker_build.sh base
-      shell: bash
+    #- name: Set up base environment
+      #run: bash selfdrive/test/docker_build.sh base
+      #shell: bash
       
     - name: Build openpilot
       run: |
