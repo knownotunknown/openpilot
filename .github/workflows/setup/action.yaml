@@ -1,5 +1,8 @@
 name: 'openpilot env setup'
 
+env:
+  PYTHONWARNINGS: "ignore:DeprecationWarning"
+
 inputs:
   docker_hub_pat:
     description: 'Auth token for Docker Hub, previously required for BuildJet jobs'
