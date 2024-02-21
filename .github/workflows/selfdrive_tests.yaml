@@ -43,8 +43,6 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
-      with:
-        docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
     - uses: ./.github/workflows/compile-openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 15 || 30) }} # allow more time when we missed the scons cache
 
@@ -97,8 +95,6 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
-      with:
-        docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
       run: scons -j$(nproc)
@@ -126,8 +122,6 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
-      with:
-        docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
     - name: Cache test routes
       id: dependency-cache
       uses: actions/cache@v3
@@ -184,9 +178,9 @@ jobs:
       with:
         path: .ci_cache/comma_download_cache
         key: regen-${{ hashFiles('.github/workflows/selfdrive_tests.yaml', 'selfdrive/test/process_replay/test_regen.py') }}
-    - name: Set up base environment
-      run: bash selfdrive/test/docker_build.sh base
-    - name: Build openpilot
+    #- name: Set up base environment
+    #  run: bash selfdrive/test/docker_build.sh base
+    #- name: Build openpilot
       run: |
         scons -j$(nproc)
       shell: bash
@@ -206,9 +200,9 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
-    - name: Set up base environment
-      run: bash selfdrive/test/docker_build.sh base
-      shell: bash
+    #- name: Set up base environment
+    #  run: bash selfdrive/test/docker_build.sh base
+    #  shell: bash
       
     - name: Build openpilot
       run: |
