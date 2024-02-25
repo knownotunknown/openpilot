@@ -48,8 +48,16 @@ runs:
         rm virtualgl.deb
       shell: bash
 
-    - name: Install dependencies
-      run: pip install -r requirements.txt
+    - name: Install Jupyter
+      run: pip install jupyter
+      shell: bash
+
+    - name: Install JupyterLab
+      run: pip install jupyterlab
+      shell: bash
+
+    - name: Install IPython
+      run: pip install ipython
       shell: bash
 
     - name: Cache Python dependencies
