@@ -58,6 +58,7 @@ runs:
         conda activate myenv
         conda install -c conda-forge jupyterlab
         conda install -c conda-forge ipython
+      shell: bash
 
     - name: Cache Python dependencies
       uses: actions/cache@v4
