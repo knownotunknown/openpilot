@@ -67,6 +67,12 @@ runs:
         echo "Assuming pip is compatible with the current environment"
       shell: bash
 
+    - name: Set up a virtual environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+      shell: bash
+
     - name: Test pip install functionality
       run: |
         echo "Testing pip install functionality by installing the 'requests' package"
