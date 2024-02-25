@@ -17,7 +17,7 @@ runs:
   using: "composite"
   steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Git LFS Pull
       run: |
@@ -25,9 +25,9 @@ runs:
       shell: bash
 
     - name: Set up Python
-      uses: actions/setup-python@v3  
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.12'
+        python-version: '3.x'
 
     - name: Install system dependencies
       run: |
@@ -39,6 +39,9 @@ runs:
     - name: Print pip version
       run: pip --version
       shell: bash
+
+    - name: Install dependencies
+      run: python -m pip install --upgrade pip setuptools wheel
 
     - name: Install IPython
       run: pip install ipython
@@ -62,7 +65,7 @@ runs:
       shell: bash
 
     - name: Cache Python dependencies
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
