@@ -36,10 +36,22 @@ runs:
         sudo apt-get install -y vim net-tools usbutils htop ripgrep tmux wget mesa-utils xvfb libxtst6 libxv1 libglu1-mesa libegl1-mesa libosmesa6 libgl1-mesa-glx libgl1-mesa-dri libgles2-mesa libglapi-mesa libglx-mesa0 libglvnd0 libglx0
       shell: bash
 
-    - name: Install Python dependencies
-      run: |
-        pip install ipython jupyter jupyterlab || { echo "Python dependency installation failed"; exit 1; }
+    - name: Print pip version
+      run: pip --version
       shell: bash
+
+    - name: Install IPython
+      run: pip install ipython
+      shell: bash
+
+    - name: Install Jupyter
+      run: pip install jupyter
+      shell: bash
+
+    - name: Install JupyterLab
+      run: pip install jupyterlab
+      shell: bash
+
 
     - name: Install VirtualGL
       run: |
