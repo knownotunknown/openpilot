@@ -40,10 +40,6 @@ runs:
       run: pip --version
       shell: bash
 
-    - name: Install dependencies
-      run: python -m pip install --upgrade pip setuptools wheel
-      shell: bash
-
     - name: Install VirtualGL
       run: |
         set -e
