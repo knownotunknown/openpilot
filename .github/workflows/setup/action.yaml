@@ -50,35 +50,42 @@ runs:
     
     - name: Clone IPython repository
       run: git clone https://github.com/ipython/ipython.git
+      shell: bash
 
     - name: Install IPython from source
       run: |
         cd ipython
         pip install -e .
         cd ..
+      shell: bash
 
     - name: Verify installation of ipython
       run: |
         ipython --version
+      shell: bash
 
     - name: Clone Jupyter notebook repository
       run: git clone https://github.com/jupyter/notebook.git
+      shell: bash
 
     - name: Install Jupyter notebook from source
       run: |
         cd notebook
         pip install -e .
         cd ..
+      shell: bash
 
     - name: Verify installation of jupyter-notebook
       run: |
         jupyter-notebook --version
+      shell: bash
 
     - name: Install JupyterLab from source
       run: |
         git clone https://github.com/jupyterlab/jupyterlab.git
         cd jupyterlab
         pip install -e .
+      shell: bash
 
     """- name: Cache Python dependencies
       uses: actions/cache@v4
