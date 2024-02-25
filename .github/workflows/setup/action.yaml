@@ -55,7 +55,7 @@ runs:
     - name: Setup conda
       run: |
         $CONDA/bin/conda env update --file environment.yml --name base
-
+      shell: bash
 
     - name: Install with Conda
       run: |
