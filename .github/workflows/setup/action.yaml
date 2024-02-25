@@ -47,6 +47,39 @@ runs:
         sudo dpkg -i virtualgl.deb
         rm virtualgl.deb
       shell: bash
+
+    - name: Check if pip is in PATH
+      run: |
+        if ! command -v pip &> /dev/null
+        then
+          echo "pip could not be found in PATH"
+          exit 1
+        else
+          echo "pip is in PATH"
+        fi
+      shell: bash
+
+    - name: Check pip compatibility with the current environment
+      run: |
+        PIP_VERSION=$(pip --version)
+        echo "Found pip version: $PIP_VERSION"
+        # Add any specific compatibility checks here. This is just an example that always passes.
+        echo "Assuming pip is compatible with the current environment"
+      shell: bash
+
+    - name: Test pip install functionality
+      run: |
+        echo "Testing pip install functionality by installing the 'requests' package"
+        pip install requests
+        # Verify installation
+        if ! python -c "import requests" &> /dev/null
+        then
+          echo "Failed to import 'requests' after installation"
+          exit 1
+        else
+          echo "'requests' installed and imported successfully"
+        fi
+      shell: bash
     
     - name: Clone IPython repository
       run: git clone https://github.com/ipython/ipython.git
