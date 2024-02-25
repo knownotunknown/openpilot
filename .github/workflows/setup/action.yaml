@@ -67,64 +67,13 @@ runs:
         echo "Assuming pip is compatible with the current environment"
       shell: bash
 
-    - name: Set up a virtual environment
-      run: |
-        python -m venv venv
-        source venv/bin/activate
-      shell: bash
-
-    - name: Test pip install functionality
-      run: |
-        echo "Testing pip install functionality by installing the 'requests' package"
-        pip install requests
-        # Verify installation
-        if ! python -c "import requests" &> /dev/null
-        then
-          echo "Failed to import 'requests' after installation"
-          exit 1
-        else
-          echo "'requests' installed and imported successfully"
-        fi
-      shell: bash
-    
-    - name: Clone IPython repository
-      run: git clone https://github.com/ipython/ipython.git
-      shell: bash
-
-    - name: Install IPython from source
-      run: |
-        cd ipython
-        pip install -e .
-        cd ..
-      shell: bash
-
-    - name: Verify installation of ipython
-      run: |
-        ipython --version
-      shell: bash
-
-    - name: Clone Jupyter notebook repository
-      run: git clone https://github.com/jupyter/notebook.git
-      shell: bash
-
-    - name: Install Jupyter notebook from source
-      run: |
-        cd notebook
-        pip install -e .
-        cd ..
-      shell: bash
-
-    - name: Verify installation of jupyter-notebook
-      run: |
-        jupyter-notebook --version
-      shell: bash
-
-    - name: Install JupyterLab from source
-      run: |
-        git clone https://github.com/jupyterlab/jupyterlab.git
-        cd jupyterlab
-        pip install -e .
-      shell: bash
+    - name: Install with pip
+    - uses: insightsengineering/pip-action@v2
+      with:
+        packages: |
+          ipython
+          jupyter
+          jupyterlab
 
     - name: Normalize file permissions
       run: |
