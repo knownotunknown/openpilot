@@ -30,6 +30,12 @@ jobs:
       shell: bash
       working-directory: ${{ github.workspace }}
 
+    - name: Install with pip
+      uses: insightsengineering/pip-action@v2
+      with:
+        packages: |
+          scons
+
   build:
     strategy:
       matrix:
