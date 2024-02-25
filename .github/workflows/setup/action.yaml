@@ -47,29 +47,46 @@ runs:
         sudo dpkg -i virtualgl.deb
         rm virtualgl.deb
       shell: bash
+    
+    - name: Clone IPython repository
+      run: git clone https://github.com/ipython/ipython.git
 
-    - name: Print conda version
-      run: conda --version
-      shell: bash
-
-    - name: Setup conda
+    - name: Install IPython from source
       run: |
-        $CONDA/bin/conda env update --file environment.yml --name base
-      shell: bash
+        cd ipython
+        pip install -e .
+        cd ..
 
-    - name: Install with Conda
+    - name: Verify installation of ipython
       run: |
-        conda install -c conda-forge jupyterlab
-        conda install -c conda-forge ipython
-      shell: bash
+        ipython --version
 
-    - name: Cache Python dependencies
+    - name: Clone Jupyter notebook repository
+      run: git clone https://github.com/jupyter/notebook.git
+
+    - name: Install Jupyter notebook from source
+      run: |
+        cd notebook
+        pip install -e .
+        cd ..
+
+    - name: Verify installation of jupyter-notebook
+      run: |
+        jupyter-notebook --version
+
+    - name: Install JupyterLab from source
+      run: |
+        git clone https://github.com/jupyterlab/jupyterlab.git
+        cd jupyterlab
+        pip install -e .
+
+    """- name: Cache Python dependencies
       uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-
+          ${{ runner.os }}-pip-"""
 
     - name: Normalize file permissions
       run: |
