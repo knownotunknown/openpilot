@@ -48,17 +48,16 @@ runs:
         rm virtualgl.deb
       shell: bash
 
-    - name: Install Jupyter
-      run: pip install jupyter
+    - name: Print conda version
+      run: conda --version
       shell: bash
 
-    - name: Install JupyterLab
-      run: pip install jupyterlab
-      shell: bash
-
-    - name: Install IPython
-      run: pip install ipython
-      shell: bash
+    - name: Install with Conda
+      run: |
+        conda create --name myenv
+        conda activate myenv
+        conda install -c conda-forge jupyterlab
+        conda install -c conda-forge ipython
 
     - name: Cache Python dependencies
       uses: actions/cache@v4
