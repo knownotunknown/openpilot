@@ -52,10 +52,13 @@ runs:
       run: conda --version
       shell: bash
 
+    - name: Setup conda
+      run: |
+        $CONDA/bin/conda env update --file environment.yml --name base
+
+
     - name: Install with Conda
       run: |
-        conda create --name myenv
-        conda activate myenv
         conda install -c conda-forge jupyterlab
         conda install -c conda-forge ipython
       shell: bash
