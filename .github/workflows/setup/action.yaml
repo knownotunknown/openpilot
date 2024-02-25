@@ -68,7 +68,7 @@ runs:
       shell: bash
 
     - name: Install with pip
-    - uses: insightsengineering/pip-action@v2
+      uses: insightsengineering/pip-action@v2
       with:
         packages: |
           ipython
