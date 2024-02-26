@@ -25,16 +25,13 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
+    - name: Install scons
+      run: sudo apt-get install -y scons
+      shell: bash
     - name: Build openpilot and run checks
       run: python selfdrive/manager/build.py
       shell: bash
       working-directory: ${{ github.workspace }}
-
-    - name: Install with pip
-      uses: insightsengineering/pip-action@v2
-      with:
-        packages: |
-          scons
 
   build:
     strategy:
@@ -49,6 +46,9 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
+    - name: Install scons
+      run: sudo apt-get install -y scons
+      shell: bash
     - uses: ./.github/workflows/compile-openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 15 || 30) }} # allow more time when we missed the scons cache
 
@@ -63,6 +63,9 @@ jobs:
         submodules: true
     - uses: ./.github/workflows/setup-pre-commit
     - uses: ./.github/workflows/setup-with-retry
+    - name: Install scons
+      run: sudo apt-get install -y scons
+      shell: bash
     - name: pre-commit
       timeout-minutes: 4
       run: |
@@ -79,6 +82,9 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
+    - name: Install scons
+      run: sudo apt-get install -y scons
+      shell: bash
     - name: Build openpilot
       run: scons -j$(nproc)
       shell: bash
@@ -101,6 +107,9 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
+    - name: Install scons
+      run: sudo apt-get install -y scons
+      shell: bash
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
       run: scons -j$(nproc)
@@ -128,6 +137,9 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
+    - name: Install scons
+      run: sudo apt-get install -y scons
+      shell: bash
     - name: Cache test routes
       id: dependency-cache
       uses: actions/cache@v3
@@ -178,14 +190,15 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
+    - name: Install scons
+      run: sudo apt-get install -y scons
+      shell: bash
     - name: Cache test routes
       id: dependency-cache
       uses: actions/cache@v3
       with:
         path: .ci_cache/comma_download_cache
         key: regen-${{ hashFiles('.github/workflows/selfdrive_tests.yaml', 'selfdrive/test/process_replay/test_regen.py') }}
-    #- name: Set up base environment
-    #  run: bash selfdrive/test/docker_build.sh base
     - name: Build openpilot
       run: |
         scons -j$(nproc)
@@ -206,10 +219,9 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
-    #- name: Set up base environment
-      #run: bash selfdrive/test/docker_build.sh base
-      #shell: bash
-      
+    - name: Install scons
+      run: sudo apt-get install -y scons
+      shell: bash
     - name: Build openpilot
       run: |
         scons -j$(nproc)
@@ -250,6 +262,9 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
+    - name: Install scons
+      run: sudo apt-get install -y scons
+      shell: bash
     - name: Cache test routes
       id: dependency-cache
       uses: ./.github/workflows/auto-cache
@@ -286,6 +301,9 @@ jobs:
           ref: ${{ github.event.pull_request.base.ref }}
       - run: git lfs pull
       - uses: ./.github/workflows/setup-with-retry
+      - name: Install scons
+        run: sudo apt-get install -y scons
+        shell: bash
       - name: Get base car info
         run: |
           scons -j$(nproc)
@@ -340,6 +358,9 @@ jobs:
         with:
           submodules: true
       - uses: ./.github/workflows/setup-with-retry
+      - name: Install scons
+        run: sudo apt-get install -y scons
+        shell: bash
       - name: Build openpilot
         run: scons -j$(nproc)
         shell: bash
