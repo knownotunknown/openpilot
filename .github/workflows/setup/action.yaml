@@ -4,10 +4,6 @@ env:
   PYTHONWARNINGS: "ignore:DeprecationWarning"
 
 inputs:
-  docker_hub_pat:
-    description: 'Auth token for Docker Hub, previously required for BuildJet jobs'
-    required: false
-    default: ''
   sleep_time:
     description: 'Time to sleep between retries'
     required: false
@@ -36,9 +32,13 @@ runs:
         sudo apt-get install -y vim net-tools usbutils htop ripgrep tmux wget mesa-utils xvfb libxtst6 libxv1 libglu1-mesa libegl1-mesa libosmesa6 libgl1-mesa-glx libgl1-mesa-dri libgles2-mesa libglapi-mesa libglx-mesa0 libglvnd0 libglx0
       shell: bash
 
-    - name: Print pip version
-      run: pip --version
-      shell: bash
+    - name: Cache pip
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
     - name: Install VirtualGL
       run: |
@@ -48,32 +48,11 @@ runs:
         rm virtualgl.deb
       shell: bash
 
-    - name: Check if pip is in PATH
-      run: |
-        if ! command -v pip &> /dev/null
-        then
-          echo "pip could not be found in PATH"
-          exit 1
-        else
-          echo "pip is in PATH"
-        fi
-      shell: bash
 
-    - name: Check pip compatibility with the current environment
-      run: |
-        PIP_VERSION=$(pip --version)
-        echo "Found pip version: $PIP_VERSION"
-        # Add any specific compatibility checks here. This is just an example that always passes.
-        echo "Assuming pip is compatible with the current environment"
-      shell: bash
 
-    - name: Install with pip
-      uses: insightsengineering/pip-action@v2
-      with:
-        packages: |
-          ipython
-          jupyter
-          jupyterlab
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+      shell: bash
 
     - name: Normalize file permissions
       run: |
