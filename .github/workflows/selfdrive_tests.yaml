@@ -89,6 +89,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install numpy
+      shell: bash
     - name: Build openpilot
       run: scons -j$(nproc)
       shell: bash
@@ -113,6 +114,11 @@ jobs:
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
+      shell: bash
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install numpy
       shell: bash
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
@@ -150,6 +156,11 @@ jobs:
       with:
         path: .ci_cache/comma_download_cache
         key: proc-replay-${{ hashFiles('.github/workflows/selfdrive_tests.yaml', 'selfdrive/test/process_replay/ref_commit') }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install numpy
+      shell: bash
     - name: Build openpilot
       run: |
         scons -j$(nproc)
@@ -203,6 +214,11 @@ jobs:
       with:
         path: .ci_cache/comma_download_cache
         key: regen-${{ hashFiles('.github/workflows/selfdrive_tests.yaml', 'selfdrive/test/process_replay/test_regen.py') }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install numpy
+      shell: bash
     - name: Build openpilot
       run: |
         scons -j$(nproc)
@@ -225,6 +241,11 @@ jobs:
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
+      shell: bash
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install numpy
       shell: bash
     - name: Build openpilot
       run: |
@@ -275,6 +296,11 @@ jobs:
       with:
         path: .ci_cache/comma_download_cache
         key: car_models-${{ hashFiles('selfdrive/car/tests/test_models.py', 'selfdrive/car/tests/routes.py') }}-${{ matrix.job }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install numpy
+      shell: bash
     - name: Build openpilot
       run: scons -j$(nproc)
       shell: bash
@@ -308,6 +334,11 @@ jobs:
       - name: Install scons
         run: sudo apt-get install -y scons
         shell: bash
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy
+        shell: bash
       - name: Get base car info
         run: |
           scons -j$(nproc)
@@ -319,6 +350,11 @@ jobs:
           submodules: true
           path: current
       - run: cd current && git lfs pull
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy
+        shell: bash
       - name: Save car docs diff
         id: save_diff
         run: |
@@ -364,6 +400,11 @@ jobs:
       - uses: ./.github/workflows/setup-with-retry
       - name: Install scons
         run: sudo apt-get install -y scons
+        shell: bash
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy
         shell: bash
       - name: Build openpilot
         run: scons -j$(nproc)
