@@ -85,6 +85,10 @@ jobs:
     - name: Install scons
       run: sudo apt-get install -y scons
       shell: bash
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install numpy
     - name: Build openpilot
       run: scons -j$(nproc)
       shell: bash
