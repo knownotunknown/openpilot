@@ -4,15 +4,24 @@ runs:
   using: "composite"
   steps:
     - shell: bash
-      name: Build openpilot with all flags
+    - name: Install with pip
+      uses: insightsengineering/pip-action@v2
+      with:
+        packages: |
+          scons
+    - name: Build openpilot
+      run: scons -j$(nproc)
+      shell: bash
+    - name: Check for dirty files
+      run: bash release/check-dirty.sh
+      shell: bash
+
+    - name: Cleanup scons cache and rebuild
       run: |
-        ${{ env.RUN }} "scons -j$(nproc)"
-        ${{ env.RUN }} "release/check-dirty.sh"
-    - shell: bash
-      name: Cleanup scons cache and rebuild
-      run: |
-          ${{ env.RUN }} "rm -rf /tmp/scons_cache/* && \
-                          scons -j$(nproc) --cache-populate"
+          rm -rf /tmp/scons_cache/* && \
+          scons -j$(nproc) --cache-populate
+      shell: bash
+
     - name: Save scons cache
       uses: actions/cache/save@v3
       if: github.ref == 'refs/heads/master'
