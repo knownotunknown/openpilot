@@ -44,11 +44,6 @@ jobs:
               ((github.event_name != 'pull_request') || 
                (github.event.pull_request.head.repo.full_name == 'commaai/openpilot'))) && '["x86_64", "aarch64"]' || '["x86_64"]' ) }}
     runs-on: ${{ (matrix.arch == 'aarch64') && 'namespace-profile-arm64-2x8' || 'ubuntu-20.04' }}
-    - name: Install with pip
-      uses: insightsengineering/pip-action@v2
-      with:
-        packages: |
-          scons
     steps:
     - uses: actions/checkout@v4
       with:
@@ -86,11 +81,6 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
-    - name: Install with pip
-      uses: insightsengineering/pip-action@v2
-      with:
-        packages: |
-          scons
     - name: Build openpilot
       run: scons -j$(nproc)
       shell: bash
@@ -117,11 +107,6 @@ jobs:
         docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
-    - name: Install with pip
-      uses: insightsengineering/pip-action@v2
-      with:
-        packages: |
-          scons
       run: scons -j$(nproc)
       shell: bash
     - name: Run unit tests
@@ -155,11 +140,6 @@ jobs:
       with:
         path: .ci_cache/comma_download_cache
         key: proc-replay-${{ hashFiles('.github/workflows/selfdrive_tests.yaml', 'selfdrive/test/process_replay/ref_commit') }}
-    - name: Install with pip
-      uses: insightsengineering/pip-action@v2
-      with:
-        packages: |
-          scons
     - name: Build openpilot
       run: |
         scons -j$(nproc)
@@ -212,11 +192,6 @@ jobs:
         key: regen-${{ hashFiles('.github/workflows/selfdrive_tests.yaml', 'selfdrive/test/process_replay/test_regen.py') }}
     #- name: Set up base environment
     #  run: bash selfdrive/test/docker_build.sh base
-    - name: Install with pip
-      uses: insightsengineering/pip-action@v2
-      with:
-        packages: |
-          scons
     - name: Build openpilot
       run: |
         scons -j$(nproc)
@@ -240,11 +215,6 @@ jobs:
     #- name: Set up base environment
       #run: bash selfdrive/test/docker_build.sh base
       #shell: bash
-    - name: Install with pip
-      uses: insightsengineering/pip-action@v2
-      with:
-        packages: |
-          scons
       
     - name: Build openpilot
       run: |
@@ -292,11 +262,6 @@ jobs:
       with:
         path: .ci_cache/comma_download_cache
         key: car_models-${{ hashFiles('selfdrive/car/tests/test_models.py', 'selfdrive/car/tests/routes.py') }}-${{ matrix.job }}
-    - name: Install with pip
-      uses: insightsengineering/pip-action@v2
-      with:
-        packages: |
-          scons
     - name: Build openpilot
       run: scons -j$(nproc)
       shell: bash
@@ -327,11 +292,6 @@ jobs:
           ref: ${{ github.event.pull_request.base.ref }}
       - run: git lfs pull
       - uses: ./.github/workflows/setup-with-retry
-      - name: Install with pip
-        uses: insightsengineering/pip-action@v2
-        with:
-          packages: |
-            scons
       - name: Get base car info
         run: |
           scons -j$(nproc)
@@ -343,11 +303,6 @@ jobs:
           submodules: true
           path: current
       - run: cd current && git lfs pull
-      - name: Install with pip
-        uses: insightsengineering/pip-action@v2
-        with:
-          packages: |
-            scons
       - name: Save car docs diff
         id: save_diff
         run: |
@@ -391,11 +346,6 @@ jobs:
         with:
           submodules: true
       - uses: ./.github/workflows/setup-with-retry
-      - name: Install with pip
-        uses: insightsengineering/pip-action@v2
-        with:
-          packages: |
-            scons
       - name: Build openpilot
         run: scons -j$(nproc)
         shell: bash
