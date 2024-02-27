@@ -177,7 +177,7 @@ jobs:
         source ~/sconsvenv/bin/activate
         python -m pip install --upgrade pip
         pip install -r .github/workflows/setup/requirements.txt
-        pip install numpy scons
+        pip install numpy scons pycryptodome
         echo "SCons version:"
         scons --version
       shell: bash
