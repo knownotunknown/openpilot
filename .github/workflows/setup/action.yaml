@@ -1,8 +1,15 @@
 name: 'openpilot env setup'
 
 env:
-  
+
+inputs:
+  sleep_time:
+    description: 'Time to sleep between retries'
+    required: false
+    default: '30'
+
 runs:
+  using: "composite"
   steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -27,12 +34,6 @@ runs:
         runtime=$((end-start))
         echo "Installing system dependencies took $runtime seconds"      
       shell: bash
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.x'
-        cache: 'pip'
 
     - name: Install VirtualGL
       run: |

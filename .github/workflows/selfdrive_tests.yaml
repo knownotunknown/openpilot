@@ -24,6 +24,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+        cache: 'pip'
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -45,6 +50,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+        cache: 'pip'
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -62,6 +72,11 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-pre-commit
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+        cache: 'pip'
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -81,6 +96,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+        cache: 'pip'
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -111,6 +131,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+        cache: 'pip'
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -146,6 +171,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+        cache: 'pip'
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -204,6 +234,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+        cache: 'pip'
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -238,6 +273,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+        cache: 'pip'
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -286,6 +326,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+        cache: 'pip'
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -330,6 +375,11 @@ jobs:
           submodules: true
           ref: ${{ github.event.pull_request.base.ref }}
       - run: git lfs pull
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
       - uses: ./.github/workflows/setup-with-retry
       - name: Install scons
         run: sudo apt-get install -y scons
@@ -397,6 +447,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
       - uses: ./.github/workflows/setup-with-retry
       - name: Install scons
         run: sudo apt-get install -y scons
