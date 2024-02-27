@@ -53,6 +53,16 @@ runs:
         key: ${{ runner.os }}-pip-${{ hashFiles('.github/workflows/setup/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+          
+    - name: Check Cache Hit Status
+      run: |
+        echo "Cache hit status: ${{ steps.cache-pip.outputs.cache-hit }}"
+        if [ "${{ steps.cache-pip.outputs.cache-hit }}" == "true" ]; then
+          echo "Cache was hit!"
+        else
+          echo "Cache was missed!"
+        fi
+      shell: bash
 
     - name: Install VirtualGL
       run: |
