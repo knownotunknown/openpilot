@@ -231,6 +231,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libzmq3-dev
       shell: bash
+    - name: Install OpenCL Headers
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y opencl-headers
+      shell: bash
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
       run: |
