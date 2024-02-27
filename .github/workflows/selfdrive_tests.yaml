@@ -166,36 +166,28 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-    - name: Install dependencies
+    - name: Setup Python virtual environment and install dependencies
       run: |
-        start=`date +%s`
+        python -m venv ~/sconsvenv
+        source ~/sconsvenv/bin/activate
+        python -m pip install --upgrade pip
         pip install -r .github/workflows/setup/requirements.txt
-        end=`date +%s`
-        runtime=$((end-start))
-        echo "Installing dependencies $runtime seconds"      
+        pip install numpy scons
+        echo "SCons version:"
+        scons --version
       shell: bash
-    - uses: ./.github/workflows/setup-with-retry
+
     - name: Debugging Python Environment
       run: |
+        source ~/sconsvenv/bin/activate
         echo "Listing installed Python packages:"
         pip list
         echo "Python executable path:"
         which python
         echo "Python version:"
         python --version
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install numpy
       shell: bash
-    - name: Setup SCons virtual environment
-      run: |
-        python -m venv ~/sconsvenv 
-        source ~/sconsvenv/bin/activate
-        pip install scons
-        echo "SCons version:"
-        scons --version
-      shell: bash
+    - uses: ./.github/workflows/setup-with-retry
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
       run: |
