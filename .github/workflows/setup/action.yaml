@@ -30,10 +30,6 @@ runs:
         echo "Git LFS Pull took $runtime seconds"
       shell: bash
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
 
     - name: Install system dependencies
       run: |
@@ -46,22 +42,17 @@ runs:
         echo "Installing system dependencies took $runtime seconds"      
       shell: bash
 
-    - name: Cache pip
-      uses: actions/cache@v4
+    - name: Set up Python
+    - uses: actions/setup-python@v5
       with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('.github/workflows/setup/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          
-    - name: Check Cache Hit Status
-      run: |
-        echo "Cache hit status: ${{ steps.cache-pip.outputs.cache-hit }}"
-        if [ "${{ steps.cache-pip.outputs.cache-hit }}" == "true" ]; then
-          echo "Cache was hit!"
-        else
-          echo "Cache was missed!"
-        fi
+        python-version: '3.x'
+        cache: 'pip'
+    - run: |
+        start=`date +%s`
+        pip install -r .github/workflows/setup/requirements.txt
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing dependencies $runtime seconds"      
       shell: bash
 
     - name: Install VirtualGL
@@ -74,17 +65,6 @@ runs:
         end=`date +%s`
         runtime=$((end-start))
         echo "Installing VirtualGL took $runtime seconds"
-      shell: bash
-
-
-
-    - name: Install dependencies
-      run: |
-        start=`date +%s`
-        pip install -r .github/workflows/setup/requirements.txt
-        end=`date +%s`
-        runtime=$((end-start))
-        echo "Installing dependencies $runtime seconds"      
       shell: bash
 
     - name: Normalize file permissions
