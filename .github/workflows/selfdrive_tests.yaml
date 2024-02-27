@@ -166,10 +166,26 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+    - name: Install dependencies
+      run: |
+        start=`date +%s`
+        pip install -r .github/workflows/setup/requirements.txt
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing dependencies $runtime seconds"      
+      shell: bash
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
       shell: bash
+    - name: Debugging Python Environment
+      run: |
+        echo "Listing installed Python packages:"
+        pip list
+        echo "Python executable path:"
+        which python
+        echo "Python version:"
+        python --version
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -177,7 +193,9 @@ jobs:
       shell: bash
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
-      run: scons -j$(nproc)
+      run: |
+        export PYTHONPATH=$PYTHONPATH:$(python -c "import site; print(site.getsitepackages()[0])")
+        scons -j$(nproc)
       shell: bash
     - name: Run unit tests
       timeout-minutes: 15
