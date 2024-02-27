@@ -166,15 +166,23 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+
     - name: Install Qt and other dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y qt5-default
       shell: bash
+
     - name: Install ARM GCC Toolchain
       run: |
         sudo apt-get update
         sudo apt-get install -y gcc-arm-none-eabi
+      shell: bash
+
+    - name: Install Cap'n Proto
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y capnproto
       shell: bash
 
     - name: Verify ARM GCC Installation
