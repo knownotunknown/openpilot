@@ -175,8 +175,11 @@ jobs:
         echo "Installing dependencies $runtime seconds"      
       shell: bash
     - uses: ./.github/workflows/setup-with-retry
-    - name: Install scons
-      run: sudo apt-get install -y scons
+    - name: Install scons and print version
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y scons
+        scons --version
       shell: bash
     - name: Debugging Python Environment
       run: |
