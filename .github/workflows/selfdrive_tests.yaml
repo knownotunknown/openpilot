@@ -177,34 +177,24 @@ jobs:
         sudo apt-get install -y qt5-default
       shell: bash
 
-    - name: Install ARM GCC Toolchain
+    - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-arm-none-eabi
+        sudo apt-get install -y gcc-arm-none-eabi capnproto libcapnp-dev libzmq3-dev opencl-headers
       shell: bash
 
-    - name: Install Cap'n Proto
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y capnproto
-      shell: bash
-
-    - name: Verify ARM GCC Installation
-      run: |
-        arm-none-eabi-gcc --version
-      shell: bash
-    - name: Setup Python virtual environment and install dependencies
+    - name: Setup Python Environment and Install Python Dependencies
       run: |
         python -m venv ~/sconsvenv
         source ~/sconsvenv/bin/activate
         python -m pip install --upgrade pip
         pip install -r .github/workflows/setup/requirements.txt
-        pip install numpy scons pycryptodome
+        pip install numpy scons pycryptodome Cython  # Adding Cython here to ensure cythonize is available
         echo "SCons version:"
         scons --version
       shell: bash
 
-    - name: Debugging Python Environment
+    - name: Debugging Environment
       run: |
         source ~/sconsvenv/bin/activate
         echo "Listing installed Python packages:"
@@ -215,26 +205,10 @@ jobs:
         python --version
         echo "QMake version:"
         qmake --version
-      shell: bash
-    - uses: ./.github/workflows/setup-with-retry
-    - name: Install Cap'n Proto C++ Compiler
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libcapnp-dev
-      shell: bash
-    - name: List Cap'n Proto Headers
-      run: |
+        echo "ARM GCC version:"
+        arm-none-eabi-gcc --version
+        echo "Listing Cap'n Proto Headers:"
         ls -l /usr/include/capnp/
-      shell: bash
-    - name: Install ZeroMQ
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libzmq3-dev
-      shell: bash
-    - name: Install OpenCL Headers
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y opencl-headers
       shell: bash
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
