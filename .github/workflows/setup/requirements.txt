@@ -1,3 +1,4 @@
 ipython
 jupyter
 jupyterlab
+compilation_db
