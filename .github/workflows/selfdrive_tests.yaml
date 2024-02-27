@@ -175,11 +175,6 @@ jobs:
         echo "Installing dependencies $runtime seconds"      
       shell: bash
     - uses: ./.github/workflows/setup-with-retry
-    - name: Install scons and print version
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y scons
-        scons --version
       shell: bash
     - name: Debugging Python Environment
       run: |
@@ -194,9 +189,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install numpy
       shell: bash
+    - name: Setup SCons virtual environment
+      run: |
+        python -m venv ~/sconsvenv 
+        source ~/sconsvenv/bin/activate
+        pip install scons
+      shell: bash
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
       run: |
+        source ~/sconsvenv/bin/activate
         export PYTHONPATH=$PYTHONPATH:$(python -c "import site; print(site.getsitepackages()[0])")
         scons -j$(nproc)
       shell: bash
