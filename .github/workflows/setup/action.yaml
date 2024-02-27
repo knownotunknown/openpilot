@@ -47,17 +47,6 @@ runs:
         echo "Installing VirtualGL took $runtime seconds"
       shell: bash
 
-
-
-    - name: Install dependencies
-      run: |
-        start=`date +%s`
-        pip install -r .github/workflows/setup/requirements.txt
-        end=`date +%s`
-        runtime=$((end-start))
-        echo "Installing dependencies $runtime seconds"      
-      shell: bash
-
     - name: Normalize file permissions
       run: |
         start=`date +%s`

@@ -29,6 +29,14 @@ jobs:
       with:
         python-version: '3.x'
         cache: 'pip'
+    - name: Install dependencies
+      run: |
+        start=`date +%s`
+        pip install -r .github/workflows/setup/requirements.txt
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing dependencies $runtime seconds"      
+      shell: bash
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -55,6 +63,13 @@ jobs:
       with:
         python-version: '3.x'
         cache: 'pip'
+    - name: Install dependencies
+      run: |
+        start=`date +%s`
+        pip install -r .github/workflows/setup/requirements.txt
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing dependencies $runtime seconds"     
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -77,6 +92,13 @@ jobs:
       with:
         python-version: '3.x'
         cache: 'pip'
+    - name: Install dependencies
+      run: |
+        start=`date +%s`
+        pip install -r .github/workflows/setup/requirements.txt
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing dependencies $runtime seconds"     
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -101,6 +123,13 @@ jobs:
       with:
         python-version: '3.x'
         cache: 'pip'
+    - name: Install dependencies
+      run: |
+        start=`date +%s`
+        pip install -r .github/workflows/setup/requirements.txt
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing dependencies $runtime seconds"     
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -136,6 +165,13 @@ jobs:
       with:
         python-version: '3.x'
         cache: 'pip'
+    - name: Install dependencies
+      run: |
+        start=`date +%s`
+        pip install -r .github/workflows/setup/requirements.txt
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing dependencies $runtime seconds"     
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -176,6 +212,13 @@ jobs:
       with:
         python-version: '3.x'
         cache: 'pip'
+    - name: Install dependencies
+      run: |
+        start=`date +%s`
+        pip install -r .github/workflows/setup/requirements.txt
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing dependencies $runtime seconds"     
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -239,6 +282,13 @@ jobs:
       with:
         python-version: '3.x'
         cache: 'pip'
+    - name: Install dependencies
+      run: |
+        start=`date +%s`
+        pip install -r .github/workflows/setup/requirements.txt
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing dependencies $runtime seconds"     
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -278,6 +328,13 @@ jobs:
       with:
         python-version: '3.x'
         cache: 'pip'
+    - name: Install dependencies
+      run: |
+        start=`date +%s`
+        pip install -r .github/workflows/setup/requirements.txt
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing dependencies $runtime seconds"     
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -331,6 +388,13 @@ jobs:
       with:
         python-version: '3.x'
         cache: 'pip'
+    - name: Install dependencies
+      run: |
+        start=`date +%s`
+        pip install -r .github/workflows/setup/requirements.txt
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing dependencies $runtime seconds"     
     - uses: ./.github/workflows/setup-with-retry
     - name: Install scons
       run: sudo apt-get install -y scons
@@ -380,6 +444,13 @@ jobs:
         with:
           python-version: '3.x'
           cache: 'pip'
+      - name: Install dependencies
+        run: |
+          start=`date +%s`
+          pip install -r .github/workflows/setup/requirements.txt
+          end=`date +%s`
+          runtime=$((end-start))
+          echo "Installing dependencies $runtime seconds"     
       - uses: ./.github/workflows/setup-with-retry
       - name: Install scons
         run: sudo apt-get install -y scons
@@ -452,6 +523,13 @@ jobs:
         with:
           python-version: '3.x'
           cache: 'pip'
+      - name: Install dependencies
+        run: |
+          start=`date +%s`
+          pip install -r .github/workflows/setup/requirements.txt
+          end=`date +%s`
+          runtime=$((end-start))
+          echo "Installing dependencies $runtime seconds"     
       - uses: ./.github/workflows/setup-with-retry
       - name: Install scons
         run: sudo apt-get install -y scons
