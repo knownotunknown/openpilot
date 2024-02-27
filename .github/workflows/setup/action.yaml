@@ -1,25 +1,11 @@
 name: 'openpilot env setup'
 
 env:
-  PYTHONWARNINGS: "ignore:DeprecationWarning"
-
-inputs:
-  sleep_time:
-    description: 'Time to sleep between retries'
-    required: false
-    default: '30'
-
+  
 runs:
-  using: "composite"
   steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    - name: Print Cache Key and Restore Key
-      run: |
-        echo "Cache Key: ${{ runner.os }}-pip-${{ hashFiles('.github/workflows/setup/requirements.txt') }}"
-        echo "Restore Key: ${{ runner.os }}-pip-"
-      shell: bash
 
     - name: Git LFS Pull
       run: |
@@ -47,16 +33,6 @@ runs:
       with:
         python-version: '3.x'
         cache: 'pip'
-
-    - name: Check Cache Hit Status
-      run: |
-        echo "Cache hit status: ${{ steps.cache-pip.outputs.cache-hit }}"
-        if [ "${{ steps.cache-pip.outputs.cache-hit }}" == "true" ]; then
-          echo "Cache was hit!"
-        else
-          echo "Cache was missed!"
-        fi
-      shell: bash
 
     - name: Install VirtualGL
       run: |
