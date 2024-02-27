@@ -217,6 +217,10 @@ jobs:
         qmake --version
       shell: bash
     - uses: ./.github/workflows/setup-with-retry
+    - name: List Cap'n Proto Headers
+      run: |
+        ls -l /usr/include/capnp/
+      shell: bash
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
       run: |
