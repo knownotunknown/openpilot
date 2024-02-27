@@ -171,6 +171,16 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y qt5-default
       shell: bash
+    - name: Install ARM GCC Toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-arm-none-eabi
+      shell: bash
+
+    - name: Verify ARM GCC Installation
+      run: |
+        arm-none-eabi-gcc --version
+      shell: bash
     - name: Setup Python virtual environment and install dependencies
       run: |
         python -m venv ~/sconsvenv
