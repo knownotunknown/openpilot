@@ -166,6 +166,11 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+    - name: Install Qt and other dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qt5-default
+      shell: bash
     - name: Setup Python virtual environment and install dependencies
       run: |
         python -m venv ~/sconsvenv
@@ -186,6 +191,8 @@ jobs:
         which python
         echo "Python version:"
         python --version
+        echo "QMake version:"
+        qmake --version
       shell: bash
     - uses: ./.github/workflows/setup-with-retry
     - name: Build openpilot
