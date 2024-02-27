@@ -15,9 +15,19 @@ runs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Print Cache Key and Restore Key
+      run: |
+        echo "Cache Key: ${{ runner.os }}-pip-${{ hashFiles('.github/workflows/setup/requirements.txt') }}"
+        echo "Restore Key: ${{ runner.os }}-pip-"
+      shell: bash
+
     - name: Git LFS Pull
       run: |
+        start=`date +%s`
         git lfs pull || { echo "Git LFS pull failed"; exit 1; }
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Git LFS Pull took $runtime seconds"
       shell: bash
 
     - name: Set up Python
@@ -27,13 +37,17 @@ runs:
 
     - name: Install system dependencies
       run: |
+        start=`date +%s`
         set -e
         sudo apt-get update
         sudo apt-get install -y vim net-tools usbutils htop ripgrep tmux wget mesa-utils xvfb libxtst6 libxv1 libglu1-mesa libegl1-mesa libosmesa6 libgl1-mesa-glx libgl1-mesa-dri libgles2-mesa libglapi-mesa libglx-mesa0 libglvnd0 libglx0
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing system dependencies took $runtime seconds"      
       shell: bash
 
     - name: Cache pip
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('.github/workflows/setup/requirements.txt') }}
@@ -42,21 +56,34 @@ runs:
 
     - name: Install VirtualGL
       run: |
+        start=`date +%s`
         set -e
         curl -L -o virtualgl.deb "https://downloads.sourceforge.net/project/virtualgl/$(curl -s https://api.github.com/repos/VirtualGL/virtualgl/releases/latest | grep 'tag_name' | cut -d '"' -f 4)/virtualgl_$(curl -s https://api.github.com/repos/VirtualGL/virtualgl/releases/latest | grep 'tag_name' | cut -d '"' -f 4)_$(dpkg --print-architecture).deb"
         sudo dpkg -i virtualgl.deb
         rm virtualgl.deb
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing VirtualGL took $runtime seconds"
       shell: bash
 
 
 
     - name: Install dependencies
-      run: pip install -r .github/workflows/setup/requirements.txt
+      run: |
+        start=`date +%s`
+        pip install -r .github/workflows/setup/requirements.txt
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing dependencies $runtime seconds"      
       shell: bash
 
     - name: Normalize file permissions
       run: |
+        start=`date +%s`
         set -e
         find . -type f -executable -not -perm 755 -exec chmod 755 {} \; || { echo "Failed to set executable files to 755"; exit 1; }
         find . -type f -not -executable -not -perm 644 -exec chmod 644 {} \; || { echo "Failed to set non-executable files to 644"; exit 1; }
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Normalizing file permissions took $runtime seconds" 
       shell: bash
