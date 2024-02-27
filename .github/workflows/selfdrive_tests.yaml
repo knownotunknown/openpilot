@@ -217,14 +217,6 @@ jobs:
         qmake --version
       shell: bash
     - uses: ./.github/workflows/setup-with-retry
-    - name: Verify Cap'n Proto Installation
-      run: |
-        capnp --version
-      shell: bash
-    - name: Locate Cap'n Proto Headers
-      run: |
-        sudo find / -name 'capnp' -type d
-      shell: bash
     - name: Install Cap'n Proto C++ Compiler
       run: |
         sudo apt-get update
@@ -233,6 +225,11 @@ jobs:
     - name: List Cap'n Proto Headers
       run: |
         ls -l /usr/include/capnp/
+      shell: bash
+    - name: Install ZeroMQ
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libzmq3-dev
       shell: bash
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
