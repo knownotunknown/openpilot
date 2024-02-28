@@ -225,28 +225,7 @@ jobs:
           valgrind \
           libavresample-dev \
           python-dev
-      shell: bash
-      
-    - name: Setup OpenCL (Intel)
-      run: |
-        # Specify the OpenCL driver version and URL
-        INTEL_DRIVER="l_opencl_p_18.1.0.015.tgz"
-        INTEL_DRIVER_URL="https://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532/${INTEL_DRIVER}"
-
-        # Download and extract the OpenCL driver
-        curl -O ${INTEL_DRIVER_URL}
-        tar -xzf ${INTEL_DRIVER}
-
-        # Install the driver (this step might need adjustments)
-        # For Intel drivers, it might involve executing an installation script or manually installing .deb files
-        # This is a placeholder command; replace it with the actual installation command for the driver
-        sudo dpkg -i ./*.deb
-
-        # Clean up downloaded files
-        rm ${INTEL_DRIVER} ./*.deb
-
-        # Set up OpenCL vendor files (if necessary)
-        echo "/opt/intel/opencl-1.2-6.4.0.25/lib64/libintelocl.so" | sudo tee /etc/OpenCL/vendors/intel.icd
+          intel-opencl-icd
       shell: bash
 
     - name: Cache Python Environment
