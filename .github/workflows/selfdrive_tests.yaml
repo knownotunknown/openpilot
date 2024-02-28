@@ -225,7 +225,8 @@ jobs:
           valgrind \
           libavresample-dev \
           python-dev \
-          intel-opencl-icd
+          intel-opencl-icd \
+          ocl-icd-opencl-dev 
       shell: bash
 
     - name: Cache Python Environment
@@ -271,6 +272,23 @@ jobs:
         arm-none-eabi-gcc --version
         echo "Listing Cap'n Proto Headers:"
         ls -l /usr/include/capnp/
+      shell: bash
+
+    - name: Verify libOpenCL.so presence
+      run: |
+        if ! find /usr -name libOpenCL.so; then
+          echo "libOpenCL.so not found, attempting to locate libOpenCL.so.1..."
+          if libpath=$(find /usr -name libOpenCL.so.1); then
+            echo "libOpenCL.so.1 found at $libpath"
+            echo "Creating a symlink for libOpenCL.so"
+            sudo ln -s $libpath ${libpath%.1}
+          else
+            echo "libOpenCL.so.1 also not found. Please ensure OpenCL runtime is properly installed."
+            exit 1
+          fi
+        else
+          echo "libOpenCL.so found."
+        fi
       shell: bash
 
     - name: Build openpilot
