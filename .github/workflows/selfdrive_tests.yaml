@@ -159,20 +159,20 @@ jobs:
       - name: Cache Python Environment
         uses: actions/cache@v3
         with:
-          path: ~/sconsvenv
+          path: ${{ github.workspace }}/sconsvenv
           key: ${{ runner.os }}-sconsvenv-${{ hashFiles('.github/workflows/setup/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-sconsvenv-
 
       - name: Setup Python Environment and Install Python Dependencies
         run: |
-          if [ ! -d "~/sconsvenv" ]; then
-            python -m venv ~/sconsvenv
-            source ~/sconsvenv/bin/activate
-            python -m pip install --upgrade pip
-            pip install -r .github/workflows/setup/requirements.txt
-            pip install numpy scons pycryptodome Cython
+          if [ ! -d "${{ github.workspace }}/sconsvenv" ]; then
+            python -m venv ${{ github.workspace }}/sconsvenv
           fi
+          source ${{ github.workspace }}/sconsvenv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r .github/workflows/setup/requirements.txt
+          pip install numpy scons pycryptodome Cython
           echo "SCons version:"
           scons --version
         shell: bash
@@ -212,7 +212,7 @@ jobs:
 
     - name: Debugging Environment
       run: |
-        source ~/sconsvenv/bin/activate
+        source ${{ github.workspace }}/sconsvenv/bin/activate
         echo "Listing installed Python packages:"
         pip list
         echo "Python executable path:"
