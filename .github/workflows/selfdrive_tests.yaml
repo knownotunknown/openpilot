@@ -257,11 +257,12 @@ jobs:
 
     - name: Setup Python Environment and Install Python Dependencies
       run: |
-        if [ -d "~/sconsvenv" ]; then
+        VENV_PATH="$HOME/sconsvenv"
+        if [ -d "$VENV_PATH" ]; then
           echo "Cache hit, skipping environment setup."
         else
-          python -m venv ~/sconsvenv
-          source ~/sconsvenv/bin/activate
+          python -m venv "$VENV_PATH"
+          source "$VENV_PATH/bin/activate"
           python -m pip install --upgrade pip
           pip install -r .github/workflows/setup/requirements.txt
           pip install numpy scons pycryptodome Cython  # Adding Cython here to ensure cythonize is available
