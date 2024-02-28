@@ -164,12 +164,12 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.x'
-    - uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+
+    - name: Set up Git LFS
+      run: |
+        git lfs install
+        git lfs pull
+    shell: bash
 
     - name: Install Qt and other dependencies
       run: |
@@ -177,19 +177,31 @@ jobs:
         sudo apt-get install -y qt5-default
       shell: bash
 
-    - name: Install Dependencies
+    - name: Install System Dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y gcc-arm-none-eabi capnproto libcapnp-dev libzmq3-dev opencl-headers
       shell: bash
 
+    - name: Cache Python Environment
+      uses: actions/cache@v3
+      with:
+        path: ~/sconsvenv
+        key: ${{ runner.os }}-sconsvenv-${{ hashFiles('.github/workflows/setup/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-sconsvenv-
+
     - name: Setup Python Environment and Install Python Dependencies
       run: |
-        python -m venv ~/sconsvenv
-        source ~/sconsvenv/bin/activate
-        python -m pip install --upgrade pip
-        pip install -r .github/workflows/setup/requirements.txt
-        pip install numpy scons pycryptodome Cython  # Adding Cython here to ensure cythonize is available
+        if [ -d "~/sconsvenv" ]; then
+          echo "Cache hit, skipping environment setup."
+        else
+          python -m venv ~/sconsvenv
+          source ~/sconsvenv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r .github/workflows/setup/requirements.txt
+          pip install numpy scons pycryptodome Cython  # Adding Cython here to ensure cythonize is available
+        fi
         echo "SCons version:"
         scons --version
       shell: bash
@@ -210,6 +222,7 @@ jobs:
         echo "Listing Cap'n Proto Headers:"
         ls -l /usr/include/capnp/
       shell: bash
+
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
       run: |
