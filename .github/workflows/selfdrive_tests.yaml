@@ -224,7 +224,7 @@ jobs:
           libqt5x11extras5-dev \
           valgrind \
           libavresample-dev \
-          python-dev
+          python-dev \
           intel-opencl-icd
       shell: bash
 
