@@ -151,33 +151,7 @@ jobs:
       run: cat selfdrive/test/valgrind_logs.txt
       shell: bash
 
-  setup-and-cache:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Cache Python Environment
-        uses: actions/cache@v3
-        with:
-          path: ~/sconsvenv
-          key: ${{ runner.os }}-sconsvenv-${{ hashFiles('.github/workflows/setup/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-sconsvenv-
-
-      - name: Setup Python Environment and Install Python Dependencies
-        run: |
-          if [ ! -d "~/sconsvenv" ]; then
-            python -m venv ~/sconsvenv
-            source ~/sconsvenv/bin/activate
-            python -m pip install --upgrade pip
-            pip install -r .github/workflows/setup/requirements.txt
-          fi
-          echo "SCons version:"
-          scons --version
-        shell: bash
-
   unit_tests:
-    needs: setup-and-cache
     name: unit tests
     runs-on: ${{ ((github.repository == 'commaai/openpilot') &&
                    ((github.event_name != 'pull_request') || 
@@ -207,6 +181,30 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y gcc-arm-none-eabi capnproto libcapnp-dev libzmq3-dev opencl-headers ocl-icd-libopencl1
+      shell: bash
+
+    - name: Cache Python Environment
+      uses: actions/cache@v3
+      if: always()
+      with:
+        path: ~/sconsvenv
+        key: ${{ runner.os }}-sconsvenv-${{ hashFiles('.github/workflows/setup/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-sconsvenv-
+
+    - name: Setup Python Environment and Install Python Dependencies
+      run: |
+        if [ -d "~/sconsvenv" ]; then
+          echo "Cache hit, skipping environment setup."
+        else
+          python -m venv ~/sconsvenv
+          source ~/sconsvenv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r .github/workflows/setup/requirements.txt
+          pip install numpy scons pycryptodome Cython  # Adding Cython here to ensure cythonize is available
+        fi
+        echo "SCons version:"
+        scons --version
       shell: bash
 
     - name: Debugging Environment
