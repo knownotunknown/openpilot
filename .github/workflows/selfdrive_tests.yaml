@@ -169,7 +169,7 @@ jobs:
       run: |
         git lfs install
         git lfs pull
-    shell: bash
+      shell: bash
 
     - name: Install Qt and other dependencies
       run: |
