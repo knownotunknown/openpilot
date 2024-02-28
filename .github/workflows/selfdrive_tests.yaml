@@ -249,8 +249,9 @@ jobs:
           pip install numpy scons pycryptodome Cython  # Adding Cython here to ensure cythonize is available
         fi
         source "$VENV_PATH/bin/activate"  # Ensure the virtual environment is activated
+        pip install scons  # Ensure scons is installed in the virtual environment
         echo "SCons version:"
-        scons --version
+        "$VENV_PATH/bin/scons" --version  # Use the absolute path
       shell: bash
 
     - name: Debugging Environment
