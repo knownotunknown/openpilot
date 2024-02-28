@@ -226,7 +226,8 @@ jobs:
           libavresample-dev \
           python-dev \
           intel-opencl-icd \
-          ocl-icd-opencl-dev 
+          ocl-icd-opencl-dev \
+          x11-xserver-utils
       shell: bash
 
     - name: Cache Python Environment
