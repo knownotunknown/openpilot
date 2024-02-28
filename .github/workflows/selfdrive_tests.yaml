@@ -303,6 +303,8 @@ jobs:
     - name: Run unit tests
       timeout-minutes: 15
       run: |
+        VENV_PATH="$HOME/sconsvenv"
+        source "$VENV_PATH/bin/activate"
         source selfdrive/test/setup_xvfb.sh
         pytest --timeout 60 -m 'not slow'
       shell: bash
@@ -312,6 +314,7 @@ jobs:
         name: ${{ github.job }}
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        
 
   process_replay:
     name: process replay
