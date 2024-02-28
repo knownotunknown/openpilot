@@ -43,7 +43,6 @@ inputs
 Jinja2
 lru-dict
 matplotlib
-metadrive-simulator
 mpld3
 mypy
 myst-parser
