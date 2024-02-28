@@ -26,3 +26,6 @@ smbus2
 sounddevice
 sympy
 websocket_client
+markdown-it-py
+timezonefinder
+setproctitle
