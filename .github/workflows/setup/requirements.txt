@@ -73,3 +73,7 @@ tenacity
 types-requests
 types-tabulate
 tqdm
+metadrive-simulator==0.4.2.3; platform_machine != 'aarch64'
+onnxruntime>=1.16.3; sys_platform == 'linux' and platform_machine == 'aarch64'
+onnxruntime-gpu>=1.16.3; sys_platform == 'linux' and platform_machine == 'x86_64'
+spidev; sys_platform == 'linux'
