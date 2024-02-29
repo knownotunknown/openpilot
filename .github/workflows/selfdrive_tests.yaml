@@ -118,29 +118,145 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
-    - name: Set up Python
-      uses: actions/setup-python@v5
+        - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.x'
-        cache: 'pip'
-    - name: Install dependencies
+        python-version: '3.11'
+
+    - name: Set up Git LFS
       run: |
-        start=`date +%s`
-        pip install -r .github/workflows/setup/requirements.txt
-        end=`date +%s`
-        runtime=$((end-start))
-        echo "Installing dependencies $runtime seconds"     
-    - uses: ./.github/workflows/setup-with-retry
-    - name: Install scons
-      run: sudo apt-get install -y scons
+        git lfs install
+        git lfs pull
       shell: bash
-    - name: Install dependencies
+
+    - name: Install Qt and other dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install numpy
+        sudo apt-get update
+        sudo apt-get install -y qt5-default
       shell: bash
+
+    - name: Install System Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          casync \
+          clang \
+          cmake \
+          cppcheck \
+          gcc-arm-none-eabi \
+          libarchive-dev \
+          capnproto \
+          libcapnp-dev \
+          libcurl4-openssl-dev \
+          ffmpeg \
+          libavformat-dev \
+          libavcodec-dev \
+          libavdevice-dev \
+          libavutil-dev \
+          libavfilter-dev \
+          libeigen3-dev \
+          libglew-dev \
+          libgles2-mesa-dev \
+          libglfw3-dev \
+          libncurses5-dev \
+          libncursesw5-dev \
+          libomp-dev \
+          libopencv-dev \
+          libportaudio2 \
+          libssl-dev \
+          libusb-1.0-0-dev \
+          libzmq3-dev \
+          libsystemd-dev \
+          opencl-headers \
+          ocl-icd-libopencl1 \
+          clinfo \
+          portaudio19-dev \
+          qml-module-qtquick2 \
+          qtmultimedia5-dev \
+          qtlocation5-dev \
+          qtpositioning5-dev \
+          qttools5-dev-tools \
+          libqt5svg5-dev \
+          libqt5charts5-dev \
+          libqt5serialbus5-dev \
+          libqt5x11extras5-dev \
+          valgrind \
+          libavresample-dev \
+          python-dev \
+          intel-opencl-icd \
+          ocl-icd-opencl-dev \
+          x11-xserver-utils
+      shell: bash
+
+    - name: Cache Python Environment
+      uses: actions/cache@v3
+      if: always()
+      with:
+        path: ~/sconsvenv
+        key: ${{ runner.os }}-sconsvenv-${{ hashFiles('.github/workflows/setup/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-sconsvenv-
+
+    - name: Setup Python Environment and Install Python Dependencies
+      run: |
+        VENV_PATH="$HOME/sconsvenv"
+        if [ -d "$VENV_PATH" ]; then
+          echo "Cache hit, skipping environment setup."
+        else
+          python -m venv "$VENV_PATH"
+          source "$VENV_PATH/bin/activate"
+          python -m pip install --upgrade pip
+          pip install -r .github/workflows/setup/requirements.txt
+          pip install numpy scons pycryptodome Cython  # Adding Cython here to ensure cythonize is available
+        fi
+        source "$VENV_PATH/bin/activate"  # Ensure the virtual environment is activated
+        pip install scons  # Ensure scons is installed in the virtual environment
+        echo "SCons version:"
+        "$VENV_PATH/bin/scons" --version  # Use the absolute path
+      shell: bash
+
+    - name: Debugging Environment
+      run: |
+        VENV_PATH="$HOME/sconsvenv"
+        source "$VENV_PATH/bin/activate"
+        echo "Listing installed Python packages:"
+        pip list
+        echo "Python executable path:"
+        which python
+        echo "Python version:"
+        python --version
+        echo "QMake version:"
+        qmake --version
+        echo "ARM GCC version:"
+        arm-none-eabi-gcc --version
+        echo "Listing Cap'n Proto Headers:"
+        ls -l /usr/include/capnp/
+      shell: bash
+
+    - name: Verify libOpenCL.so presence
+      run: |
+        if ! find /usr -name libOpenCL.so; then
+          echo "libOpenCL.so not found, attempting to locate libOpenCL.so.1..."
+          if libpath=$(find /usr -name libOpenCL.so.1); then
+            echo "libOpenCL.so.1 found at $libpath"
+            echo "Creating a symlink for libOpenCL.so"
+            sudo ln -s $libpath ${libpath%.1}
+          else
+            echo "libOpenCL.so.1 also not found. Please ensure OpenCL runtime is properly installed."
+            exit 1
+          fi
+        else
+          echo "libOpenCL.so found."
+        fi
+      shell: bash
+
     - name: Build openpilot
-      run: scons -j$(nproc)
+      timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
+      run: |
+        VENV_PATH="$HOME/sconsvenv"
+        source "$VENV_PATH/bin/activate"
+        export PYTHONPATH=$PYTHONPATH:$(python -c "import site; print(site.getsitepackages()[0])")
+        scons -j$(nproc)
       shell: bash
     - name: Run valgrind
       timeout-minutes: 1
