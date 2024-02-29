@@ -59,7 +59,7 @@ pywinctl
 pyprof2calltree
 pytest
 pytest-cov
-pytest-cpp
+pytest-cpp==2.5.0
 pytest-subtests
 pytest-xdist
 pytest-timeout
