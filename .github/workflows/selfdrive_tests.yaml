@@ -308,6 +308,7 @@ jobs:
         VENV_PATH="$HOME/sconsvenv"
         source "$VENV_PATH/bin/activate"
         source selfdrive/test/setup_xvfb.sh
+        export MAPBOX_TOKEN=${{ env.MAPBOX_TOKEN }}
         pytest --timeout 60 -m 'not slow'
       shell: bash
     - name: "Upload coverage to Codecov"
