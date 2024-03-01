@@ -110,6 +110,8 @@ RUN chmod -R 755 /opt/venv
 
 COPY tools/install_python_dependencies_directly.sh /tmp/tools/
 
+RUN chmod +x /tmp/tools/install_python_dependencies_directly.sh
+
 RUN cd /tmp && \
     /tmp/tools/install_python_dependencies_directly.sh /opt/venv && \
     rm -rf /tmp/* && \
