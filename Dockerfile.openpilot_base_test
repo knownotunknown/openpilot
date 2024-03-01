@@ -44,10 +44,10 @@ RUN python3 -m venv /opt/venv && \
     /opt/venv/bin/pip install --upgrade pip poetry && \
     poetry config virtualenvs.create false
 
-COPY tools/install_python_dependencies_directly.sh /tmp/tools/
-RUN chmod +x /tmp/tools/install_python_dependencies_directly.sh && \
+COPY tools/install_python_dependencies.sh /tmp/tools/
+RUN chmod +x /tmp/tools/install_python_dependencies.sh && \
     set -x && cd /tmp && \
-    ./tools/install_python_dependencies_directly.sh /opt/venv && \
+    ./tools/install_python_dependencies.sh /opt/venv && \
     rm -rf /tmp/*
 
 # Global git configuration
