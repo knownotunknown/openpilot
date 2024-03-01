@@ -79,6 +79,8 @@ COPY --chown=$USER pyproject.toml poetry.lock .python-version /tmp/
 #    git curl && \
 #    rm -rf /var/lib/apt/lists/*
 
+USER root
+
 # Update package lists
 RUN apt-get update
 
@@ -105,8 +107,6 @@ RUN python3 -m venv /opt/venv
 
 # Ensure all users can activate the virtual environment
 RUN chmod -R 755 /opt/venv
-
-USER root
 
 COPY tools/install_python_dependencies_directly.sh /tmp/tools/
 
