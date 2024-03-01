@@ -44,7 +44,12 @@ pyenv local "$PYENV_PYTHON_VERSION"
 
 # Update pip and install poetry
 pip install pip==23.3
+echo $PATH
+export PATH="$HOME/.local/bin:$PATH"
+echo $PATH
 pip install poetry==1.6.1
+
+export PATH="$HOME/.local/bin:$PATH"
 
 # Configure poetry
 poetry config virtualenvs.prefer-active-python true --local
