@@ -44,17 +44,12 @@ pyenv local "$PYENV_PYTHON_VERSION"
 
 # Update pip and install poetry
 pip install pip==23.3
-echo $PATH
-export PATH="$HOME/.local/bin:$PATH"
-echo $PATH
 pip install poetry==1.6.1
 
-export PATH="$HOME/.local/bin:$PATH"
-
-# Configure poetry
-poetry config virtualenvs.prefer-active-python true --local
-poetry config virtualenvs.in-project true --local
-poetry self add poetry-dotenv-plugin@^0.1.0
+# Directly invoke poetry using its full path to configure poetry settings and install plugins
+/usr/local/bin/poetry config virtualenvs.prefer-active-python true --local
+/usr/local/bin/poetry config virtualenvs.in-project true --local
+/usr/local/bin/poetry self add poetry-dotenv-plugin@^0.1.0
 
 # Install project dependencies using poetry
 poetry install --no-cache --no-root
