@@ -110,10 +110,12 @@ RUN chmod -R 755 /opt/venv
 
 COPY tools/install_python_dependencies_directly.sh /tmp/tools/
 
+# Make the script executable
 RUN chmod +x /tmp/tools/install_python_dependencies_directly.sh
 
-RUN cd /tmp && \
-    /tmp/tools/install_python_dependencies_directly.sh /opt/venv && \
+# Run the script with debugging enabled to help identify any issues
+RUN set -x && cd /tmp && \
+    ./tools/install_python_dependencies_directly.sh /opt/venv && \
     rm -rf /tmp/* && \
     rm -rf /home/$USER/.cache && \
     find /home/$USER/pyenv -type d -name ".git" | xargs rm -rf && \
