@@ -1,6 +1,6 @@
 if [ "$1" = "base" ]; then
-  export DOCKER_IMAGE=openpilot-base
-  export DOCKER_FILE=Dockerfile.openpilot_base_test
+  source ./openpilot_base.sh
+
 elif [ "$1" = "sim" ]; then
   export DOCKER_IMAGE=openpilot-sim
   export DOCKER_FILE=tools/sim/Dockerfile.sim
