@@ -14,6 +14,10 @@ runs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Echo confirmation
+      run: echo "Starting openpilot environment setup..."
+      shell: bash
+
     - name: Git LFS Pull
       run: |
         start=`date +%s`
@@ -24,16 +28,19 @@ runs:
       shell: bash
 
 
-    - name: Install system dependencies
+    - name: Install Ubuntu dependencies
       run: |
-        start=`date +%s`
-        set -e
         sudo apt-get update
-        sudo apt-get install -y vim net-tools usbutils htop ripgrep tmux wget mesa-utils xvfb libxtst6 libxv1 libglu1-mesa libegl1-mesa libosmesa6 libgl1-mesa-glx libgl1-mesa-dri libgles2-mesa libglapi-mesa libglx-mesa0 libglvnd0 libglx0
-        end=`date +%s`
-        runtime=$((end-start))
-        echo "Installing system dependencies took $runtime seconds"      
-      shell: bash
+        sudo ./tools/install_ubuntu_dependencies.sh
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+
+    - name: Install Python dependencies
+      run: |
+        ./tools/install_python_dependencies.sh
 
     - name: Install VirtualGL
       run: |
