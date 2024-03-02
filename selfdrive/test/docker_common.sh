@@ -1,6 +1,10 @@
 if [ "$1" = "base" ]; then
-  source ./openpilot_base.sh
-
+  if [ -f "$(dirname "$0")/openpilot_base.sh" ]; then
+    source "$(dirname "$0")/openpilot_base.sh"
+  else
+      echo "openpilot_base.sh not found in the script directory."
+      exit 1
+  fi
 elif [ "$1" = "sim" ]; then
   export DOCKER_IMAGE=openpilot-sim
   export DOCKER_FILE=tools/sim/Dockerfile.sim
