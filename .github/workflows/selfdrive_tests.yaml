@@ -31,11 +31,7 @@ jobs:
         git lfs pull
       shell: bash
 
-    - name: Build openpilot
-      timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }}
-      run: |
-        poetry run scons -j$(nproc)
-      shell: bash
+    - name: Build openpilot and run checks
       run: python selfdrive/manager/build.py
       shell: bash
       working-directory: ${{ github.workspace }}
