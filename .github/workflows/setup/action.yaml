@@ -34,16 +34,6 @@ runs:
         sudo ./tools/install_ubuntu_dependencies.sh
       shell: bash
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.11'
-
-    - name: Install Python dependencies
-      run: |
-        ./tools/install_python_dependencies.sh
-      shell: bash
-
     - name: Install VirtualGL
       run: |
         start=`date +%s`
@@ -55,6 +45,18 @@ runs:
         runtime=$((end-start))
         echo "Installing VirtualGL took $runtime seconds"
       shell: bash
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+
+    - name: Install Python dependencies
+      run: |
+        ./tools/install_python_dependencies.sh
+      shell: bash
+
+
 
     - name: Normalize file permissions
       run: |
