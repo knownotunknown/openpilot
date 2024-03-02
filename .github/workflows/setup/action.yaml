@@ -38,7 +38,7 @@ runs:
       run: |
         start=`date +%s`
         set -e
-        curl -L -o virtualgl.deb "https://downloads.sourceforge.net/project/virtualgl/$(curl -s https://api.github.com/repos/VirtualGL/virtualgl/releases/latest | grep 'tag_name' | cut -d '"' -f 4)/virtualgl_$(curl -s https://api.github.com/repos/VirtualGL/virtualgl/releases/latest | grep 'tag_name' | cut -d '"' -f 4)_$(dpkg --print-architecture).deb"
+        curl -L -o virtualgl.deb "https://downloads.sourceforge.net/project/virtualgl/2.6.5/virtualgl_2.6.5_amd64.deb"
         sudo dpkg -i virtualgl.deb
         rm virtualgl.deb
         end=`date +%s`
