@@ -42,6 +42,38 @@ runs:
         echo "Installing Ubuntu dependencies took $runtime seconds"
       shell: bash
 
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot apt-utils alien unzip tar curl xz-utils dbus gcc-arm-none-eabi tmux vim lsb-core libx11-6
+        sudo sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && sudo locale-gen
+      shell: bash
+
+    # Set environment variables
+    - name: Set environment variables
+      run: |
+        echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
+        echo "LANGUAGE=en_US:en" >> $GITHUB_ENV
+        echo "LC_ALL=en_US.UTF-8" >> $GITHUB_ENV
+        echo "NVIDIA_VISIBLE_DEVICES=all" >> $GITHUB_ENV
+        echo "NVIDIA_DRIVER_CAPABILITIES=graphics,utility,compute" >> $GITHUB_ENV
+        echo "QTWEBENGINE_DISABLE_SANDBOX=1" >> $GITHUB_ENV
+
+    - name: Install OpenCL
+      run: |
+        INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
+        INTEL_DRIVER_URL=https://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532
+        mkdir -p /tmp/opencl-driver-intel
+        cd /tmp/opencl-driver-intel
+        curl -O $INTEL_DRIVER_URL/$INTEL_DRIVER
+        tar -xzf $INTEL_DRIVER
+        for i in $(basename $INTEL_DRIVER .tgz)/rpm/*.rpm; do sudo alien --to-deb $i; done
+        sudo dpkg -i *.deb
+        sudo mkdir -p /etc/OpenCL/vendors
+        echo /opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/libintelocl.so | sudo tee /etc/OpenCL/vendors/intel.icd
+        cd /
+        sudo rm -rf /tmp/opencl-driver-intel
+      shell: bash
+
     # - name: Install VirtualGL
     #   run: |
     #     start=`date +%s`
