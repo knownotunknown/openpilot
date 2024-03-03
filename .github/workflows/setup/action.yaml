@@ -123,3 +123,4 @@ runs:
     - name: Print timings
       run: |
         cat $GITHUB_ENV
+      shell: bash
