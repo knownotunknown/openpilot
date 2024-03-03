@@ -15,7 +15,12 @@ runs:
       uses: actions/checkout@v4
 
     - name: Echo confirmation
-      run: echo "Starting openpilot environment setup..."
+      run: |
+        start=`date +%s`
+        echo "Starting openpilot environment setup..."
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Echo confirmation took $runtime seconds"
       shell: bash
 
     - name: Git LFS Pull
@@ -30,7 +35,11 @@ runs:
 
     - name: Install Ubuntu dependencies
       run: |
+        start=`date +%s`
         sudo apt-get update && sudo ./tools/install_ubuntu_dependencies.sh
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing Ubuntu dependencies took $runtime seconds"
       shell: bash
 
     # - name: Install VirtualGL
@@ -60,7 +69,11 @@ runs:
 
     - name: Install Python dependencies
       run: |
+        start=`date +%s`
         ./tools/install_python_dependencies.sh
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Installing Python dependencies took $runtime seconds"
       shell: bash
 
 
