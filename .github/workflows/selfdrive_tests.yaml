@@ -172,7 +172,7 @@ jobs:
       run: |
         ${{ env.RUN }} "source selfdrive/test/setup_xvfb.sh && \
                         export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && \
-                        $PYTEST --timeout 60 -m 'not slow' 
+                        $PYTEST --timeout 60 -m 'not slow'"
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v3
       with:
