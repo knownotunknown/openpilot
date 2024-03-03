@@ -20,7 +20,7 @@ runs:
         echo "Starting openpilot environment setup..."
         end=$(date +%s)
         runtime=$((end-start))
-        echo "Echo confirmation took $runtime seconds" >> $GITHUB_ENV
+        echo "ECHO_CONFIRMATION_RUNTIME=$runtime" >> $GITHUB_ENV
       shell: bash
 
     - name: Git LFS Pull
@@ -29,7 +29,7 @@ runs:
         git lfs pull || { echo "Git LFS pull failed"; exit 1; }
         end=$(date +%s)
         runtime=$((end-start))
-        echo "Git LFS Pull took $runtime seconds" >> $GITHUB_ENV
+        echo "GIT_LFS_PULL_RUNTIME=$runtime" >> $GITHUB_ENV
       shell: bash
 
 
@@ -39,7 +39,7 @@ runs:
         sudo apt-get update && sudo ./tools/install_ubuntu_dependencies.sh
         end=$(date +%s)
         runtime=$((end-start))
-        echo "Installing Ubuntu dependencies took $runtime seconds" >> $GITHUB_ENV
+        echo "UBUNTU_DEPS_RUNTIME=$runtime" >> $GITHUB_ENV
       shell: bash
 
     - name: Install dependencies
@@ -117,10 +117,14 @@ runs:
         find . -type f -not -executable -not -perm 644 -exec chmod 644 {} \; || { echo "Failed to set non-executable files to 644"; exit 1; }
         end=$(date +%s)
         runtime=$((end-start))
-        echo "Normalizing file permissions took $runtime seconds" >> $GITHUB_ENV
+        echo "NORM_FILE_PERMS_RUNTIME=$runtime" >> $GITHUB_ENV
       shell: bash
 
     - name: Print timings
       run: |
-        cat $GITHUB_ENV
+        echo "Echo confirmation runtime: $ECHO_CONFIRMATION_RUNTIME seconds"
+        echo "Git LFS Pull runtime: $GIT_LFS_PULL_RUNTIME seconds"
+        echo "Ubuntu dependencies installation runtime: $UBUNTU_DEPS_RUNTIME seconds"
+        echo "Normalization of file permissions runtime: $NORM_FILE_PERMS_RUNTIME seconds"
+        # Add similar echo statements for other timings you have recorded
       shell: bash
