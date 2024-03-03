@@ -58,6 +58,11 @@ runs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.11'
+    - name: Install Poetry
+      run: |
+        POETRY_VERSION=1.6.1 curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+      shell: bash
 
     - name: Cache Poetry virtual environment
       uses: actions/cache@v3
