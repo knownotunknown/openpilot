@@ -149,7 +149,7 @@ runs:
         ./tools/install_python_dependencies.sh
         end=$(date +%s)
         runtime=$((end-start))
-        echo "Installing Python dependencies took $runtime seconds" >> $GITHUB_ENV
+        echo "PYTHON_DEPS_INSTALL_TIME=$runtime" >> $GITHUB_ENV
       shell: bash
 
 
@@ -167,16 +167,17 @@ runs:
     - name: Print timings
       run: |
         echo "Cache hit statuses:"
-        echo "OpenCL Driver: $CACHE_HIT_OPENCL_DRIVER"
-        echo "Pyenv: $CACHE_HIT_PYENV"
-        echo "Pip: $CACHE_HIT_PIP"
-        echo "Pre-commit Hooks: $CACHE_HIT_PRE_COMMIT"
-        echo "Poetry Virtual Environment: $CACHE_HIT_POETRY_VENV"
+        echo "OpenCL Driver: ${CACHE_HIT_OPENCL_DRIVER}"
+        echo "Pyenv: ${CACHE_HIT_PYENV}"
+        echo "Pip: ${CACHE_HIT_PIP}"
+        echo "Pre-commit Hooks: ${CACHE_HIT_PRE_COMMIT}"
+        echo "Poetry Virtual Environment: ${CACHE_HIT_POETRY_VENV}"
 
         echo "Runtime debug messages:"
-        echo "Echo confirmation runtime: $ECHO_CONFIRMATION_RUNTIME seconds"
-        echo "Git LFS Pull runtime: $GIT_LFS_PULL_RUNTIME seconds"
-        echo "Ubuntu dependencies installation runtime: $UBUNTU_DEPS_RUNTIME seconds"
-        echo "Normalization of file permissions runtime: $NORM_FILE_PERMS_RUNTIME seconds"
+        echo "Echo confirmation runtime: ${ECHO_CONFIRMATION_RUNTIME} seconds"
+        echo "Git LFS Pull runtime: ${GIT_LFS_PULL_RUNTIME} seconds"
+        echo "Ubuntu dependencies installation runtime: ${UBUNTU_DEPS_RUNTIME} seconds"
+        echo "Python dependencies installation runtime: ${PYTHON_DEPS_INSTALL_TIME} seconds"
+        echo "Normalization of file permissions runtime: ${NORM_FILE_PERMS_RUNTIME} seconds"
         # Add similar echo statements for other timings you have recorded
       shell: bash
