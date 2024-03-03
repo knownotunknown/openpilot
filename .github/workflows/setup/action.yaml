@@ -64,6 +64,8 @@ runs:
       with:
         path: /tmp/opencl-driver-intel
         key: opencl-driver-${{ hashFiles('**/INTEL_DRIVER') }}
+      - run: echo "CACHE_HIT_OPENCL_DRIVER=${{ steps.cache-opencl-driver.outputs.cache-hit }}" >> $GITHUB_ENV
+
 
     - name: Install OpenCL
       run: |
@@ -80,6 +82,37 @@ runs:
         cd /
         sudo rm -rf /tmp/opencl-driver-intel
       shell: bash
+
+    - name: Cache pyenv and Python versions
+      uses: actions/cache@v2
+      with:
+        path: |
+          $HOME/.pyenv
+        key: ${{ runner.os }}-pyenv-${{ hashFiles('.python-version') }}
+        restore-keys: |
+          ${{ runner.os }}-pyenv-
+        - run: echo "CACHE_HIT_PYENV=${{ steps.cache-pyenv.outputs.cache-hit }}" >> $GITHUB_ENV
+
+
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        path: |
+          $HOME/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+      - run: echo "CACHE_HIT_PIP=${{ steps.cache-pip.outputs.cache-hit }}" >> $GITHUB_ENV
+
+
+    - name: Cache pre-commit hooks
+      uses: actions/cache@v2
+      with:
+        path: |
+          .cache/pre-commit
+        key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+      - run: echo "CACHE_HIT_PRE_COMMIT=${{ steps.cache-pre-commit.outputs.cache-hit }}" >> $GITHUB_ENV
+
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -98,6 +131,7 @@ runs:
           ~/.cache/pypoetry/virtualenvs
           ~/.cache/pypoetry/artifacts
         key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+      - run: echo "CACHE_HIT_POETRY_VENV=${{ steps.cache-poetry-venv.outputs.cache-hit }}" >> $GITHUB_ENV
 
     - name: Install Python dependencies
       run: |
@@ -122,6 +156,14 @@ runs:
 
     - name: Print timings
       run: |
+        echo "Cache hit statuses:"
+        echo "OpenCL Driver: $CACHE_HIT_OPENCL_DRIVER"
+        echo "Pyenv: $CACHE_HIT_PYENV"
+        echo "Pip: $CACHE_HIT_PIP"
+        echo "Pre-commit Hooks: $CACHE_HIT_PRE_COMMIT"
+        echo "Poetry Virtual Environment: $CACHE_HIT_POETRY_VENV"
+
+        echo "Runtime debug messages:"
         echo "Echo confirmation runtime: $ECHO_CONFIRMATION_RUNTIME seconds"
         echo "Git LFS Pull runtime: $GIT_LFS_PULL_RUNTIME seconds"
         echo "Ubuntu dependencies installation runtime: $UBUNTU_DEPS_RUNTIME seconds"
