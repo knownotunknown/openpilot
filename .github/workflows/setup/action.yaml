@@ -1,63 +1,76 @@
 name: 'openpilot env setup'
 
+env:
+
 inputs:
-  docker_hub_pat:
-    description: 'Auth token for Docker Hub, required for BuildJet jobs'
-    required: true
-    default: ''
-  is_retried:
-    description: 'A mock param that asserts that we use the setup-with-retry instead of this action directly'
+  sleep_time:
+    description: 'Time to sleep between retries'
     required: false
-    default: 'false'
+    default: '30'
 
 runs:
   using: "composite"
   steps:
-    # assert that this action is retried using the setup-with-retry
-    - shell: bash
-      if: ${{ inputs.is_retried == 'false' }}
-      run: |
-        echo "You should not run this action directly. Use setup-with-retry instead"
-        exit 1
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-    # do this after checkout to ensure our custom LFS config is used to pull from GitLab
-    - shell: bash
-      run: git lfs pull
-
-    # on BuildJet runners, must be logged into DockerHub to avoid rate limiting
-    # https://buildjet.com/for-github-actions/docs/guides/docker
-    - shell: bash
-      if: ${{ contains(runner.name, 'buildjet') && inputs.docker_hub_pat == '' }}
-      run: |
-        echo "Need to set the Docker Hub PAT secret as an input to this action"
-        exit 1
-    - name: Login to Docker Hub
-      if: contains(runner.name, 'buildjet')
+    - name: Echo confirmation
+      run: echo "Starting openpilot environment setup..."
       shell: bash
-      run: |
-        docker login -u adeebshihadeh -p ${{ inputs.docker_hub_pat }}
 
-    # build cache
-    - id: date
+    - name: Git LFS Pull
+      run: |
+        start=`date +%s`
+        git lfs pull || { echo "Git LFS pull failed"; exit 1; }
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Git LFS Pull took $runtime seconds"
       shell: bash
-      run: echo "CACHE_COMMIT_DATE=$(git log -1 --pretty='format:%cd' --date=format:'%Y-%m-%d-%H:%M')" >> $GITHUB_ENV
-    - shell: bash
-      run: echo "$CACHE_COMMIT_DATE"
-    - id: scons-cache
-      uses: ./.github/workflows/auto-cache
+
+
+    - name: Install Ubuntu dependencies
+      run: |
+        sudo apt-get update && sudo ./tools/install_ubuntu_dependencies.sh
+      shell: bash
+
+    # - name: Install VirtualGL
+    #   run: |
+    #     start=`date +%s`
+    #     set -e
+    #     curl -L -o virtualgl.deb "https://downloads.sourceforge.net/project/virtualgl/2.6.5/virtualgl_2.6.5_amd64.deb"
+    #     sudo dpkg -i virtualgl.deb
+    #     rm virtualgl.deb
+    #     end=`date +%s`
+    #     runtime=$((end-start))
+    #     echo "Installing VirtualGL took $runtime seconds"
+    #   shell: bash
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
       with:
-        path: .ci_cache/scons_cache
-        key: scons-${{ runner.arch }}-${{ env.CACHE_COMMIT_DATE }}-${{ github.sha }}
+        python-version: '3.11'
+
+    - name: Cache Poetry virtual environment
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pypoetry
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
-          scons-${{ runner.arch }}-${{ env.CACHE_COMMIT_DATE }}
-          scons-${{ runner.arch }}
-    # as suggested here: https://github.com/moby/moby/issues/32816#issuecomment-910030001
-    - id: normalize-file-permissions
-      shell: bash
-      name: Normalize file permissions to ensure a consistent docker build cache
+          ${{ runner.os }}-poetry-
+
+    - name: Install Python dependencies
       run: |
-        find . -type f -executable -not -perm 755 -exec chmod 755 {} \;
-        find . -type f -not -executable -not -perm 644 -exec chmod 644 {} \;
-    # build our docker image
-    - shell: bash
-      run: eval ${{ env.BUILD }}
+        ./tools/install_python_dependencies.sh
+      shell: bash
+
+
+    - name: Normalize file permissions
+      run: |
+        start=`date +%s`
+        set -e
+        find . -type f -executable -not -perm 755 -exec chmod 755 {} \; || { echo "Failed to set executable files to 755"; exit 1; }
+        find . -type f -not -executable -not -perm 644 -exec chmod 644 {} \; || { echo "Failed to set non-executable files to 644"; exit 1; }
+        end=`date +%s`
+        runtime=$((end-start))
+        echo "Normalizing file permissions took $runtime seconds"
+      shell: bash
