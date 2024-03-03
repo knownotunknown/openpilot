@@ -173,8 +173,11 @@ jobs:
       timeout-minutes: 15
       run: |
         source selfdrive/test/setup_xvfb.sh
-        export MAPBOX_TOKEN=${{ env.MAPBOX_TOKEN }}
+        export MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }}
         poetry run pytest --timeout 60 -m 'not slow'
+        ./selfdrive/ui/tests/create_test_translations.sh
+        QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations
+        ./selfdrive/ui/tests/test_translations.py
       shell: bash
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v3
