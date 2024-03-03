@@ -11,9 +11,15 @@ if [ "$(uname)" == "Darwin" ] && [ $SHELL == "/bin/bash" ]; then
 fi
 
 if ! command -v "pyenv" > /dev/null 2>&1; then
-  echo "pyenv install ..."
-  curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
-  PYENV_PATH_SETUP="export PATH=\$HOME/.pyenv/bin:\$HOME/.pyenv/shims:\$PATH"
+  echo "pyenv not found in PATH. Installing pyenv..."
+  if [ -d "$HOME/.pyenv" ]; then
+    echo "Found existing .pyenv directory. Skipping pyenv installation."
+  else
+    curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+    PYENV_PATH_SETUP="export PATH=\$HOME/.pyenv/bin:\$HOME/.pyenv/shims:\$PATH"
+  fi
+else
+  echo "pyenv is already installed."
 fi
 
 if [ -z "$PYENV_SHELL" ] || [ -n "$PYENV_PATH_SETUP" ]; then
@@ -55,7 +61,6 @@ eval "$(pyenv init --path)"
 
 echo "update pip"
 pip install pip==23.3
-pip install poetry==1.6.1
 
 poetry config virtualenvs.prefer-active-python true --local
 poetry config virtualenvs.in-project true --local
