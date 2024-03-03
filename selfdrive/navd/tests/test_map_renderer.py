@@ -100,7 +100,7 @@ class TestMapRenderer(unittest.TestCase):
     assert self.vipc.connect(False)
     self.vipc.recv()
 
-  def _run_test(self, expect_valid, locations=LOCATION1_REPEATED):
+  def _run_tempGUPTA(self, expect_valid, locations=LOCATION1_REPEATED):
     starting_frame_id = None
 
     render_times = []
