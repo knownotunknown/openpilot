@@ -16,30 +16,30 @@ runs:
 
     - name: Echo confirmation
       run: |
-        start=`date +%s`
+        start=$(date +%s)
         echo "Starting openpilot environment setup..."
-        end=`date +%s`
+        end=$(date +%s)
         runtime=$((end-start))
-        echo "Echo confirmation took $runtime seconds"
+        echo "Echo confirmation took $runtime seconds" >> $GITHUB_ENV
       shell: bash
 
     - name: Git LFS Pull
       run: |
-        start=`date +%s`
+        start=$(date +%s)
         git lfs pull || { echo "Git LFS pull failed"; exit 1; }
-        end=`date +%s`
+        end=$(date +%s)
         runtime=$((end-start))
-        echo "Git LFS Pull took $runtime seconds"
+        echo "Git LFS Pull took $runtime seconds" >> $GITHUB_ENV
       shell: bash
 
 
     - name: Install Ubuntu dependencies
       run: |
-        start=`date +%s`
+        start=$(date +%s)
         sudo apt-get update && sudo ./tools/install_ubuntu_dependencies.sh
-        end=`date +%s`
+        end=$(date +%s)
         runtime=$((end-start))
-        echo "Installing Ubuntu dependencies took $runtime seconds"
+        echo "Installing Ubuntu dependencies took $runtime seconds" >> $GITHUB_ENV
       shell: bash
 
     - name: Install dependencies
@@ -101,21 +101,25 @@ runs:
 
     - name: Install Python dependencies
       run: |
-        start=`date +%s`
+        start=$(date +%s)
         ./tools/install_python_dependencies.sh
-        end=`date +%s`
+        end=$(date +%s)
         runtime=$((end-start))
-        echo "Installing Python dependencies took $runtime seconds"
+        echo "Installing Python dependencies took $runtime seconds" >> $GITHUB_ENV
       shell: bash
 
 
     - name: Normalize file permissions
       run: |
-        start=`date +%s`
+        start=$(date +%s)
         set -e
         find . -type f -executable -not -perm 755 -exec chmod 755 {} \; || { echo "Failed to set executable files to 755"; exit 1; }
         find . -type f -not -executable -not -perm 644 -exec chmod 644 {} \; || { echo "Failed to set non-executable files to 644"; exit 1; }
-        end=`date +%s`
+        end=$(date +%s)
         runtime=$((end-start))
-        echo "Normalizing file permissions took $runtime seconds"
+        echo "Normalizing file permissions took $runtime seconds" >> $GITHUB_ENV
       shell: bash
+
+    - name: Print timings
+      run: |
+        cat $GITHUB_ENV
