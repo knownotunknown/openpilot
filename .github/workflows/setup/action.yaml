@@ -59,6 +59,12 @@ runs:
         echo "QTWEBENGINE_DISABLE_SANDBOX=1" >> $GITHUB_ENV
       shell: bash
 
+    - name: Cache OpenCL Driver
+      uses: actions/cache@v3
+      with:
+        path: /tmp/opencl-driver-intel
+        key: opencl-driver-${{ hashFiles('**/INTEL_DRIVER') }}
+
     - name: Install OpenCL
       run: |
         INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
@@ -75,18 +81,6 @@ runs:
         sudo rm -rf /tmp/opencl-driver-intel
       shell: bash
 
-    # - name: Install VirtualGL
-    #   run: |
-    #     start=`date +%s`
-    #     set -e
-    #     curl -L -o virtualgl.deb "https://downloads.sourceforge.net/project/virtualgl/2.6.5/virtualgl_2.6.5_amd64.deb"
-    #     sudo dpkg -i virtualgl.deb
-    #     rm virtualgl.deb
-    #     end=`date +%s`
-    #     runtime=$((end-start))
-    #     echo "Installing VirtualGL took $runtime seconds"
-    #   shell: bash
-
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -100,10 +94,10 @@ runs:
     - name: Cache Poetry virtual environment
       uses: actions/cache@v3
       with:
-        path: ~/.cache/pypoetry
+        path: |
+          ~/.cache/pypoetry/virtualenvs
+          ~/.cache/pypoetry/artifacts
         key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-poetry-
 
     - name: Install Python dependencies
       run: |

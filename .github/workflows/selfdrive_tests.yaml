@@ -187,7 +187,7 @@ jobs:
         source selfdrive/test/setup_xvfb.sh
         export MAPBOX_TOKEN=${{ env.MAPBOX_TOKEN }}
         poetry run pytest --timeout 60 -m 'not slow'
-        ./selfdrive/ui/tests/create_test_translations.sh  
+        ./selfdrive/ui/tests/create_test_translations.sh
         QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations
         poetry run python ./selfdrive/ui/tests/test_translations.py
       shell: bash
@@ -280,24 +280,37 @@ jobs:
       with:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
-    - name: Build base Docker image
-      run: eval "$BUILD"
+
+    - name: Cache SCons Environment
+      id: cache-scons-env
+      uses: actions/cache@v4
+      if: always()
+      with:
+        path: .ci_cache/scons_cache
+        key: ${{ runner.os }}-scons-${{ hashFiles('**/poetry.lock', '**/*.scons', '**/SConstruct') }}-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-scons-${{ hashFiles('**/poetry.lock', '**/*.scons', '**/SConstruct') }}-
+          ${{ runner.os }}-scons-
+
+
     - name: Build openpilot
+      timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }}
       run: |
-        ${{ env.RUN }} "scons -j$(nproc)"
+        poetry run scons -j$(nproc)
+      shell: bash
     # PYTHONWARNINGS triggers a SyntaxError in onnxruntime
     - name: Run model replay with ONNX
       timeout-minutes: 4
       run: |
-        ${{ env.RUN }} "unset PYTHONWARNINGS && \
-                           ONNXCPU=1 NO_NAV=1 coverage run selfdrive/test/process_replay/model_replay.py && \
-                           coverage combine && \
-                           coverage xml"
+        unset PYTHONWARNINGS && \
+        ONNXCPU=1 NO_NAV=1 coverage poetry run selfdrive/test/process_replay/model_replay.py && \
+        coverage combine && \
+        coverage xml
     - name: Run unit tests
       timeout-minutes: 4
       run: |
-        ${{ env.RUN }} "unset PYTHONWARNINGS && \
-                           $PYTEST selfdrive/modeld"
+        unset PYTHONWARNINGS && \
+        $PYTEST selfdrive/modeld"
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v3
       with:
