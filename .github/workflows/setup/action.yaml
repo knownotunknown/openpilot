@@ -64,7 +64,8 @@ runs:
       with:
         path: /tmp/opencl-driver-intel
         key: opencl-driver-${{ hashFiles('**/INTEL_DRIVER') }}
-      - run: echo "CACHE_HIT_OPENCL_DRIVER=${{ steps.cache-opencl-driver.outputs.cache-hit }}" >> $GITHUB_ENV
+
+    - run: echo "CACHE_HIT_OPENCL_DRIVER=${{ steps.cache-opencl-driver.outputs.cache-hit }}" >> $GITHUB_ENV
 
 
     - name: Install OpenCL
@@ -91,7 +92,8 @@ runs:
         key: ${{ runner.os }}-pyenv-${{ hashFiles('.python-version') }}
         restore-keys: |
           ${{ runner.os }}-pyenv-
-        - run: echo "CACHE_HIT_PYENV=${{ steps.cache-pyenv.outputs.cache-hit }}" >> $GITHUB_ENV
+
+    - run: echo "CACHE_HIT_PYENV=${{ steps.cache-pyenv.outputs.cache-hit }}" >> $GITHUB_ENV
 
 
     - name: Cache pip
@@ -102,7 +104,8 @@ runs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-      - run: echo "CACHE_HIT_PIP=${{ steps.cache-pip.outputs.cache-hit }}" >> $GITHUB_ENV
+
+    - run: echo "CACHE_HIT_PIP=${{ steps.cache-pip.outputs.cache-hit }}" >> $GITHUB_ENV
 
 
     - name: Cache pre-commit hooks
@@ -111,7 +114,8 @@ runs:
         path: |
           .cache/pre-commit
         key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
-      - run: echo "CACHE_HIT_PRE_COMMIT=${{ steps.cache-pre-commit.outputs.cache-hit }}" >> $GITHUB_ENV
+
+    - run: echo "CACHE_HIT_PRE_COMMIT=${{ steps.cache-pre-commit.outputs.cache-hit }}" >> $GITHUB_ENV
 
 
     - name: Set up Python
@@ -131,7 +135,8 @@ runs:
           ~/.cache/pypoetry/virtualenvs
           ~/.cache/pypoetry/artifacts
         key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-      - run: echo "CACHE_HIT_POETRY_VENV=${{ steps.cache-poetry-venv.outputs.cache-hit }}" >> $GITHUB_ENV
+
+    - run: echo "CACHE_HIT_POETRY_VENV=${{ steps.cache-poetry-venv.outputs.cache-hit }}" >> $GITHUB_ENV
 
     - name: Install Python dependencies
       run: |
