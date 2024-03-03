@@ -66,7 +66,7 @@ runs:
         key: opencl-driver-${{ hashFiles('**/INTEL_DRIVER') }}
 
     - run: echo "CACHE_HIT_OPENCL_DRIVER=${{ steps.cache-opencl-driver.outputs.cache-hit }}" >> $GITHUB_ENV
-    shell: bash
+      shell: bash
 
 
     - name: Install OpenCL
@@ -95,7 +95,7 @@ runs:
           ${{ runner.os }}-pyenv-
 
     - run: echo "CACHE_HIT_PYENV=${{ steps.cache-pyenv.outputs.cache-hit }}" >> $GITHUB_ENV
-    shell: bash
+      shell: bash
 
 
     - name: Cache pip
@@ -108,7 +108,7 @@ runs:
           ${{ runner.os }}-pip-
 
     - run: echo "CACHE_HIT_PIP=${{ steps.cache-pip.outputs.cache-hit }}" >> $GITHUB_ENV
-    shell: bash
+      shell: bash
 
 
     - name: Cache pre-commit hooks
@@ -119,7 +119,7 @@ runs:
         key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
 
     - run: echo "CACHE_HIT_PRE_COMMIT=${{ steps.cache-pre-commit.outputs.cache-hit }}" >> $GITHUB_ENV
-    shell: bash
+      shell: bash
 
 
     - name: Set up Python
@@ -141,7 +141,7 @@ runs:
         key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
 
     - run: echo "CACHE_HIT_POETRY_VENV=${{ steps.cache-poetry-venv.outputs.cache-hit }}" >> $GITHUB_ENV
-    shell: bash
+      shell: bash
 
     - name: Install Python dependencies
       run: |
