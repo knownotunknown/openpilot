@@ -57,6 +57,7 @@ runs:
         echo "NVIDIA_VISIBLE_DEVICES=all" >> $GITHUB_ENV
         echo "NVIDIA_DRIVER_CAPABILITIES=graphics,utility,compute" >> $GITHUB_ENV
         echo "QTWEBENGINE_DISABLE_SANDBOX=1" >> $GITHUB_ENV
+      shell: bash
 
     - name: Install OpenCL
       run: |
