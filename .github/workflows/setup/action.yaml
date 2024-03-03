@@ -95,15 +95,13 @@ runs:
           libqt5sql5-sqlite \
           libqt5svg5-dev \
           libqt5charts5-dev \
-          libqt5serialbus5-dev  \
+          libqt5serialbus5-dev \
           libqt5x11extras5-dev \
           libreadline-dev \
           libdw1 \
           valgrind \
-          # Additional packages for Ubuntu 20.04
           libavresample-dev \
-          qt5-default \
-          python-dev
+          python3-dev  # Using python3-dev for Python 3
         end=$(date +%s)
         runtime=$((end-start))
         echo "UBUNTU_DEPS_RUNTIME=$runtime" >> $GITHUB_ENV
