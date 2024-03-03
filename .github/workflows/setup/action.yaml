@@ -42,6 +42,9 @@ runs:
           build-essential \
           ca-certificates \
           casync \
+          clang \
+          cmake \
+          make \
           cppcheck \
           libtool \
           gcc-arm-none-eabi \
@@ -51,7 +54,9 @@ runs:
           libbz2-dev \
           capnproto \
           libcapnp-dev \
+          curl \
           libcurl4-openssl-dev \
+          git \
           git-lfs \
           ffmpeg \
           libavformat-dev \
