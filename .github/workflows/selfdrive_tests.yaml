@@ -281,12 +281,24 @@ jobs:
         submodules: true
     - uses: ./.github/workflows/setup-with-retry
 
+    - name: Determine SCons Cache Directory
+      id: set-cache-dir
+      run: |
+        if [ -d "/data/scons_cache" ]; then
+          echo "SCONS_CACHE_DIR=/data/scons_cache" >> $GITHUB_ENV
+        elif [ -d "/tmp/scons_cache" ]; then
+          echo "SCONS_CACHE_DIR=/tmp/scons_cache" >> $GITHUB_ENV
+        else
+          echo "SCONS_CACHE_DIR=/tmp/scons_cache" >> $GITHUB_ENV
+          echo "Neither /data/scons_cache nor /tmp/scons_cache directories exist. Defaulting to /tmp/scons_cache."
+        fi
+
     - name: Cache SCons Environment
       id: cache-scons-env
       uses: actions/cache@v4
       if: always()
       with:
-        path: .ci_cache/scons_cache
+        path: ${{ env.SCONS_CACHE_DIR }}
         key: ${{ runner.os }}-scons-${{ hashFiles('**/poetry.lock', '**/*.scons', '**/SConstruct') }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-scons-${{ hashFiles('**/poetry.lock', '**/*.scons', '**/SConstruct') }}-
