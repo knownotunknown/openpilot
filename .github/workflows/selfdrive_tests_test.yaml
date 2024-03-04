@@ -51,7 +51,8 @@ jobs:
       shell: bash
 
     - name: Pull existing Docker image
-      id: ${{ env.REBUILD_IMAGE != 'true' }}
+      id: docker_pull
+      if: ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
         if docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}; then
           echo "docker_pull_success=true" >> $GITHUB_ENV
