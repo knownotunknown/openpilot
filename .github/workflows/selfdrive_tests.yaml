@@ -8,6 +8,10 @@ env:
   IMAGE_TAG: latest  # Tag for the Docker image
   REGISTRY: ghcr.io/${{ github.repository_owner }}  # GitHub Container Registry
   AZURE_TOKEN: ${{ secrets.AZURE_COMMADATACI_OPENPILOTCI_TOKEN }}
+  BASE_IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}  # Fully qualified name of the Docker image
+  RUN: docker run --shm-size 1G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -v $GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit -v $GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache -v $GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache -v $GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache ${{ env.BASE_IMAGE }} /bin/bash -c
+  PYTEST: pytest --continue-on-collection-errors --cov --cov-report=xml --cov-append --durations=0 --durations-min=5 --hypothesis-seed 0 -n logical
+
 
 jobs:
   setup-environment:
@@ -47,26 +51,41 @@ jobs:
       shell: bash
 
     - name: Pull existing Docker image
-      run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} || true
+      id: docker_pull
+      run: |
+        if docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}; then
+          echo "docker_pull_success=true" >> $GITHUB_ENV
+        else
+          echo "docker_pull_success=false" >> $GITHUB_ENV
+        fi
       shell: bash
 
     - name: Build Docker Image using cache
+      if: env.docker_pull_success == 'false'
       run: |
         docker build --cache-from ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f Dockerfile.openpilot_base -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
       shell: bash
 
     - name: Push Docker Image
+      if: env.docker_pull_success == 'false'
       run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
       shell: bash
 
-    # - name: Determine if Docker Image needs to be pushed
-    #   id: docker_push
-    #   run: |
-    #     if [ "${{ github.event_name }}" == "push" ] && [ -n "$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep Dockerfile)" ]; then
-    #       echo "::set-output name=push::true"
-    #     else
-    #       echo "::set-output name=push::false"
-    #     fi
-    #   shell: bash
-    #      if: steps.docker_push.outputs.push == 'true'
+    - name: Build openpilot
+      timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
+      run: ${{ env.RUN }} "scons -j$(nproc)"
+      
+    - name: Run unit tests
+      timeout-minutes: 15
+      run: |
+        ${{ env.RUN }} "source selfdrive/test/setup_xvfb.sh && \
+                        export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && \
+                        $PYTEST --timeout 60 -m 'not slow'"
+    - name: "Upload coverage to Codecov"
+      uses: codecov/codecov-action@v3
+      with:
+        name: ${{ github.job }}
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
 
