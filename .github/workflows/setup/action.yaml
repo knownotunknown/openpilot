@@ -43,98 +43,10 @@ runs:
         echo "QTWEBENGINE_DISABLE_SANDBOX=1" >> $GITHUB_ENV
       shell: bash
 
-    - name: Cache OpenCL Driver
-      uses: actions/cache@v3
-      with:
-        path: /tmp/opencl-driver-intel
-        key: opencl-driver-${{ hashFiles('**/INTEL_DRIVER') }}
-
-    - run: echo "CACHE_HIT_OPENCL_DRIVER=${{ steps.cache-opencl-driver.outputs.cache-hit }}" >> $GITHUB_ENV
-      shell: bash
 
 
-    - name: Install OpenCL
-      run: |
-        INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
-        INTEL_DRIVER_URL=https://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532
-        mkdir -p /tmp/opencl-driver-intel
-        cd /tmp/opencl-driver-intel
-        curl -O $INTEL_DRIVER_URL/$INTEL_DRIVER
-        tar -xzf $INTEL_DRIVER
-        for i in $(basename $INTEL_DRIVER .tgz)/rpm/*.rpm; do sudo alien --to-deb $i; done
-        sudo dpkg -i *.deb
-        sudo mkdir -p /etc/OpenCL/vendors
-        echo /opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/libintelocl.so | sudo tee /etc/OpenCL/vendors/intel.icd
-        cd /
-        sudo rm -rf /tmp/opencl-driver-intel
-      shell: bash
-
-    - name: Cache pyenv and Python versions
-      uses: actions/cache@v2
-      with:
-        path: |
-          $HOME/.pyenv
-        key: ${{ runner.os }}-pyenv-${{ hashFiles('.python-version') }}
-        restore-keys: |
-          ${{ runner.os }}-pyenv-
-
-    - run: echo "CACHE_HIT_PYENV=${{ steps.cache-pyenv.outputs.cache-hit }}" >> $GITHUB_ENV
-      shell: bash
 
 
-    - name: Cache pip
-      uses: actions/cache@v2
-      with:
-        path: |
-          $HOME/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-
-    - run: echo "CACHE_HIT_PIP=${{ steps.cache-pip.outputs.cache-hit }}" >> $GITHUB_ENV
-      shell: bash
-
-
-    - name: Cache pre-commit hooks
-      uses: actions/cache@v2
-      with:
-        path: |
-          .cache/pre-commit
-        key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
-
-    - run: echo "CACHE_HIT_PRE_COMMIT=${{ steps.cache-pre-commit.outputs.cache-hit }}" >> $GITHUB_ENV
-      shell: bash
-
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.11'
-    - name: Install Poetry
-      run: |
-        POETRY_VERSION=1.6.1 curl -sSL https://install.python-poetry.org | python3 -
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-      shell: bash
-
-    - name: Cache Poetry virtual environment
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cache/pypoetry/virtualenvs
-          ~/.cache/pypoetry/artifacts
-        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-
-    - run: echo "CACHE_HIT_POETRY_VENV=${{ steps.cache-poetry-venv.outputs.cache-hit }}" >> $GITHUB_ENV
-      shell: bash
-
-    - name: Install Python dependencies
-      run: |
-        start=$(date +%s)
-        ./tools/install_python_dependencies.sh
-        end=$(date +%s)
-        runtime=$((end-start))
-        echo "PYTHON_DEPS_INSTALL_TIME=$runtime" >> $GITHUB_ENV
-      shell: bash
 
 
     - name: Normalize file permissions
@@ -148,19 +60,19 @@ runs:
         echo "NORM_FILE_PERMS_RUNTIME=$runtime" >> $GITHUB_ENV
       shell: bash
 
-    - name: Print timings
-      run: |
-        echo "Cache hit statuses:"
-        echo "OpenCL Driver: ${CACHE_HIT_OPENCL_DRIVER}"
-        echo "Pyenv: ${CACHE_HIT_PYENV}"
-        echo "Pip: ${CACHE_HIT_PIP}"
-        echo "Pre-commit Hooks: ${CACHE_HIT_PRE_COMMIT}"
-        echo "Poetry Virtual Environment: ${CACHE_HIT_POETRY_VENV}"
+    # - name: Print timings
+    #   run: |
+    #     echo "Cache hit statuses:"
+    #     echo "OpenCL Driver: ${CACHE_HIT_OPENCL_DRIVER}"
+    #     echo "Pyenv: ${CACHE_HIT_PYENV}"
+    #     echo "Pip: ${CACHE_HIT_PIP}"
+    #     echo "Pre-commit Hooks: ${CACHE_HIT_PRE_COMMIT}"
+    #     echo "Poetry Virtual Environment: ${CACHE_HIT_POETRY_VENV}"
 
-        echo "Runtime debug messages:"
-        echo "Echo confirmation runtime: ${ECHO_CONFIRMATION_RUNTIME} seconds"
-        echo "Git LFS Pull runtime: ${GIT_LFS_PULL_RUNTIME} seconds"
-        echo "Python dependencies installation runtime: ${PYTHON_DEPS_INSTALL_TIME} seconds"
-        echo "Normalization of file permissions runtime: ${NORM_FILE_PERMS_RUNTIME} seconds"
-        # Add similar echo statements for other timings you have recorded
-      shell: bash
+    #     echo "Runtime debug messages:"
+    #     echo "Echo confirmation runtime: ${ECHO_CONFIRMATION_RUNTIME} seconds"
+    #     echo "Git LFS Pull runtime: ${GIT_LFS_PULL_RUNTIME} seconds"
+    #     echo "Python dependencies installation runtime: ${PYTHON_DEPS_INSTALL_TIME} seconds"
+    #     echo "Normalization of file permissions runtime: ${NORM_FILE_PERMS_RUNTIME} seconds"
+    #     # Add similar echo statements for other timings you have recorded
+    #   shell: bash
