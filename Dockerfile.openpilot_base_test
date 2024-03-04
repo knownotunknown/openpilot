@@ -29,15 +29,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN curl https://pyenv.run | bash
 
 # Set environment variables for pyenv
-ENV PYENV_ROOT="/root/.pyenv" \
-    PATH="/root/.pyenv/bin:/root/.pyenv/shims:$PATH"
+ENV PYENV_ROOT="/root/.pyenv"
+ENV PATH="/root/.pyenv/bin:/root/.pyenv/shims:$PATH"
+SHELL ["/bin/bash", "-c"]
 
 # Copy the .python-version file to specify Python version
 COPY .python-version /tmp/
 
 # Install Python version specified in your .python-version file and set it as global
-RUN pyenv install $(cat /tmp/.python-version) && \
-    pyenv global $(cat /tmp/.python-version)
+RUN pyenv install $(cat /tmp/.python-version)
+RUN pyenv global $(cat /tmp/.python-version)
 
 # Install Poetry
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3
