@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:20.04 AS builder
 
 ENV PYTHONUNBUFFERED 1
 
@@ -83,7 +83,7 @@ RUN cd /tmp && \
     rm -rf /home/$USER/pyenv/versions/3.11.4/lib/python3.11/test
 
 # Stage 2: Runtime environment
-FROM ubuntu:20.04 as runtime
+FROM ubuntu:20.04 AS runtime
 
 # Copy pyenv and Poetry installations from the builder
 COPY --from=builder /root/.pyenv /root/.pyenv
