@@ -1,0 +1,97 @@
+name: OpenPilot Environment Setup
+
+on: [push, pull_request, workflow_dispatch]  # Trigger on push and pull request events, adjust as necessary
+
+env:
+  PYTHONWARNINGS: error
+  IMAGE_NAME: openpilot-env  # Name of the Docker image
+  IMAGE_TAG: latest  # Tag for the Docker image
+  REGISTRY: ghcr.io/${{ github.repository_owner }}  # GitHub Container Registry
+  AZURE_TOKEN: ${{ secrets.AZURE_COMMADATACI_OPENPILOTCI_TOKEN }}
+  BUILD:
+  PYTEST: pytest --continue-on-collection-errors --cov --cov-report=xml --cov-append --durations=0 --durations-min=5 --hypothesis-seed 0 -n logical
+
+
+jobs:
+  setup-environment:
+    runs-on: ubuntu-latest  # Choose the runner, adjust as necessary
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Git LFS Pull
+      run: git lfs pull
+      shell: bash
+
+    - name: Login to GitHub Container Registry
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+      shell: bash
+
+    - name: Set Cache Commit Date
+      run: echo "CACHE_COMMIT_DATE=$(git log -1 --pretty='format:%cd' --date=format:'%Y-%m-%d-%H:%M')" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Cache SCons
+      uses: actions/cache@v2
+      with:
+        path: .ci_cache/scons_cache
+        key: scons-${{ runner.os }}-${{ env.CACHE_COMMIT_DATE }}-${{ github.sha }}
+        restore-keys: |
+          scons-${{ runner.os }}-${{ env.CACHE_COMMIT_DATE }}
+          scons-${{ runner.os }}
+
+    - name: Normalize file permissions
+      run: |
+        find . -type f -executable -not -perm 755 -exec chmod 755 {} \;
+        find . -type f -not -executable -not -perm 644 -exec chmod 644 {} \;
+      shell: bash
+
+    - name: Login to GitHub Container Registry
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+      shell: bash
+
+    - name: Pull existing Docker image
+      id: docker_pull
+      run: |
+        if docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}; then
+          echo "docker_pull_success=true" >> $GITHUB_ENV
+        else
+          echo "docker_pull_success=false" >> $GITHUB_ENV
+        fi
+      shell: bash
+
+    - name: Build Docker Image using cache
+      if: env.docker_pull_success == 'false'
+      run: |
+        docker build --cache-from ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f Dockerfile.openpilot_base_test -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+      shell: bash
+
+    - name: Push Docker Image
+      if: env.docker_pull_success == 'false'
+      run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+      shell: bash
+
+    - name: Build openpilot
+      timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
+      run: |
+        BASE_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+        docker run --shm-size 1G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -v $GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit -v $GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache -v $GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache -v $GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache $BASE_IMAGE /bin/bash -c "scons -j$(nproc)"
+
+    - name: Display Docker Image Size
+      run: |
+        SIZE=$(docker image inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} --format='{{.Size}}')
+        echo "Image size: $SIZE bytes"
+      shell: bash
+
+    - name: Run unit tests
+      timeout-minutes: 15
+      run: |
+        BASE_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
+        docker run --shm-size 1G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -v $GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit -v $GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache -v $GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache -v $GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache $BASE_IMAGE /bin/bash -c "source selfdrive/test/setup_xvfb.sh && export MAPBOX_TOKEN='your_mapbox_token_here' && pytest --timeout 60 -m 'not slow'"
+    - name: "Upload coverage to Codecov"
+      uses: codecov/codecov-action@v3
+      with:
+        name: ${{ github.job }}
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+
