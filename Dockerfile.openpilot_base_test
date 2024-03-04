@@ -82,6 +82,13 @@ RUN cd /tmp && \
     find /home/$USER/pyenv -type d -name ".git" | xargs rm -rf && \
     rm -rf /home/$USER/pyenv/versions/3.11.4/lib/python3.11/test
 
+RUN PYENV_ROOT="$(find $USER_HOME -name '.pyenv' -type d -print -quit)" && \
+    echo "Pyenv root: $PYENV_ROOT" && \
+    if [ -d "$PYENV_ROOT" ]; then echo "Pyenv found at $PYENV_ROOT"; else echo "Pyenv not found"; fi && \
+    POETRY_HOME="$(find $USER_HOME -name 'poetry' -type d -print -quit)" && \
+    echo "Poetry home: $POETRY_HOME" && \
+    if [ -d "$POETRY_HOME" ]; then echo "Poetry found at $POETRY_HOME"; else echo "Poetry not found"; fi
+
 # Stage 2: Runtime environment
 FROM ubuntu:20.04 AS runtime
 
