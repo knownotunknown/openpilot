@@ -35,7 +35,6 @@ jobs:
         restore-keys: |
           scons-${{ runner.os }}-${{ env.CACHE_COMMIT_DATE }}
           scons-${{ runner.os }}
-      shell: bash
 
     - name: Normalize file permissions
       run: |
