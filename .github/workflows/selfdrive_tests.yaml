@@ -55,15 +55,15 @@ jobs:
         docker build --cache-from ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f Dockerfile.openpilot_base -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
       shell: bash
 
-    - name: Determine if Docker Image needs to be pushed
-      id: docker_push
-      run: |
-        if [ "${{ github.event_name }}" == "push" ] && [ -n "$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep Dockerfile)" ]; then
-          echo "::set-output name=push::true"
-        else
-          echo "::set-output name=push::false"
-        fi
-      shell: bash
+    # - name: Determine if Docker Image needs to be pushed
+    #   id: docker_push
+    #   run: |
+    #     if [ "${{ github.event_name }}" == "push" ] && [ -n "$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep Dockerfile)" ]; then
+    #       echo "::set-output name=push::true"
+    #     else
+    #       echo "::set-output name=push::false"
+    #     fi
+    #   shell: bash
 
     - name: Push Docker Image
       if: steps.docker_push.outputs.push == 'true'
