@@ -86,8 +86,8 @@ RUN cd /tmp && \
 FROM ubuntu:20.04 AS runtime
 
 # Copy pyenv and Poetry installations from the builder
-COPY --from=builder /root/.pyenv /root/.pyenv
-COPY --from=builder /root/.poetry /root/.poetry
+COPY --from=builder /home/batman/.pyenv /home/batman/.pyenv
+COPY --from=builder /home/batman/.poetry /home/batman/.poetry
 
 # Set environment variables to include pyenv and Poetry in the PATH
 ENV PYENV_ROOT="/root/.pyenv" \
