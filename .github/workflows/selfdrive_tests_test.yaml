@@ -51,7 +51,7 @@ jobs:
       shell: bash
 
     - name: Pull existing Docker image
-      id: env.REBUILD_IMAGE != 'true'
+      id: ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
         if docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}; then
           echo "docker_pull_success=true" >> $GITHUB_ENV
@@ -61,13 +61,13 @@ jobs:
       shell: bash
 
     - name: Build Docker Image using cache
-      if: env.docker_pull_success == 'false' || env.REBUILD_IMAGE != 'true'
+      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
         docker build --cache-from ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f Dockerfile.openpilot_base_test -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
       shell: bash
 
     - name: Push Docker Image
-      if: env.docker_pull_success == 'false' || env.REBUILD_IMAGE != 'true'
+      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
       shell: bash
 
