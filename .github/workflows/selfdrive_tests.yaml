@@ -21,12 +21,10 @@ jobs:
       run: git lfs pull
 
     - name: Login to Docker Hub
+      if: contains(runner.name, 'buildjet')
+      shell: bash
       run: |
-        if [[ ${{ runner.name }} == *'buildjet'* && ${{ secrets.DOCKER_HUB_PAT }} == '' ]]; then
-          echo "Need to set the Docker Hub PAT secret"
-          exit 1
-        fi
-        echo ${{ secrets.DOCKER_HUB_PAT }} | docker login -u adeebshihadeh --password-stdin
+        docker login -u adeebshihadeh -p ${{ inputs.docker_hub_pat }}
 
     - name: Set Cache Commit Date
       run: echo "CACHE_COMMIT_DATE=$(git log -1 --pretty='format:%cd' --date=format:'%Y-%m-%d-%H:%M')" >> $GITHUB_ENV
