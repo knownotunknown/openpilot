@@ -15,7 +15,6 @@ inputs:
     default: 'false'
 
 runs:
-  using: "composite"
   steps:
     - id: date
       shell: bash
