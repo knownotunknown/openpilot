@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PYTHONWARNINGS: ignore
+  PYTHONWARNINGS: ignore:DeprecationWarning
   BASE_IMAGE: openpilot-base
   AZURE_TOKEN: ${{ secrets.AZURE_COMMADATACI_OPENPILOTCI_TOKEN }}
 
