@@ -1,5 +1,7 @@
 FROM ubuntu:20.04 AS builder
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 WORKDIR /app
 
 ADD pyproject.toml poetry.lock /app/
@@ -7,7 +9,7 @@ ADD pyproject.toml poetry.lock /app/
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libffi-dev \
-    python3.9 \
+    python3.11 \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
