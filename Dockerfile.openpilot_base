@@ -1,92 +1,26 @@
-# Builder stage to install dependencies and set up Python environment
-FROM ubuntu:20.04 AS builder
+FROM python:3.10-alpine AS builder
 
-ENV PYTHONUNBUFFERED=1 \
-    DEBIAN_FRONTEND=noninteractive \
-    LANG=en_US.UTF-8 \
-    LANGUAGE=en_US:en \
-    LC_ALL=en_US.UTF-8
+WORKDIR /app
 
-# Install necessary Ubuntu packages and Python build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    sudo \
-    git \
-    build-essential \
-    libssl-dev \
-    zlib1g-dev \
-    libbz2-dev \
-    libreadline-dev \
-    libsqlite3-dev \
-    llvm \
-    libncurses5-dev \
-    libncursesw5-dev \
-    xz-utils \
-    tk-dev \
-    libffi-dev \
-    liblzma-dev \
-    python-openssl \
-    tzdata \
-    locales \
-    ssh \
-    pulseaudio \
-    xvfb \
-    x11-xserver-utils \
-    gnome-screenshot \
-    apt-utils \
-    alien \
-    unzip \
-    tar \
-    dbus \
-    gcc-arm-none-eabi \
-    tmux \
-    vim \
-    lsb-core \
-    libx11-6 \
-    && sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
-    && locale-gen \
-    && rm -rf /var/lib/apt/lists/*
+ADD pyproject.toml poetry.lock /app/
 
-ARG USER=batman
-ARG USER_UID=1000
+RUN apk add build-base libffi-dev
 
-# Create a non-root user and switch to it
-RUN useradd -m -s /bin/bash -u $USER_UID $USER \
-    && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN pip install poetry
+RUN poetry config virtualenvs.in-project true
+RUN poetry install --no-ansi
 
-USER $USER
-WORKDIR /home/$USER
+FROM python:3.10-alpine
+WORKDIR /app
 
-ENV POETRY_VIRTUALENVS_CREATE=false
-ENV PYENV_VERSION=3.11.4
-ENV PYENV_ROOT="/home/$USER/pyenv"
-ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
+COPY --from=builder /app /app
+ADD . /app
 
-COPY --chown=$USER pyproject.toml poetry.lock .python-version /tmp/
-COPY --chown=$USER tools/install_python_dependencies.sh /tmp/tools/
-
-# Copy the Python dependency installation script into the container
-COPY --chown=$USER tools/install_python_dependencies.sh /tmp/
-
-# Execute the installation script
-RUN chmod +x /tmp/install_python_dependencies.sh \
-    && /tmp/install_python_dependencies.sh \
-    && rm /tmp/install_python_dependencies.sh
-
-# Runtime stage to prepare the final image
-FROM ubuntu:20.04 AS runtime
-
-ARG USER=batman
-
-# Copy the Python environment setup from the builder stage
-COPY --from=builder /home/$USER /home/$USER
-
-# Set environment variables for the runtime
-ENV PYENV_ROOT="/home/$USER/.pyenv" \
-    PATH="/home/$USER/.pyenv/bin:/home/$USER/.pyenv/shims:$PATH"
-
-USER $USER
-WORKDIR /home/$USER
-
-# Set the default command for the container
-CMD ["/bin/bash"]
+# Create a new group `app` with Group ID `1000`.
+RUN addgroup --gid 1000 app
+# Create a new user `app`, sets home directory to `/app`, User ID `1000`, in
+# the group `app`. The `-DH` option results in a system account.
+RUN adduser app -h /app -u 1000 -G app -DH
+# Change the user for subsequent commands in Dockerfile to the user with ID
+# `1000`.
+USER 1000
