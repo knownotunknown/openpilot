@@ -37,11 +37,6 @@ ARG WORKDIR
 
 WORKDIR ${WORKDIR}
 
-RUN apk add --no-cache bash python3-dev py3-pip && \
-    pip install --upgrade pip==23.3 && \
-    pip install poetry==1.6.1 && \
-    poetry config virtualenvs.in-project true
-
 COPY --from=builder ${WORKDIR} .
 
 RUN apk add --no-cache bash
