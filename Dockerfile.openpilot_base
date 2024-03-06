@@ -4,7 +4,12 @@ WORKDIR /app
 
 ADD pyproject.toml poetry.lock /app/
 
-RUN apk add build-base libffi-dev
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libffi-dev \
+    python3.9 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     autoconf \
