@@ -34,8 +34,7 @@ jobs:
     - uses: ./.github/workflows/setup-with-retry
       with:
         docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
-    - id: setup-up-apt-pkgs
-      uses: awalsh128/cache-apt-pkgs-action@latest
+    - uses: awalsh128/cache-apt-pkgs-action@latest
       with:
         packages: xset xhost
         version: 1.0
