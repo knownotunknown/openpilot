@@ -15,8 +15,8 @@ inputs:
     default: 'false'
 
 runs:
-  steps:
   using: "composite"
+  steps:
     - id: date
       shell: bash
       run: echo "CACHE_COMMIT_DATE=$(git log -1 --pretty='format:%cd' --date=format:'%Y-%m-%d-%H:%M')" >> $GITHUB_ENV
