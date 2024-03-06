@@ -45,6 +45,7 @@ RUN apk add --no-cache bash python3-dev py3-pip && \
 COPY --from=builder ${WORKDIR} .
 
 RUN apk add --no-cache bash
+RUN apk add --no-cache scons
 
 # For options, see https://boxmatrix.info/wiki/Property:adduser
 RUN adduser app -DHh ${WORKDIR} -u 1000
