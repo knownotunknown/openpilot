@@ -73,8 +73,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Install pip version 23.3
+RUN pip install pip==23.3
 
-RUN pip install poetry
+# Install Poetry version 1.6.1
+RUN pip install poetry==1.6.1
+
 RUN poetry config virtualenvs.in-project true
 RUN poetry install --no-ansi
 
