@@ -103,5 +103,4 @@ ENV PYENV_ROOT="/root/.pyenv" \
 # Set work directory
 WORKDIR /app
 
-# The Docker container starts with a shell ready to run applications in the prepared environment
 CMD ["/bin/bash"]
