@@ -33,7 +33,7 @@ jobs:
         submodules: true
     - uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: xset xhost
+        packages: x11-xserver-utils
         version: 1.0
     - uses: ./.github/workflows/setup-with-retry
       with:
