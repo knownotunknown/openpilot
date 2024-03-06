@@ -1,7 +1,7 @@
 # Global ARG, available to all stages (if renewed)
 ARG WORKDIR="/app"
 
-FROM python:3.10 AS builder
+FROM ubuntu:20.04 AS builder
 
 # Renew (https://stackoverflow.com/a/53682110):
 ARG WORKDIR
@@ -10,6 +10,33 @@ ARG WORKDIR
 ENV PYTHONUNBUFFERED=1
 # Don't create `.pyc` files:
 ENV PYTHONDONTWRITEBYTECODE=1
+
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    autoconf \
+    libtool \
+    pkg-config \
+    python-opengl \
+    python-pil \
+    python-pyrex \
+    python-pyside.qtopengl \
+    idle-python2.7 \
+    qt4-dev-tools \
+    qt4-designer \
+    libqtgui4 \
+    libqtcore4 \
+    libqt4-xml \
+    libqt4-test \
+    libqt4-script \
+    libqt4-network \
+    libqt4-dbus \
+    python-qt4 \
+    python-qt4-gl \
+    libgle3 \
+    python-dev \
+    libssl-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && \
     apt-get install -y python3-dev && \
