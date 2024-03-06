@@ -1,99 +1,32 @@
-FROM ubuntu:20.04 AS builder
+# Global ARG, available to all stages (if renewed)
+ARG WORKDIR="/app"
 
-ENV DEBIAN_FRONTEND=noninteractive
+FROM python:3.10 AS builder
 
-WORKDIR /app
+# Renew (https://stackoverflow.com/a/53682110):
+ARG WORKDIR
 
-ADD pyproject.toml poetry.lock /app/
+# Don't buffer `stdout`:
+ENV PYTHONUNBUFFERED=1
+# Don't create `.pyc` files:
+ENV PYTHONDONTWRITEBYTECODE=1
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    autoconf \
-    build-essential \
-    ca-certificates \
-    casync \
-    clang \
-    cmake \
-    make \
-    cppcheck \
-    libtool \
-    gcc-arm-none-eabi \
-    bzip2 \
-    liblzma-dev \
-    libarchive-dev \
-    libbz2-dev \
-    capnproto \
-    libcapnp-dev \
-    curl \
-    libcurl4-openssl-dev \
-    git \
-    git-lfs \
-    ffmpeg \
-    libavformat-dev \
-    libavcodec-dev \
-    libavdevice-dev \
-    libavutil-dev \
-    libavfilter-dev \
-    libeigen3-dev \
-    libffi-dev \
-    libglew-dev \
-    libgles2-mesa-dev \
-    libglfw3-dev \
-    libglib2.0-0 \
-    libncurses5-dev \
-    libncursesw5-dev \
-    libomp-dev \
-    libopencv-dev \
-    libpng16-16 \
-    libportaudio2 \
-    libssl-dev \
-    libsqlite3-dev \
-    libusb-1.0-0-dev \
-    libzmq3-dev \
-    libsystemd-dev \
-    locales \
-    opencl-headers \
-    ocl-icd-libopencl1 \
-    ocl-icd-opencl-dev \
-    clinfo \
-    portaudio19-dev \
-    qml-module-qtquick2 \
-    qtmultimedia5-dev \
-    qtlocation5-dev \
-    qtpositioning5-dev \
-    qttools5-dev-tools \
-    libqt5sql5-sqlite \
-    libqt5svg5-dev \
-    libqt5charts5-dev \
-    libqt5serialbus5-dev \
-    libqt5x11extras5-dev \
-    libreadline-dev \
-    libdw1 \
-    valgrind \
-    libavresample-dev \
-    python3-dev \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/*
+RUN pip install poetry && poetry config virtualenvs.in-project true
 
-# Install pip version 23.3
-RUN pip install pip==23.3
+WORKDIR ${WORKDIR}
+COPY . .
 
-# Install Poetry version 1.6.1
-RUN pip install poetry==1.6.1
+RUN poetry install --only main
 
-RUN poetry config virtualenvs.in-project true
-RUN poetry install --no-ansi
+FROM python:3.10-alpine
 
-FROM ubuntu:20.04
-WORKDIR /app
+ARG WORKDIR
 
-COPY --from=builder /app /app
-ADD . /app
+WORKDIR ${WORKDIR}
 
-# Create a new group `app` with Group ID `1000`.
-RUN addgroup --gid 1000 app
-# Create a new user `app`, sets home directory to `/app`, User ID `1000`, in
-# the group `app`. The `-DH` option results in a system account.
-RUN adduser app -h /app -u 1000 -G app -DH
-# Change the user for subsequent commands in Dockerfile to the user with ID
-# `1000`.
+COPY --from=builder ${WORKDIR} .
+
+# For options, see https://boxmatrix.info/wiki/Property:adduser
+RUN adduser app -DHh ${WORKDIR} -u 1000
 USER 1000
+
