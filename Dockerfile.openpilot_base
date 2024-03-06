@@ -12,13 +12,12 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
 RUN apt-get update && \
-    apt-get install -y build-essential clang python3-dev python3-numpy qt5-default libqt5* \
+    apt-get install -y \
     build-essential \
     autoconf \
     python3-pyaudio \
     portaudio19-dev \
     libssl-dev && \
-    scons && \
     rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && \
