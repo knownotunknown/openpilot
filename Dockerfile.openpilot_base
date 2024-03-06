@@ -16,6 +16,7 @@ RUN apt-get update && \
     build-essential \
     autoconf \
     python3-pyaudio \
+    portaudio19-dev \
     libssl-dev && \
     rm -rf /var/lib/apt/lists/*
 
