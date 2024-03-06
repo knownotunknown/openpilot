@@ -15,16 +15,6 @@ RUN apt-get update && \
     apt-get install -y \
     build-essential \
     autoconf \
-    libtool \
-    pkg-config \
-    python-opengl \
-    python-pil \
-    python-pyrex \
-    python-pyside.qtopengl \
-    idle-python2.7 \
-    qt4-dev-tools \
-    qt4-designer \
-    libgle3 \
     libssl-dev && \
     rm -rf /var/lib/apt/lists/*
 
