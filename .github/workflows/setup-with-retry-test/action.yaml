@@ -16,7 +16,6 @@ inputs:
 
 runs:
   steps:
-  using: "composite"
     - id: setup1
       uses: ./.github/workflows/setup-runner
       continue-on-error: true
