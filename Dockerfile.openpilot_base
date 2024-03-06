@@ -15,6 +15,7 @@ RUN apt-get update && \
     apt-get install -y \
     build-essential \
     autoconf \
+    python3-pyaudio \
     libssl-dev && \
     rm -rf /var/lib/apt/lists/*
 
