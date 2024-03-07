@@ -1,7 +1,7 @@
 # Global ARG, available to all stages (if renewed)
 ARG WORKDIR="/app"
 
-FROM python:3.11 
+FROM python:3.11
 
 # Renew (https://stackoverflow.com/a/53682110):
 ARG WORKDIR
@@ -33,7 +33,7 @@ COPY . .
 
 RUN poetry install --only main
 
-RUN apk add --no-cache bash
+# RUN apk add --no-cache bash
 
 # FROM python:3.11-alpine
 
