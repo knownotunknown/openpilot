@@ -44,19 +44,19 @@ jobs:
     # - uses: ./.github/workflows/setup-with-retry
     #   with:
     #     docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
-    - id: date
-      shell: bash
-      run: echo "CACHE_COMMIT_DATE=$(git log -1 --pretty='format:%cd' --date=format:'%Y-%m-%d-%H:%M')" >> $GITHUB_ENV
-    - shell: bash
-      run: echo "$CACHE_COMMIT_DATE"
-    - id: scons-cache
-      uses: ./.github/workflows/auto-cache
-      with:
-        path: .ci_cache/scons_cache
-        key: scons-${{ runner.arch }}-${{ env.CACHE_COMMIT_DATE }}-${{ github.sha }}
-        restore-keys: |
-          scons-${{ runner.arch }}-${{ env.CACHE_COMMIT_DATE }}
-          scons-${{ runner.arch }}
+    # - id: date
+    #   shell: bash
+    #   run: echo "CACHE_COMMIT_DATE=$(git log -1 --pretty='format:%cd' --date=format:'%Y-%m-%d-%H:%M')" >> $GITHUB_ENV
+    # - shell: bash
+    #   run: echo "$CACHE_COMMIT_DATE"
+    # - id: scons-cache
+    #   uses: ./.github/workflows/auto-cache
+    #   with:
+    #     path: .ci_cache/scons_cache
+    #     key: scons-${{ runner.arch }}-${{ env.CACHE_COMMIT_DATE }}-${{ github.sha }}
+    #     restore-keys: |
+    #       scons-${{ runner.arch }}-${{ env.CACHE_COMMIT_DATE }}
+    #       scons-${{ runner.arch }}
 
     - name: Login to GitHub Container Registry
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
