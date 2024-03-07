@@ -5,9 +5,9 @@ ENV PYTHONUNBUFFERED 1
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Copy your project files into the Docker image
-COPY . /app
+# COPY . /app
 
-WORKDIR /app
+# WORKDIR /app
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot && \
