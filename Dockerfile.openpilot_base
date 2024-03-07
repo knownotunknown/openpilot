@@ -40,7 +40,6 @@ WORKDIR ${WORKDIR}
 COPY --from=builder ${WORKDIR} .
 
 RUN apk add --no-cache bash
-RUN apk add --no-cache scons
 
 # For options, see https://boxmatrix.info/wiki/Property:adduser
 RUN adduser app -DHh ${WORKDIR} -u 1000
