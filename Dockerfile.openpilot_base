@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
     libatlas-base-dev \
     python3-pyaudio \
     portaudio19-dev \
+    gcc-arm-none-eabi \
     libssl-dev \
     qtbase5-dev \
     libqt5widgets5 \
