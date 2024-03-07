@@ -79,7 +79,7 @@ jobs:
 
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
-      run: ${{ env.RUN }} ". /app/.venv/bin/activate && pip list"
+      run: ${{ env.RUN }} ". /app/.venv/bin/activate && run scons -j$(nproc)"
     - name: Run unit tests
       timeout-minutes: 15
       run: |
