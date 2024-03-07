@@ -91,7 +91,7 @@ RUN cd /tmp && \
 USER root
 RUN sudo git config --global --add safe.directory /tmp/openpilot
 
-RUN /bin/bash -c "scons -j$(nproc)"
+# RUN /bin/bash -c "scons -j$(nproc)"
 
 # RUN apk add --no-cache bash
 
