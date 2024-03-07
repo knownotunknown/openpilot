@@ -35,13 +35,12 @@ RUN apt-get update && \
     pip install poetry==1.6.1 && \
     poetry config virtualenvs.in-project true
 
-RUN /bin/bash -c "source /app/.venv/bin/activate && scons -j$(nproc)"
-
-
 WORKDIR ${WORKDIR}
 COPY . .
 
 RUN poetry install --only main
+
+RUN /bin/bash -c "source /app/.venv/bin/activate && scons -j$(nproc)"
 
 # RUN apk add --no-cache bash
 
