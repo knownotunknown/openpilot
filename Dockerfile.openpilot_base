@@ -45,6 +45,8 @@ RUN apk add --no-cache scons
 # For options, see https://boxmatrix.info/wiki/Property:adduser
 RUN adduser app -DHh ${WORKDIR} -u 1000
 
+ENV PYTHONWARNINGS="ignore::DeprecationWarning"
+
 RUN chown -R app:app ${WORKDIR}
 
 USER 1000
