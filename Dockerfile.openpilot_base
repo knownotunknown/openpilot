@@ -17,6 +17,9 @@ RUN apt-get update && \
     autoconf \
     python3-pyaudio \
     portaudio19-dev \
+    # SCONS Dependencies
+    qmake \
+    # SCONS Dependencies
     libssl-dev && \
     rm -rf /var/lib/apt/lists/*
 
