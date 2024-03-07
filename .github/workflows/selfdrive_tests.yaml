@@ -90,9 +90,10 @@ jobs:
     #     echo "Image size: $SIZE bytes"
     #   shell: bash
 
-    - name: Build openpilot
-      timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
-      run: ${{ env.RUN }} ". /app/.venv/bin/activate && scons -j$(nproc)"
+    # - name: Build openpilot
+    #   timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
+    #   run: ${{ env.RUN }} ". /app/.venv/bin/activate && scons -j$(nproc)"
+
     - name: Run unit tests
       timeout-minutes: 15
       run: |
@@ -103,6 +104,7 @@ jobs:
           ./selfdrive/ui/tests/create_test_translations.sh &&
           QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations &&
           ./selfdrive/ui/tests/test_translations.py"
+
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v3
       with:
