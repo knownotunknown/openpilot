@@ -84,3 +84,5 @@ RUN cd /tmp && \
 
 USER root
 RUN sudo git config --global --add safe.directory /tmp/openpilot
+
+RUN /bin/bash -c "scons -j$(nproc)"
