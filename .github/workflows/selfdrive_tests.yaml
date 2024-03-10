@@ -37,7 +37,7 @@ jobs:
 
     - name: Build Docker Image
       run: |
-        docker build -f Dockerfile.openpilot_base -t openpilot-base .
+        selfdrive/test/docker_build.sh base
 
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
