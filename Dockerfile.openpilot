@@ -25,4 +25,4 @@ COPY ./selfdrive ${OPENPILOT_PATH}/selfdrive
 COPY ./system ${OPENPILOT_PATH}/system
 COPY ./body ${OPENPILOT_PATH}/body
 
-RUN scons --cache-readonly -j$(nproc)
+RUN /bin/bash -c "scons -j$(nproc)"
