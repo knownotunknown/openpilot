@@ -2,14 +2,14 @@ FROM ghcr.io/commaai/openpilot-base:latest
 
 ENV PYTHONUNBUFFERED 1
 
-# ENV OPENPILOT_PATH /home/batman/openpilot
-# ENV PYTHONPATH ${OPENPILOT_PATH}:${PYTHONPATH}
+ENV OPENPILOT_PATH /home/batman/openpilot
+ENV PYTHONPATH ${OPENPILOT_PATH}:${PYTHONPATH}
 
-# RUN mkdir -p ${OPENPILOT_PATH}
-# WORKDIR ${OPENPILOT_PATH}
+RUN mkdir -p ${OPENPILOT_PATH}
+WORKDIR ${OPENPILOT_PATH}
 
 COPY SConstruct ${OPENPILOT_PATH}
-
+COPY pyproject.toml ${OPENPILOT_PATH}/
 COPY ./openpilot ${OPENPILOT_PATH}/openpilot
 COPY ./third_party ${OPENPILOT_PATH}/third_party
 COPY ./site_scons ${OPENPILOT_PATH}/site_scons
