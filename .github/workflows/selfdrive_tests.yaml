@@ -81,13 +81,12 @@ jobs:
     #   timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
     #   run: ${{ env.RUN }} "scons -j$(nproc)"
 
-    - name: List directory contents and check for pyproject.toml
+    - name: Debugging test environment
       run: |
-        docker run --rm -v $PWD:/tmp/openpilot -w /tmp/openpilot openpilot ls -la
-
-    - name: Check file permissions for pyproject.toml
-      run: |
-        docker run --rm -v $PWD:/tmp/openpilot -w /tmp/openpilot openpilot /bin/bash -c "ls -l pyproject.toml && stat pyproject.toml"
+        docker run --rm -v $PWD:/tmp/openpilot -w /tmp/openpilot openpilot /bin/bash -c "\
+        echo 'Current Working Directory:' && pwd && \
+        echo 'Directory Contents:' && ls -la && \
+        echo 'Contents of pyproject.toml:' && cat pyproject.toml"
 
 
     - name: Run unit tests
