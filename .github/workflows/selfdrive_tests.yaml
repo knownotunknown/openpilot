@@ -81,18 +81,10 @@ jobs:
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
       run: ${{ env.RUN }} "scons -j$(nproc)"
 
-    # - name: Debugging test environment
-    #   run: |
-    #     docker run --rm -v $PWD:/tmp/openpilot -w /tmp/openpilot openpilot /bin/bash -c "\
-    #     echo 'Current Working Directory:' && pwd && \
-    #     echo 'Directory Contents:' && ls -la && \
-    #     echo 'Contents of pyproject.toml:' && cat pyproject.toml"
-
-
     - name: Run unit tests
       timeout-minutes: 15
       run: |
-        docker run --shm-size 1G -v $PWD/selfdrive/test:/tmp/openpilot/selfdrive/test -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID openpilot /bin/bash -c "source selfdrive/test/setup_xvfb.sh && export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && $PYTEST --timeout 60 -m 'not slow'"
+        docker run --shm-size 1G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID openpilot /bin/bash -c "source selfdrive/test/setup_xvfb.sh && export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && $PYTEST --timeout 60 -m 'not slow'"
 
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v3
@@ -100,4 +92,3 @@ jobs:
         name: ${{ github.job }}
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
