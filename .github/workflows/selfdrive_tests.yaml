@@ -77,6 +77,12 @@ jobs:
       run: |
         docker build -f Dockerfile.openpilot -t openpilot .
 
+    - name: Debugging test environment
+      run: |
+        docker run --rm -v $PWD:/tmp/openpilot -w /tmp/openpilot openpilot /bin/bash -c "\
+        echo 'Current Working Directory:' && pwd && \
+        echo 'Directory Contents:' && ls -la && \
+
     - name: Run unit tests
       timeout-minutes: 15
       run: |
