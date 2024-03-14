@@ -86,7 +86,7 @@ jobs:
     - name: Run unit tests
       timeout-minutes: 15
       run: |
-        docker run --shm-size 1G -v $PWD:/tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID openpilot /bin/bash -c "source selfdrive/test/setup_xvfb.sh && export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && $PYTEST --timeout 60 -m 'not slow'"
+        docker run --shm-size 1G -v $PWD:/tmp/openpilot -v $PWD/selfdrive/test:/tmp/openpilot/selfdrive/test -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID openpilot /bin/bash -c "source selfdrive/test/setup_xvfb.sh && export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && $PYTEST --timeout 60 -m 'not slow'"
 
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v3
