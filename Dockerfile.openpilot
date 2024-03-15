@@ -1,4 +1,4 @@
-FROM my_openpilot_image
+FROM ghcr.io/commaai/openpilot-base:latest
 
 ENV PYTHONUNBUFFERED 1
 

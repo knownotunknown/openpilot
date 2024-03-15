@@ -52,9 +52,9 @@ jobs:
       run: |
         docker login -u adeebshihadeh -p ${{ inputs.docker_hub_pat }}
 
-    - name: Build Docker image
-      run: docker build -f Dockerfile.openpilot_base . -t my_openpilot_image
-      shell: bash
+    # - name: Build Docker image
+    #   run: docker build -f Dockerfile.openpilot_base . -t my_openpilot_image
+    #   shell: bash
     # build cache
     - id: date
       shell: bash
