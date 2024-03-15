@@ -388,7 +388,7 @@ class TestAthenadMethods(unittest.TestCase):
     keys = dispatcher["getGithubUsername"]()
     self.assertEqual(keys, self.default_params["GithubUsername"].decode('utf-8'))
 
-  @pytest.mark.skip(reason="Temporary for testing new github workflow")
+  # @pytest.mark.skip(reason="Temporary for testing new github workflow")
   def test_getVersion(self):
     resp = dispatcher["getVersion"]()
     keys = ["version", "remote", "branch", "commit"]

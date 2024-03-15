@@ -139,7 +139,7 @@ class TestLoggerd:
       assert getattr(initData, initData_key) == v
       assert logged_params[param_key].decode() == v
 
-  @pytest.mark.skip(reason="Temporary for testing new github workflow")
+  # @pytest.mark.skip(reason="Temporary for testing new github workflow")
   @flaky(max_runs=3)
   def test_rotation(self):
     os.environ["LOGGERD_TEST"] = "1"
@@ -224,7 +224,7 @@ class TestLoggerd:
     assert bl1.group('uid') != bl2.group('uid')
     assert int(bl1.group('count')) == 0 and int(bl2.group('count')) == 1
 
-  @pytest.mark.skip(reason="Temporary for testing new github workflow")
+  # @pytest.mark.skip(reason="Temporary for testing new github workflow")
   def test_qlog(self):
     qlog_services = [s for s in CEREAL_SERVICES if SERVICE_LIST[s].decimation is not None]
     no_qlog_services = [s for s in CEREAL_SERVICES if SERVICE_LIST[s].decimation is None]
@@ -255,7 +255,7 @@ class TestLoggerd:
         expected_cnt = (len(msgs) - 1) // SERVICE_LIST[s].decimation + 1
         assert recv_cnt == expected_cnt, f"expected {expected_cnt} msgs for {s}, got {recv_cnt}"
 
-  @pytest.mark.skip(reason="Temporary for testing new github workflow")
+  # @pytest.mark.skip(reason="Temporary for testing new github workflow")
   def test_rlog(self):
     services = random.sample(CEREAL_SERVICES, random.randint(5, 10))
     sent_msgs = self._publish_random_messages(services)
