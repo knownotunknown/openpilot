@@ -16,4 +16,6 @@ done
 
 touch ~/.Xauthority
 export XDG_SESSION_TYPE="x11"
+xhost +local:docker
 xset -q
+

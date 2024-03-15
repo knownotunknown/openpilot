@@ -17,7 +17,8 @@ env:
   DOCKER_LOGIN: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
   BUILD: selfdrive/test/docker_build.sh base
 
-  RUN: docker run --shm-size 1G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -v $GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit -v $GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache -v $GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache -v $GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache $BASE_IMAGE /bin/bash -c
+  RUN: docker run --rm -e PYTHONWARNINGS="ignore::DeprecationWarning" -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -v $GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit -v $GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache -v $GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache -v $GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache --env DISPLAY=:99 --volume /tmp/.X11-unix:/tmp/.X11-unix $BASE_IMAGE /bin/bash -c
+
 
   PYTEST: pytest --continue-on-collection-errors --cov --cov-report=xml --cov-append --durations=0 --durations-min=5 --hypothesis-seed 0 -n logical
 
@@ -82,11 +83,22 @@ jobs:
         docker run --rm -v $PWD:/tmp/openpilot -w /tmp/openpilot openpilot /bin/bash -c " \
         echo 'Current Working Directory:' && pwd && \
         echo 'Directory Contents:' && ls -la"
+        
+    - uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: autoconf build-essential ca-certificates casync clang cmake make cppcheck libtool gcc-arm-none-eabi bzip2 liblzma-dev libarchive-dev libbz2-dev capnproto libcapnp-dev curl libcurl4-openssl-dev git git-lfs ffmpeg libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libavfilter-dev libeigen3-dev libffi-dev libglew-dev libgles2-mesa-dev libglfw3-dev libglib2.0-0 libncurses5-dev libncursesw5-dev libomp-dev libopencv-dev libpng16-16 libportaudio2 libssl-dev libsqlite3-dev libusb-1.0-0-dev libzmq3-dev libsystemd-dev locales opencl-headers ocl-icd-libopencl1 ocl-icd-opencl-dev clinfo portaudio19-dev qml-module-qtquick2 qtmultimedia5-dev qtlocation5-dev qtpositioning5-dev qttools5-dev-tools libqt5sql5-sqlite libqt5svg5-dev libqt5charts5-dev libqt5serialbus5-dev libqt5x11extras5-dev libreadline-dev libdw1 valgrind libavresample-dev python3-dev x11-xserver-utils
+        version: 1.0
 
     - name: Run unit tests
       timeout-minutes: 15
       run: |
-        docker run --shm-size 1G -v $PWD:/tmp/openpilot -v $PWD/selfdrive/test:/tmp/openpilot/selfdrive/test -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID openpilot /bin/bash -c "source selfdrive/test/setup_xvfb.sh && export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && $PYTEST --timeout 60 -m 'not slow'"
+        source selfdrive/test/setup_xvfb.sh &&
+        ${{ env.RUN }} "
+          export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' &&
+          pytest --timeout 60 -m 'not slow' &&
+          ./selfdrive/ui/tests/create_test_translations.sh &&
+          QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations &&
+          ./selfdrive/ui/tests/test_translations.py"
 
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v3
