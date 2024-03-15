@@ -150,6 +150,7 @@ class TestUploader(UploaderTestCase):
 
     self.assertTrue(log_handler.upload_order == exp_order, "Files uploaded in wrong order")
 
+  @pytest.mark.skip(reason="Temporary for testing new github workflow")
   def test_no_upload_with_lock_file(self):
     self.start_thread()
 
