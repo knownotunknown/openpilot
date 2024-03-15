@@ -49,11 +49,10 @@ jobs:
       run: |
         echo "Need to set the Docker Hub PAT secret as an input to this action"
         exit 1
-    - name: Login to Docker Hub
-      if: contains(runner.name, 'buildjet')
+        
+    - name: Login to GitHub Container Registry
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       shell: bash
-      run: |
-        docker login -u adeebshihadeh -p ${{ inputs.docker_hub_pat }}
 
     # - name: Build Docker image
     #   run: docker build -f Dockerfile.openpilot_base . -t my_openpilot_image
