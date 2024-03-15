@@ -9,6 +9,8 @@ import time
 from collections import defaultdict
 from pathlib import Path
 from flaky import flaky
+import pytest
+
 
 import cereal.messaging as messaging
 from cereal import log

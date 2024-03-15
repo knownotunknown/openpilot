@@ -12,7 +12,7 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.system.loggerd.uploader import main, UPLOAD_ATTR_NAME, UPLOAD_ATTR_VALUE
 
 from openpilot.system.loggerd.tests.loggerd_tests_common import UploaderTestCase
-
+import pytest
 
 class FakeLogHandler(logging.Handler):
   def __init__(self):
