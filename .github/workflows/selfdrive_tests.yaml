@@ -24,7 +24,7 @@ env:
   IMAGE_NAME: openpilot-env  # Name of the Docker image
   IMAGE_TAG: latest  # Tag for the Docker image
   REGISTRY: ghcr.io/${{ github.repository_owner }}  # GitHub Container Registry
-  REBUILD_IMAGE: true
+  REBUILD_IMAGE: false
 
 jobs:
   unit_tests:
@@ -80,7 +80,7 @@ jobs:
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
       run: |
         BASE_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
-        ${{ env.RUN }} "python -m poetry run scons -j$(nproc)"
+        ${{ env.RUN }} "run scons -j$(nproc)"
     - name: Run unit tests
       timeout-minutes: 15
       run: |
