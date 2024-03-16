@@ -107,11 +107,11 @@ jobs:
         echo "Image size: $SIZE bytes"
       shell: bash
 
-    - name: Debugging test environment
-      run: |
-        docker run --rm -v $PWD:/tmp/openpilot -w /tmp/openpilot openpilot /bin/bash -c " \
-        echo 'Current Working Directory:' && pwd && \
-        echo 'Directory Contents:' && ls -la"
+    # - name: Debugging test environment
+    #   run: |
+    #     docker run --rm -v $PWD:/tmp/openpilot -w /tmp/openpilot openpilot /bin/bash -c " \
+    #     echo 'Current Working Directory:' && pwd && \
+    #     echo 'Directory Contents:' && ls -la"
 
     - uses: awalsh128/cache-apt-pkgs-action@latest
       with:
