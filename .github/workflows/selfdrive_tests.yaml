@@ -11,7 +11,7 @@ concurrency:
 
 env:
   PYTHONWARNINGS: error
-  BASE_IMAGE: openpilot
+  # BASE_IMAGE: openpilot
   AZURE_TOKEN: ${{ secrets.AZURE_COMMADATACI_OPENPILOTCI_TOKEN }}
   IMAGE_NAME: openpilot  # Name of the Docker image
   IMAGE_TAG: latest  # Tag for the Docker image
@@ -126,6 +126,7 @@ jobs:
     - name: Run unit tests
       timeout-minutes: 15
       run: |
+        BASE_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
         source selfdrive/test/setup_xvfb.sh &&
         ${{ env.RUN }} "
           export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' &&
