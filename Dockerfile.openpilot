@@ -50,8 +50,6 @@ ENV PYTHONUNBUFFERED=1
 # Don't create `.pyc` files:
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# Copy the entire project
-COPY . /tmp/openpilot
 
 RUN apt-get update && \
     apt-get install -y \
@@ -69,6 +67,7 @@ RUN apt-get update && \
     poetry config virtualenvs.in-project true
 
 WORKDIR ${WORKDIR}
+
 COPY . .
 
 RUN poetry install --only main
