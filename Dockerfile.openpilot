@@ -71,9 +71,9 @@ WORKDIR ${WORKDIR}
 
 COPY . .
 
-RUN /bin/bash -c "scons -j$(nproc)"
-
 RUN poetry install --only main
+
+RUN /bin/bash -c "scons -j$(nproc)"
 
 FROM python:3.10-alpine
 
