@@ -37,58 +37,8 @@
 # # Keeping the build command the same as it uses the number of processors and doesn't depend on OPENPILOT_PATH.
 # RUN /bin/bash -c "scons -j$(nproc)"
 
-# # Global ARG, available to all stages (if renewed)
-# ARG WORKDIR="/tmp/openpilot"
-
-# FROM python:3.10 AS builder
-
-# # Renew (https://stackoverflow.com/a/53682110):
-# ARG WORKDIR
-
-# # Don't buffer `stdout`:
-# ENV PYTHONUNBUFFERED=1
-# # Don't create `.pyc` files:
-# ENV PYTHONDONTWRITEBYTECODE=1
-
-
-# RUN apt-get update && \
-#     apt-get install -y \
-#     build-essential \
-#     autoconf \
-#     python3-pyaudio \
-#     portaudio19-dev \
-#     libssl-dev && \
-#     rm -rf /var/lib/apt/lists/*
-
-# RUN apt-get update && \
-#     apt-get install -y python3-dev && \
-#     pip install --upgrade pip==23.3 && \
-#     pip install poetry==1.6.1 && \
-#     poetry config virtualenvs.in-project true
-
-# WORKDIR ${WORKDIR}
-
-# COPY . .
-
-# RUN poetry install --only main
-
-# FROM python:3.10-alpine
-
-# ARG WORKDIR
-
-# WORKDIR ${WORKDIR}
-
-# COPY --from=builder ${WORKDIR} .
-
-# RUN apk add --no-cache bash
-
-# # # For options, see https://boxmatrix.info/wiki/Property:adduser
-# # RUN adduser app -DHh ${WORKDIR} -u 1000
-# # USER 1000
-
-
 # Global ARG, available to all stages (if renewed)
-ARG WORKDIR="/app"
+ARG WORKDIR="/tmp/openpilot"
 
 FROM python:3.10 AS builder
 
@@ -99,6 +49,7 @@ ARG WORKDIR
 ENV PYTHONUNBUFFERED=1
 # Don't create `.pyc` files:
 ENV PYTHONDONTWRITEBYTECODE=1
+
 
 RUN apt-get update && \
     apt-get install -y \
@@ -116,6 +67,7 @@ RUN apt-get update && \
     poetry config virtualenvs.in-project true
 
 WORKDIR ${WORKDIR}
+
 COPY . .
 
 RUN poetry install --only main
@@ -130,6 +82,10 @@ COPY --from=builder ${WORKDIR} .
 
 RUN apk add --no-cache bash
 
-# For options, see https://boxmatrix.info/wiki/Property:adduser
-RUN adduser app -DHh ${WORKDIR} -u 1000
-USER 1000
+RUN /bin/bash -c "scons -j$(nproc)"
+
+# # For options, see https://boxmatrix.info/wiki/Property:adduser
+# RUN adduser app -DHh ${WORKDIR} -u 1000
+# USER 1000
+
+
