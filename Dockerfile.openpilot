@@ -54,6 +54,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 RUN apt-get update && \
     apt-get install -y \
     build-essential \
+    scons \
     autoconf \
     python3-pyaudio \
     portaudio19-dev \
@@ -70,6 +71,8 @@ WORKDIR ${WORKDIR}
 
 COPY . .
 
+RUN /bin/bash -c "scons -j$(nproc)"
+
 RUN poetry install --only main
 
 FROM python:3.10-alpine
@@ -81,8 +84,6 @@ WORKDIR ${WORKDIR}
 COPY --from=builder ${WORKDIR} .
 
 RUN apk add --no-cache bash
-
-RUN /bin/bash -c "scons -j$(nproc)"
 
 # # For options, see https://boxmatrix.info/wiki/Property:adduser
 # RUN adduser app -DHh ${WORKDIR} -u 1000
