@@ -1,6 +1,6 @@
 name: OpenPilot Environment Setup
 
-on: [push, pull_request, workflow_dispatch]  # Trigger on push and pull request events, adjust as necessary
+on: [pull_request, workflow_dispatch]  # Trigger on push and pull request events, adjust as necessary
 
 env:
   PYTHONWARNINGS: error
