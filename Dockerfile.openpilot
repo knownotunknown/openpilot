@@ -73,7 +73,7 @@ COPY . .
 
 RUN poetry install --only main
 
-RUN /bin/bash -c "scons -j$(nproc)"
+RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc)"
 
 FROM python:3.10-alpine
 
