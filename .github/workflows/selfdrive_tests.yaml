@@ -81,6 +81,10 @@ jobs:
       run: |
         docker build -f Dockerfile.openpilot -t openpilot .
 
+    - name: Print Docker Image Size
+      run: |
+        docker images openpilot --format "{{.Size}}"
+
     - name: Debugging test environment
       run: |
         docker run --rm -v $PWD:/tmp/openpilot -w /tmp/openpilot openpilot /bin/bash -c " \

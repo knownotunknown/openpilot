@@ -1,38 +1,88 @@
-FROM ghcr.io/commaai/openpilot-base:latest
+# FROM ghcr.io/commaai/openpilot-base:latest
 
-ENV PYTHONUNBUFFERED 1
+# ENV PYTHONUNBUFFERED 1
 
-# # Environment variable OPENPILOT_PATH is still defined for use in the container if needed.
-# ENV OPENPILOT_PATH /tmp/openpilot
-# ENV PYTHONPATH /tmp/openpilot:${PYTHONPATH}
+# # # Environment variable OPENPILOT_PATH is still defined for use in the container if needed.
+# # ENV OPENPILOT_PATH /tmp/openpilot
+# # ENV PYTHONPATH /tmp/openpilot:${PYTHONPATH}
 
-# # Directly using the hardcoded path instead of the variable for the mkdir command.
-# RUN mkdir -p /tmp/openpilot
+# # # Directly using the hardcoded path instead of the variable for the mkdir command.
+# # RUN mkdir -p /tmp/openpilot
+# # WORKDIR /tmp/openpilot
+
+# # Copy the entire project
+# COPY . /tmp/openpilot
+
+# # Set the working directory
 # WORKDIR /tmp/openpilot
+
+# # Replacing ${OPENPILOT_PATH} with /tmp/openpilot in all COPY commands.
+# # COPY SConstruct /tmp/openpilot/
+# # COPY pyproject.toml /tmp/openpilot/
+# # COPY ./openpilot /tmp/openpilot/openpilot
+# # COPY ./third_party /tmp/openpilot/third_party
+# # COPY ./site_scons /tmp/openpilot/site_scons
+# # COPY ./rednose /tmp/openpilot/rednose
+# # COPY ./rednose_repo/site_scons /tmp/openpilot/rednose_repo/site_scons
+# # COPY ./tools /tmp/openpilot/tools
+# # COPY ./release /tmp/openpilot/release
+# # COPY ./common /tmp/openpilot/common
+# # COPY ./opendbc /tmp/openpilot/opendbc
+# # COPY ./cereal /tmp/openpilot/cereal
+# # COPY ./panda /tmp/openpilot/panda
+# # COPY ./selfdrive /tmp/openpilot/selfdrive
+# # COPY ./system /tmp/openpilot/system
+# # COPY ./body /tmp/openpilot/body
+
+# # Keeping the build command the same as it uses the number of processors and doesn't depend on OPENPILOT_PATH.
+# RUN /bin/bash -c "scons -j$(nproc)"
+
+# Global ARG, available to all stages (if renewed)
+ARG WORKDIR="/tmp/openpilot"
+
+FROM python:3.10 AS builder
+
+# Renew (https://stackoverflow.com/a/53682110):
+ARG WORKDIR
+
+# Don't buffer `stdout`:
+ENV PYTHONUNBUFFERED=1
+# Don't create `.pyc` files:
+ENV PYTHONDONTWRITEBYTECODE=1
 
 # Copy the entire project
 COPY . /tmp/openpilot
 
-# Set the working directory
-WORKDIR /tmp/openpilot
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    autoconf \
+    python3-pyaudio \
+    portaudio19-dev \
+    libssl-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# Replacing ${OPENPILOT_PATH} with /tmp/openpilot in all COPY commands.
-# COPY SConstruct /tmp/openpilot/
-# COPY pyproject.toml /tmp/openpilot/
-# COPY ./openpilot /tmp/openpilot/openpilot
-# COPY ./third_party /tmp/openpilot/third_party
-# COPY ./site_scons /tmp/openpilot/site_scons
-# COPY ./rednose /tmp/openpilot/rednose
-# COPY ./rednose_repo/site_scons /tmp/openpilot/rednose_repo/site_scons
-# COPY ./tools /tmp/openpilot/tools
-# COPY ./release /tmp/openpilot/release
-# COPY ./common /tmp/openpilot/common
-# COPY ./opendbc /tmp/openpilot/opendbc
-# COPY ./cereal /tmp/openpilot/cereal
-# COPY ./panda /tmp/openpilot/panda
-# COPY ./selfdrive /tmp/openpilot/selfdrive
-# COPY ./system /tmp/openpilot/system
-# COPY ./body /tmp/openpilot/body
+RUN apt-get update && \
+    apt-get install -y python3-dev && \
+    pip install --upgrade pip==23.3 && \
+    pip install poetry==1.6.1 && \
+    poetry config virtualenvs.in-project true
 
-# Keeping the build command the same as it uses the number of processors and doesn't depend on OPENPILOT_PATH.
-RUN /bin/bash -c "scons -j$(nproc)"
+WORKDIR ${WORKDIR}
+COPY . .
+
+RUN poetry install --only main
+
+FROM python:3.10-alpine
+
+ARG WORKDIR
+
+WORKDIR ${WORKDIR}
+
+COPY --from=builder ${WORKDIR} .
+
+RUN apk add --no-cache bash
+
+# # For options, see https://boxmatrix.info/wiki/Property:adduser
+# RUN adduser app -DHh ${WORKDIR} -u 1000
+# USER 1000
