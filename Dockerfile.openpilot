@@ -42,6 +42,8 @@ ARG WORKDIR="/tmp/openpilot"
 
 FROM ubuntu:20.04 as builder
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Renew (https://stackoverflow.com/a/53682110):
 ARG WORKDIR
 
