@@ -40,7 +40,7 @@
 # Global ARG, available to all stages (if renewed)
 ARG WORKDIR="/tmp/openpilot"
 
-FROM python:3.11 AS builder
+FROM ubuntu:20.04 as builder
 
 # Renew (https://stackoverflow.com/a/53682110):
 ARG WORKDIR
