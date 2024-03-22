@@ -128,6 +128,7 @@ RUN apt-get update && apt-get install -y \
     valgrind \
     python3-dev \
     x11-xserver-utils \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && \
