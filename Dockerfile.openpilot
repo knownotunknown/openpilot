@@ -131,8 +131,16 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && \
-    apt-get install -y python3.11 python3.11-dev python3-pip && \
-    pip install --upgrade pip==23.3 && \
+    wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
+    tar -xf Python-3.11.0.tgz && \
+    cd Python-3.11.0 && \
+    ./configure --enable-optimizations && \
+    make -j 8 && \
+    make altinstall && \
+    cd .. && \
+    rm -rf Python-3.11.0.tgz Python-3.11.0 && \
+    ln -s /usr/local/bin/python3.11 /usr/bin/python3 && \
+    python3 -m pip install --upgrade pip==23.3 && \
     pip install poetry==1.6.1 && \
     poetry config virtualenvs.in-project true
 
