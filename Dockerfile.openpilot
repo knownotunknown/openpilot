@@ -151,7 +151,7 @@ COPY . .
 
 RUN poetry install --with dev
 
-RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc)"
+RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
 FROM python:3.11-alpine
 
