@@ -151,17 +151,17 @@ COPY . .
 
 RUN poetry install --only main
 
-RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
+# RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
-FROM python:3.11-alpine
+# FROM python:3.11-alpine
 
-ARG WORKDIR
+# ARG WORKDIR
 
-WORKDIR ${WORKDIR}
+# WORKDIR ${WORKDIR}
 
-COPY --from=builder ${WORKDIR} .
+# COPY --from=builder ${WORKDIR} .
 
-RUN apk add --no-cache bash
+# RUN apk add --no-cache bash
 
 # # For options, see https://boxmatrix.info/wiki/Property:adduser
 # RUN adduser app -DHh ${WORKDIR} -u 1000
