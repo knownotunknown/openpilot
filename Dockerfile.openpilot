@@ -149,11 +149,11 @@ WORKDIR ${WORKDIR}
 
 COPY . .
 
-RUN poetry install --only main
+RUN poetry install --with dev
 
 RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc)"
 
-FROM python:3.10-alpine
+FROM python:3.11-alpine
 
 ARG WORKDIR
 
