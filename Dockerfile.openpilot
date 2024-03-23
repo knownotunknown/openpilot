@@ -149,7 +149,7 @@ WORKDIR ${WORKDIR}
 
 COPY . .
 
-RUN poetry install --with dev
+RUN poetry install --only main
 
 RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
