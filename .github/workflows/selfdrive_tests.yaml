@@ -103,6 +103,11 @@ jobs:
     #   run: ${{ env.RUN }} "scons -j$(nproc)"
     #   shell: bash
 
+    - name: List Installed Python Dependencies
+      run: |
+        ${{ env.RUN }} "/tmp/openpilot/.venv/bin/python -m pip freeze"
+      shell: bash
+
     - name: Run unit tests
       timeout-minutes: 15
       run: |
