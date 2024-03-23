@@ -109,6 +109,13 @@ spidev = { version = "*", platform = "linux" }
 sympy = "*"
 websocket_client = "*"
 tqdm = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-cpp = "*"
+pytest-subtests = "*"
+pytest-xdist = "*"
+pytest-timeout = "*"
+pytest-randomly = "*"
 
 # these should be removed
 markdown-it-py = "*"
