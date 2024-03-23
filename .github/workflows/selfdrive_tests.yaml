@@ -103,19 +103,22 @@ jobs:
     #   run: ${{ env.RUN }} "scons -j$(nproc)"
     #   shell: bash
 
-    - name: List Installed Python Dependencies
-      run: |
-        ${{ env.RUN }} "/tmp/openpilot/.venv/bin/python -m pip freeze"
-      shell: bash
+    # - name: List Installed Python Dependencies
+    #   run: |
+    #     ${{ env.RUN }} "/tmp/openpilot/.venv/bin/python -m pip freeze"
+    #   shell: bash
 
     - name: Run unit tests
       timeout-minutes: 15
       run: |
         source selfdrive/test/setup_xvfb.sh &&
         ${{ env.RUN }} "
-          . /tmp/openpilot/.venv/bin/activate &&
           export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' &&
-          pytest --timeout 60 -m 'not slow' &&
+          echo 'Locating pytest...' &&
+          which pytest ||
+          find / -type f -name pytest 2>/dev/null &&
+          echo 'Running tests...' &&
+          ./.venv/bin/python -m pytest --timeout 60 -m 'not slow' &&
           ./selfdrive/ui/tests/create_test_translations.sh &&
           QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations &&
           ./selfdrive/ui/tests/test_translations.py"
