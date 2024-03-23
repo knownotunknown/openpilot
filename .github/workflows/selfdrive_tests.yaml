@@ -108,7 +108,7 @@ jobs:
       run: |
         source selfdrive/test/setup_xvfb.sh &&
         ${{ env.RUN }} "
-          . /tmp/openpilot/.venv/bin/activate && export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' &&
+          ./.venv/bin/python && export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' &&
           pytest --timeout 60 -m 'not slow' &&
           ./selfdrive/ui/tests/create_test_translations.sh &&
           QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations &&
