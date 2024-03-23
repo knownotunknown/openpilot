@@ -108,25 +108,12 @@ sounddevice = "*"
 spidev = { version = "*", platform = "linux" }
 sympy = "*"
 websocket_client = "*"
-av = "*"
-azure-identity = "*"
-azure-storage-blob = "*"
-breathe = "*"
-control = "*"
-coverage = "*"
-dictdiffer = "*"
-ft4222 = "*"
-flaky = "*"
-hypothesis = "~6.47"
-inputs = "*"
-Jinja2 = "*"
-lru-dict = "*"
-matplotlib = "*"
-metadrive-simulator = { version = "0.4.2.3", markers = "platform_machine != 'aarch64'" } # no linux/aarch64 wheels for certain dependencies
-mpld3 = "*"
-mypy = "*"
-myst-parser = "*"
-natsort = "*"
+
+# these should be removed
+markdown-it-py = "*"
+timezonefinder = "*"
+setproctitle = "*"
+
 opencv-python-headless = "*"
 parameterized = "^0.8"
 pprofile = "*"
@@ -153,12 +140,6 @@ tenacity = "*"
 types-requests = "*"
 types-tabulate = "*"
 tqdm = "*"
-
-
-# these should be removed
-markdown-it-py = "*"
-timezonefinder = "*"
-setproctitle = "*"
 
 [tool.poetry.group.dev.dependencies]
 av = "*"
