@@ -108,31 +108,12 @@ sounddevice = "*"
 spidev = { version = "*", platform = "linux" }
 sympy = "*"
 websocket_client = "*"
+tqdm = "*"
 
 # these should be removed
 markdown-it-py = "*"
 timezonefinder = "*"
 setproctitle = "*"
-
-pygame = "*"
-pywinctl = "*"
-pyprof2calltree = "*"
-pytest = "*"
-pytest-cov = "*"
-pytest-cpp = "*"
-pytest-subtests = "*"
-pytest-xdist = "*"
-pytest-timeout = "*"
-pytest-randomly = "*"
-ruff = "*"
-sphinx = "*"
-sphinx-rtd-theme = "*"
-sphinx-sitemap = "*"
-tabulate = "*"
-tenacity = "*"
-types-requests = "*"
-types-tabulate = "*"
-tqdm = "*"
 
 [tool.poetry.group.dev.dependencies]
 av = "*"
