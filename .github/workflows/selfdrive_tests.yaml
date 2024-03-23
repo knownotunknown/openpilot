@@ -110,7 +110,7 @@ jobs:
         ${{ env.RUN }} "
           . /tmp/openpilot/.venv/bin/activate &&
           export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' &&
-          python -m poetry pytest --timeout 60 -m 'not slow' &&
+          pytest --timeout 60 -m 'not slow' &&
           ./selfdrive/ui/tests/create_test_translations.sh &&
           QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations &&
           ./selfdrive/ui/tests/test_translations.py"
