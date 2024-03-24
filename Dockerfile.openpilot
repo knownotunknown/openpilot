@@ -149,7 +149,7 @@ WORKDIR ${WORKDIR}
 
 COPY . .
 
-RUN chmod +x ./.venv/bin/activate
+RUN chmod +x . /tmp/openpilot/.venv/bin/activate
 
 RUN poetry install --only main
 
