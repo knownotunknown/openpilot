@@ -1,157 +1,157 @@
-# FROM ghcr.io/commaai/openpilot-base:latest
+FROM ghcr.io/commaai/openpilot-base:latest
 
-# ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED 1
 
-# # # Environment variable OPENPILOT_PATH is still defined for use in the container if needed.
-# # ENV OPENPILOT_PATH /tmp/openpilot
-# # ENV PYTHONPATH /tmp/openpilot:${PYTHONPATH}
+# # Environment variable OPENPILOT_PATH is still defined for use in the container if needed.
+# ENV OPENPILOT_PATH /tmp/openpilot
+# ENV PYTHONPATH /tmp/openpilot:${PYTHONPATH}
 
-# # # Directly using the hardcoded path instead of the variable for the mkdir command.
-# # RUN mkdir -p /tmp/openpilot
-# # WORKDIR /tmp/openpilot
-
-# # Copy the entire project
-# COPY . /tmp/openpilot
-
-# # Set the working directory
+# # Directly using the hardcoded path instead of the variable for the mkdir command.
+# RUN mkdir -p /tmp/openpilot
 # WORKDIR /tmp/openpilot
 
-# # Replacing ${OPENPILOT_PATH} with /tmp/openpilot in all COPY commands.
-# # COPY SConstruct /tmp/openpilot/
-# # COPY pyproject.toml /tmp/openpilot/
-# # COPY ./openpilot /tmp/openpilot/openpilot
-# # COPY ./third_party /tmp/openpilot/third_party
-# # COPY ./site_scons /tmp/openpilot/site_scons
-# # COPY ./rednose /tmp/openpilot/rednose
-# # COPY ./rednose_repo/site_scons /tmp/openpilot/rednose_repo/site_scons
-# # COPY ./tools /tmp/openpilot/tools
-# # COPY ./release /tmp/openpilot/release
-# # COPY ./common /tmp/openpilot/common
-# # COPY ./opendbc /tmp/openpilot/opendbc
-# # COPY ./cereal /tmp/openpilot/cereal
-# # COPY ./panda /tmp/openpilot/panda
-# # COPY ./selfdrive /tmp/openpilot/selfdrive
-# # COPY ./system /tmp/openpilot/system
-# # COPY ./body /tmp/openpilot/body
+# Copy the entire project
+COPY . /tmp/openpilot
 
-# # Keeping the build command the same as it uses the number of processors and doesn't depend on OPENPILOT_PATH.
-# RUN /bin/bash -c "scons -j$(nproc)"
+# Set the working directory
+WORKDIR /tmp/openpilot
+
+# Replacing ${OPENPILOT_PATH} with /tmp/openpilot in all COPY commands.
+# COPY SConstruct /tmp/openpilot/
+# COPY pyproject.toml /tmp/openpilot/
+# COPY ./openpilot /tmp/openpilot/openpilot
+# COPY ./third_party /tmp/openpilot/third_party
+# COPY ./site_scons /tmp/openpilot/site_scons
+# COPY ./rednose /tmp/openpilot/rednose
+# COPY ./rednose_repo/site_scons /tmp/openpilot/rednose_repo/site_scons
+# COPY ./tools /tmp/openpilot/tools
+# COPY ./release /tmp/openpilot/release
+# COPY ./common /tmp/openpilot/common
+# COPY ./opendbc /tmp/openpilot/opendbc
+# COPY ./cereal /tmp/openpilot/cereal
+# COPY ./panda /tmp/openpilot/panda
+# COPY ./selfdrive /tmp/openpilot/selfdrive
+# COPY ./system /tmp/openpilot/system
+# COPY ./body /tmp/openpilot/body
+
+# Keeping the build command the same as it uses the number of processors and doesn't depend on OPENPILOT_PATH.
+RUN /bin/bash -c "scons -j$(nproc)"
 
 # Global ARG, available to all stages (if renewed)
-ARG WORKDIR="/tmp/openpilot"
+# ARG WORKDIR="/tmp/openpilot"
 
-FROM ubuntu:20.04
+# FROM ubuntu:20.04
 
-ENV DEBIAN_FRONTEND=noninteractive
+# ENV DEBIAN_FRONTEND=noninteractive
 
-# Renew (https://stackoverflow.com/a/53682110):
-ARG WORKDIR
+# # Renew (https://stackoverflow.com/a/53682110):
+# ARG WORKDIR
 
-# Don't buffer `stdout`:
-ENV PYTHONUNBUFFERED=1
-# Don't create `.pyc` files:
-ENV PYTHONDONTWRITEBYTECODE=1
+# # Don't buffer `stdout`:
+# ENV PYTHONUNBUFFERED=1
+# # Don't create `.pyc` files:
+# ENV PYTHONDONTWRITEBYTECODE=1
 
 
-RUN apt-get update && \
-    apt-get install -y \
-    build-essential \
-    scons \
-    autoconf \
-    python3-pyaudio \
-    portaudio19-dev \
-    libssl-dev && \
-    rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && \
+#     apt-get install -y \
+#     build-essential \
+#     scons \
+#     autoconf \
+#     python3-pyaudio \
+#     portaudio19-dev \
+#     libssl-dev && \
+#     rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y \
-    autoconf \
-    build-essential \
-    ca-certificates \
-    casync \
-    clang \
-    cmake \
-    make \
-    cppcheck \
-    libtool \
-    gcc-arm-none-eabi \
-    bzip2 \
-    liblzma-dev \
-    libarchive-dev \
-    libbz2-dev \
-    capnproto \
-    libcapnp-dev \
-    curl \
-    libcurl4-openssl-dev \
-    git \
-    git-lfs \
-    ffmpeg \
-    libavformat-dev \
-    libavcodec-dev \
-    libavdevice-dev \
-    libavutil-dev \
-    libavfilter-dev \
-    libeigen3-dev \
-    libffi-dev \
-    libglew-dev \
-    libgles2-mesa-dev \
-    libglfw3-dev \
-    libglib2.0-0 \
-    libncurses5-dev \
-    libncursesw5-dev \
-    libomp-dev \
-    libopencv-dev \
-    libpng16-16 \
-    libportaudio2 \
-    libssl-dev \
-    libsqlite3-dev \
-    libusb-1.0-0-dev \
-    libzmq3-dev \
-    libsystemd-dev \
-    locales \
-    opencl-headers \
-    ocl-icd-libopencl1 \
-    ocl-icd-opencl-dev \
-    clinfo \
-    portaudio19-dev \
-    qml-module-qtquick2 \
-    qtmultimedia5-dev \
-    qtlocation5-dev \
-    qtpositioning5-dev \
-    qttools5-dev-tools \
-    libqt5sql5-sqlite \
-    libqt5svg5-dev \
-    libqt5charts5-dev \
-    libqt5serialbus5-dev \
-    libqt5x11extras5-dev \
-    libreadline-dev \
-    libdw1 \
-    valgrind \
-    python3-dev \
-    x11-xserver-utils \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     autoconf \
+#     build-essential \
+#     ca-certificates \
+#     casync \
+#     clang \
+#     cmake \
+#     make \
+#     cppcheck \
+#     libtool \
+#     gcc-arm-none-eabi \
+#     bzip2 \
+#     liblzma-dev \
+#     libarchive-dev \
+#     libbz2-dev \
+#     capnproto \
+#     libcapnp-dev \
+#     curl \
+#     libcurl4-openssl-dev \
+#     git \
+#     git-lfs \
+#     ffmpeg \
+#     libavformat-dev \
+#     libavcodec-dev \
+#     libavdevice-dev \
+#     libavutil-dev \
+#     libavfilter-dev \
+#     libeigen3-dev \
+#     libffi-dev \
+#     libglew-dev \
+#     libgles2-mesa-dev \
+#     libglfw3-dev \
+#     libglib2.0-0 \
+#     libncurses5-dev \
+#     libncursesw5-dev \
+#     libomp-dev \
+#     libopencv-dev \
+#     libpng16-16 \
+#     libportaudio2 \
+#     libssl-dev \
+#     libsqlite3-dev \
+#     libusb-1.0-0-dev \
+#     libzmq3-dev \
+#     libsystemd-dev \
+#     locales \
+#     opencl-headers \
+#     ocl-icd-libopencl1 \
+#     ocl-icd-opencl-dev \
+#     clinfo \
+#     portaudio19-dev \
+#     qml-module-qtquick2 \
+#     qtmultimedia5-dev \
+#     qtlocation5-dev \
+#     qtpositioning5-dev \
+#     qttools5-dev-tools \
+#     libqt5sql5-sqlite \
+#     libqt5svg5-dev \
+#     libqt5charts5-dev \
+#     libqt5serialbus5-dev \
+#     libqt5x11extras5-dev \
+#     libreadline-dev \
+#     libdw1 \
+#     valgrind \
+#     python3-dev \
+#     x11-xserver-utils \
+#     wget \
+#     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && \
-    wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
-    tar -xf Python-3.11.0.tgz && \
-    cd Python-3.11.0 && \
-    ./configure --enable-optimizations && \
-    make -j 8 && \
-    make altinstall && \
-    cd .. && \
-    rm -rf Python-3.11.0.tgz Python-3.11.0 && \
-    ln -sf /usr/local/bin/python3.11 /usr/bin/python3 && \
-    python3 -m pip install --upgrade pip==23.3 && \
-    pip install poetry==1.6.1 && \
-    poetry config virtualenvs.in-project true
+# RUN apt-get update && \
+#     wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
+#     tar -xf Python-3.11.0.tgz && \
+#     cd Python-3.11.0 && \
+#     ./configure --enable-optimizations && \
+#     make -j 8 && \
+#     make altinstall && \
+#     cd .. && \
+#     rm -rf Python-3.11.0.tgz Python-3.11.0 && \
+#     ln -sf /usr/local/bin/python3.11 /usr/bin/python3 && \
+#     python3 -m pip install --upgrade pip==23.3 && \
+#     pip install poetry==1.6.1 && \
+#     poetry config virtualenvs.in-project true
 
-WORKDIR ${WORKDIR}
+# WORKDIR ${WORKDIR}
 
-COPY . .
+# COPY . .
 
-RUN poetry install --only main
+# RUN poetry install --only main
 
-RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
+# RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
 # FROM python:3.11-alpine
 # FROM ubuntu:20.04
