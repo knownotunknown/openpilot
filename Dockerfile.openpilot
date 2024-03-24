@@ -149,6 +149,8 @@ WORKDIR ${WORKDIR}
 
 COPY . .
 
+RUN chmod +x ./.venv/bin/activate
+
 RUN poetry install --only main
 
 RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
@@ -162,6 +164,8 @@ WORKDIR ${WORKDIR}
 COPY --from=builder ${WORKDIR} .
 
 RUN apk add --no-cache bash
+
+RUN chmod +x ./.venv/bin/activate
 
 # # For options, see https://boxmatrix.info/wiki/Property:adduser
 # RUN adduser app -DHh ${WORKDIR} -u 1000
