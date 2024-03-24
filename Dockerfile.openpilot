@@ -40,7 +40,7 @@
 # Global ARG, available to all stages (if renewed)
 ARG WORKDIR="/tmp/openpilot"
 
-FROM ubuntu:20.04 as builder
+FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -154,13 +154,13 @@ RUN poetry install --only main
 RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
 # FROM python:3.11-alpine
-FROM ubuntu:20.04 as builder
+# FROM ubuntu:20.04
 
-ARG WORKDIR
+# ARG WORKDIR
 
-WORKDIR ${WORKDIR}
+# WORKDIR ${WORKDIR}
 
-COPY --from=builder ${WORKDIR} .
+# COPY --from=builder ${WORKDIR} .
 
 # RUN apk add --no-cache bash
 
