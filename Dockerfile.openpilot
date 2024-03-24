@@ -153,7 +153,7 @@ RUN poetry install --only main
 
 RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
-FROM ubuntu:20.04
+FROM python:3.11-alpine
 
 ARG WORKDIR
 
@@ -161,7 +161,7 @@ WORKDIR ${WORKDIR}
 
 COPY --from=builder ${WORKDIR} .
 
-# RUN apk add --no-cache bash
+RUN apk add --no-cache bash
 
 RUN chmod +x ./.venv/bin/activate
 
