@@ -15,13 +15,13 @@ WORKDIR /tmp/openpilot
 # Keeping the build command the same as it uses the number of processors and doesn't depend on OPENPILOT_PATH.
 RUN /bin/bash -c "scons -j$(nproc)"
 
-# FROM ubuntu:20.04
+FROM ubuntu:20.04
 
-# ARG WORKDIR
+ARG WORKDIR
 
-# WORKDIR ${WORKDIR}
+WORKDIR ${WORKDIR}
 
-# COPY --from=builder ${WORKDIR} .
+COPY --from=builder ${WORKDIR} .
 
 # RUN apk add --no-cache bash
 
