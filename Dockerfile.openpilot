@@ -1,4 +1,4 @@
-ARG WORKDIR="app"
+ARG WORKDIR="/app"
 
 FROM ghcr.io/commaai/openpilot-base:latest as builder
 
