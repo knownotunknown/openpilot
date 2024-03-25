@@ -1,4 +1,8 @@
-FROM ghcr.io/commaai/openpilot-base:latest
+ARG WORKDIR="app"
+
+FROM ghcr.io/commaai/openpilot-base:latest as builder
+
+ARG WORKDIR
 
 ENV PYTHONUNBUFFERED 1
 
