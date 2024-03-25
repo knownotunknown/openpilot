@@ -6,13 +6,6 @@ ARG WORKDIR
 
 ENV PYTHONUNBUFFERED 1
 
-# # Environment variable OPENPILOT_PATH is still defined for use in the container if needed.
-# ENV OPENPILOT_PATH /tmp/openpilot
-# ENV PYTHONPATH /tmp/openpilot:${PYTHONPATH}
-
-# # Directly using the hardcoded path instead of the variable for the mkdir command.
-# RUN mkdir -p /tmp/openpilot
-# WORKDIR /tmp/openpilot
 
 # Copy the entire project
 COPY . /tmp/openpilot
@@ -20,32 +13,13 @@ COPY . /tmp/openpilot
 # Set the working directory
 WORKDIR /tmp/openpilot
 
-# Replacing ${OPENPILOT_PATH} with /tmp/openpilot in all COPY commands.
-# COPY SConstruct /tmp/openpilot/
-# COPY pyproject.toml /tmp/openpilot/
-# COPY ./openpilot /tmp/openpilot/openpilot
-# COPY ./third_party /tmp/openpilot/third_party
-# COPY ./site_scons /tmp/openpilot/site_scons
-# COPY ./rednose /tmp/openpilot/rednose
-# COPY ./rednose_repo/site_scons /tmp/openpilot/rednose_repo/site_scons
-# COPY ./tools /tmp/openpilot/tools
-# COPY ./release /tmp/openpilot/release
-# COPY ./common /tmp/openpilot/common
-# COPY ./opendbc /tmp/openpilot/opendbc
-# COPY ./cereal /tmp/openpilot/cereal
-# COPY ./panda /tmp/openpilot/panda
-# COPY ./selfdrive /tmp/openpilot/selfdrive
-# COPY ./system /tmp/openpilot/system
-# COPY ./body /tmp/openpilot/body
-
-# Keeping the build command the same as it uses the number of processors and doesn't depend on OPENPILOT_PATH.
 RUN /bin/bash -c "scons -j$(nproc)"
 
 WORKDIR ${WORKDIR}
 
 COPY . .
 
-FROM python:3.11-alpine
+FROM ubuntu:20.04
 
 ARG WORKDIR
 
@@ -53,7 +27,7 @@ WORKDIR ${WORKDIR}
 
 COPY --from=builder ${WORKDIR} .
 
-RUN apk add --no-cache bash
+# RUN apk add --no-cache bash
 
 # Global ARG, available to all stages (if renewed)
 # ARG WORKDIR="/tmp/openpilot"
