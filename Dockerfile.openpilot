@@ -1,6 +1,6 @@
 ARG WORKDIR="app"
 
-FROM ghcr.io/commaai/openpilot-base:latest as builder
+FROM ghcr.io/commaai/openpilot-base:latest
 
 ARG WORKDIR
 
@@ -40,20 +40,6 @@ WORKDIR /tmp/openpilot
 
 # Keeping the build command the same as it uses the number of processors and doesn't depend on OPENPILOT_PATH.
 RUN /bin/bash -c "scons -j$(nproc)"
-
-WORKDIR ${WORKDIR}
-
-COPY . .
-
-FROM python:3.11-alpine
-
-ARG WORKDIR
-
-WORKDIR ${WORKDIR}
-
-COPY --from=builder ${WORKDIR} .
-
-RUN apk add --no-cache bash
 
 # Global ARG, available to all stages (if renewed)
 # ARG WORKDIR="/tmp/openpilot"
