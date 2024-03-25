@@ -1,27 +1,35 @@
-ARG WORKDIR="/app"
+ARG BUILDER_WORKDIR="/tmp/openpilot"
 
+# Builder stage
 FROM ghcr.io/commaai/openpilot-base:latest as builder
 
-ARG WORKDIR
+# Use the ARG in the builder stage
+ARG BUILDER_WORKDIR
 
+# Set environment variable
 ENV PYTHONUNBUFFERED 1
 
-# Copy the entire project
-COPY . /tmp/openpilot
+# Copy the entire project to a temporary directory for building
+COPY . ${BUILDER_WORKDIR}
 
-# Set the working directory
-WORKDIR /tmp/openpilot
+# Set the working directory to the temporary directory
+WORKDIR ${BUILDER_WORKDIR}
 
-# Keeping the build command the same as it uses the number of processors and doesn't depend on OPENPILOT_PATH.
+# Build command
 RUN /bin/bash -c "scons -j$(nproc)"
 
+# Final stage
 FROM ubuntu:20.04
 
-ARG WORKDIR
+# Use the ARG in the final stage
+ARG BUILDER_WORKDIR
 
-WORKDIR ${WORKDIR}
+# Set the working directory in the final image to match the builder's WORKDIR
+WORKDIR ${BUILDER_WORKDIR}
 
-COPY --from=builder ${WORKDIR} .
+# Copy from builder's WORKDIR to the WORKDIR of the final image
+COPY --from=builder ${BUILDER_WORKDIR} ${BUILDER_WORKDIR}
+
 
 # RUN apk add --no-cache bash
 
