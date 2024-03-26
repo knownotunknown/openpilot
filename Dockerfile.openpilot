@@ -24,6 +24,10 @@ COPY --from=builder ${BUILDER_WORKDIR} .
 # Copy the entire pyenv directory from the builder stage
 COPY --from=builder /home/batman/pyenv /home/batman/pyenv
 
+RUN apt-get update && \
+    apt-get install -y libsqlite3-0 && \
+    rm -rf /var/lib/apt/lists/*
+
 # Set necessary pyenv environment variables
 ENV PYENV_ROOT="/home/batman/pyenv"
 ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
