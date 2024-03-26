@@ -17,7 +17,7 @@ env:
   DOCKER_LOGIN: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
   BUILD: selfdrive/test/docker_build.sh base
 
-  RUN: docker run --rm -e PYTHONWARNINGS="ignore::DeprecationWarning" -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -v $GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit -v $GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache -v $GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache -v $GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache --env DISPLAY=:99 --volume /tmp/.X11-unix:/tmp/.X11-unix ghcr.io/knownotunknown/openpilot:latest /bin/bash -c
+  RUN: docker run --shm-size 1G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -v $GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit -v $GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache -v $GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache -v $GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache ghcr.io/knownotunknown/openpilot:latest /bin/bash -c
 
   IMAGE_NAME: openpilot  # Name of the Docker image
   IMAGE_TAG: latest  # Tag for the Docker image
@@ -111,10 +111,10 @@ jobs:
         packages: xhost x11-xserver-utils
         version: 1.0
 
-    # - name: Build openpilot
-    #   timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
-    #   run: ${{ env.RUN }} "scons -j$(nproc)"
-    #   shell: bash
+    - name: Build openpilot
+      timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
+      run: ${{ env.RUN }} "scons -j$(nproc)"
+      shell: bash
 
     # - name: List Installed Python Dependencies
     #   run: |
@@ -124,17 +124,12 @@ jobs:
     - name: Run unit tests
       timeout-minutes: 15
       run: |
-        source selfdrive/test/setup_xvfb.sh &&
-        ${{ env.RUN }} "
-          echo 'Contents of /:' &&
-          ls -la / &&
-          echo 'Contents of /tmp/openpilot:' &&
-          ls -la /tmp/openpilot &&
-          export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' &&
-          pytest --timeout 60 -m 'not slow' &&
-          ./selfdrive/ui/tests/create_test_translations.sh &&
-          QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations &&
-          ./selfdrive/ui/tests/test_translations.py"
+        ${{ env.RUN }} "source selfdrive/test/setup_xvfb.sh && \
+                        export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && \
+                        $PYTEST --timeout 60 -m 'not slow' && \
+                        ./selfdrive/ui/tests/create_test_translations.sh && \
+                        QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations && \
+                        ./selfdrive/ui/tests/test_translations.py"
 
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v3
