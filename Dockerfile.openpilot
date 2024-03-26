@@ -1,40 +1,40 @@
-ARG BUILDER_WORKDIR="/tmp/openpilot"
+# ARG BUILDER_WORKDIR="/tmp/openpilot"
 
-# Builder stage
-FROM ghcr.io/commaai/openpilot-base:latest as builder
+# # Builder stage
+# FROM ghcr.io/commaai/openpilot-base:latest
 
-ARG BUILDER_WORKDIR
-ENV PYTHONUNBUFFERED 1
+# ARG BUILDER_WORKDIR
+# ENV PYTHONUNBUFFERED 1
 
-COPY . ${BUILDER_WORKDIR}
-WORKDIR ${BUILDER_WORKDIR}
+# COPY . ${BUILDER_WORKDIR}
+# WORKDIR ${BUILDER_WORKDIR}
 
-# Your build command
-RUN /bin/bash -c "scons -j$(nproc)"
+# # Your build command
+# RUN /bin/bash -c "scons -j$(nproc)"
 
-# Final stage
-FROM ubuntu:20.04
+# # Final stage
+# FROM ubuntu:20.04
 
-ARG BUILDER_WORKDIR
-WORKDIR ${BUILDER_WORKDIR}
+# ARG BUILDER_WORKDIR
+# WORKDIR ${BUILDER_WORKDIR}
 
-# Copy your application code from the builder stage
-COPY --from=builder ${BUILDER_WORKDIR} .
+# # Copy your application code from the builder stage
+# COPY --from=builder ${BUILDER_WORKDIR} .
 
-# Copy the entire pyenv directory from the builder stage
-COPY --from=builder /home/batman/pyenv /home/batman/pyenv
+# # Copy the entire pyenv directory from the builder stage
+# COPY --from=builder /home/batman/pyenv /home/batman/pyenv
 
-RUN apt-get update && \
-    apt-get install -y libsqlite3-0 && \
-    rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && \
+#     apt-get install -y libsqlite3-0 && \
+#     rm -rf /var/lib/apt/lists/*
 
-# Set necessary pyenv environment variables
-ENV PYENV_ROOT="/home/batman/pyenv"
-ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
+# # Set necessary pyenv environment variables
+# ENV PYENV_ROOT="/home/batman/pyenv"
+# ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
 
-# Initialize pyenv in the final image
-RUN echo 'eval "$(pyenv init --path)"' >> /etc/profile.d/pyenv.sh && \
-    echo 'eval "$(pyenv init -)"' >> /etc/bash.bashrc
+# # Initialize pyenv in the final image
+# RUN echo 'eval "$(pyenv init --path)"' >> /etc/profile.d/pyenv.sh && \
+#     echo 'eval "$(pyenv init -)"' >> /etc/bash.bashrc
 
 # ENV PATH="${BUILDER_WORKDIR}/.venv/bin:$PATH"
 
@@ -46,120 +46,120 @@ RUN echo 'eval "$(pyenv init --path)"' >> /etc/profile.d/pyenv.sh && \
 # USER 1000
 
 # Global ARG, available to all stages (if renewed)
-# ARG WORKDIR="/tmp/openpilot"
+ARG WORKDIR="/tmp/openpilot"
 
-# FROM ubuntu:20.04
+FROM ubuntu:20.04
 
-# ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
-# # Renew (https://stackoverflow.com/a/53682110):
-# ARG WORKDIR
+# Renew (https://stackoverflow.com/a/53682110):
+ARG WORKDIR
 
-# # Don't buffer `stdout`:
-# ENV PYTHONUNBUFFERED=1
-# # Don't create `.pyc` files:
-# ENV PYTHONDONTWRITEBYTECODE=1
+# Don't buffer `stdout`:
+ENV PYTHONUNBUFFERED=1
+# Don't create `.pyc` files:
+ENV PYTHONDONTWRITEBYTECODE=1
 
 
-# RUN apt-get update && \
-#     apt-get install -y \
-#     build-essential \
-#     scons \
-#     autoconf \
-#     python3-pyaudio \
-#     portaudio19-dev \
-#     libssl-dev && \
-#     rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    scons \
+    autoconf \
+    python3-pyaudio \
+    portaudio19-dev \
+    libssl-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# RUN apt-get update && apt-get install -y \
-#     autoconf \
-#     build-essential \
-#     ca-certificates \
-#     casync \
-#     clang \
-#     cmake \
-#     make \
-#     cppcheck \
-#     libtool \
-#     gcc-arm-none-eabi \
-#     bzip2 \
-#     liblzma-dev \
-#     libarchive-dev \
-#     libbz2-dev \
-#     capnproto \
-#     libcapnp-dev \
-#     curl \
-#     libcurl4-openssl-dev \
-#     git \
-#     git-lfs \
-#     ffmpeg \
-#     libavformat-dev \
-#     libavcodec-dev \
-#     libavdevice-dev \
-#     libavutil-dev \
-#     libavfilter-dev \
-#     libeigen3-dev \
-#     libffi-dev \
-#     libglew-dev \
-#     libgles2-mesa-dev \
-#     libglfw3-dev \
-#     libglib2.0-0 \
-#     libncurses5-dev \
-#     libncursesw5-dev \
-#     libomp-dev \
-#     libopencv-dev \
-#     libpng16-16 \
-#     libportaudio2 \
-#     libssl-dev \
-#     libsqlite3-dev \
-#     libusb-1.0-0-dev \
-#     libzmq3-dev \
-#     libsystemd-dev \
-#     locales \
-#     opencl-headers \
-#     ocl-icd-libopencl1 \
-#     ocl-icd-opencl-dev \
-#     clinfo \
-#     portaudio19-dev \
-#     qml-module-qtquick2 \
-#     qtmultimedia5-dev \
-#     qtlocation5-dev \
-#     qtpositioning5-dev \
-#     qttools5-dev-tools \
-#     libqt5sql5-sqlite \
-#     libqt5svg5-dev \
-#     libqt5charts5-dev \
-#     libqt5serialbus5-dev \
-#     libqt5x11extras5-dev \
-#     libreadline-dev \
-#     libdw1 \
-#     valgrind \
-#     python3-dev \
-#     x11-xserver-utils \
-#     wget \
-#     && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    autoconf \
+    build-essential \
+    ca-certificates \
+    casync \
+    clang \
+    cmake \
+    make \
+    cppcheck \
+    libtool \
+    gcc-arm-none-eabi \
+    bzip2 \
+    liblzma-dev \
+    libarchive-dev \
+    libbz2-dev \
+    capnproto \
+    libcapnp-dev \
+    curl \
+    libcurl4-openssl-dev \
+    git \
+    git-lfs \
+    ffmpeg \
+    libavformat-dev \
+    libavcodec-dev \
+    libavdevice-dev \
+    libavutil-dev \
+    libavfilter-dev \
+    libeigen3-dev \
+    libffi-dev \
+    libglew-dev \
+    libgles2-mesa-dev \
+    libglfw3-dev \
+    libglib2.0-0 \
+    libncurses5-dev \
+    libncursesw5-dev \
+    libomp-dev \
+    libopencv-dev \
+    libpng16-16 \
+    libportaudio2 \
+    libssl-dev \
+    libsqlite3-dev \
+    libusb-1.0-0-dev \
+    libzmq3-dev \
+    libsystemd-dev \
+    locales \
+    opencl-headers \
+    ocl-icd-libopencl1 \
+    ocl-icd-opencl-dev \
+    clinfo \
+    portaudio19-dev \
+    qml-module-qtquick2 \
+    qtmultimedia5-dev \
+    qtlocation5-dev \
+    qtpositioning5-dev \
+    qttools5-dev-tools \
+    libqt5sql5-sqlite \
+    libqt5svg5-dev \
+    libqt5charts5-dev \
+    libqt5serialbus5-dev \
+    libqt5x11extras5-dev \
+    libreadline-dev \
+    libdw1 \
+    valgrind \
+    python3-dev \
+    x11-xserver-utils \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
-# RUN apt-get update && \
-#     wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
-#     tar -xf Python-3.11.0.tgz && \
-#     cd Python-3.11.0 && \
-#     ./configure --enable-optimizations && \
-#     make -j 8 && \
-#     make altinstall && \
-#     cd .. && \
-#     rm -rf Python-3.11.0.tgz Python-3.11.0 && \
-#     ln -sf /usr/local/bin/python3.11 /usr/bin/python3 && \
-#     python3 -m pip install --upgrade pip==23.3 && \
-#     pip install poetry==1.6.1 && \
-#     poetry config virtualenvs.in-project true
+RUN apt-get update && \
+    wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
+    tar -xf Python-3.11.0.tgz && \
+    cd Python-3.11.0 && \
+    ./configure --enable-optimizations && \
+    make -j 8 && \
+    make altinstall && \
+    cd .. && \
+    rm -rf Python-3.11.0.tgz Python-3.11.0 && \
+    ln -sf /usr/local/bin/python3.11 /usr/bin/python3 && \
+    python3 -m pip install --upgrade pip==23.3 && \
+    pip install poetry==1.6.1 && \
+    poetry config virtualenvs.in-project true
 
-# WORKDIR ${WORKDIR}
+WORKDIR ${WORKDIR}
 
-# COPY . .
+COPY . .
 
-# RUN poetry install --only main
+RUN poetry install --only main
 
-# RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
+RUN /bin/bash -c ". /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
 # FROM python:3.11-alpine
 # FROM ubuntu:20.04
