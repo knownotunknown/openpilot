@@ -100,11 +100,11 @@ jobs:
       run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
       shell: bash
 
-    - name: Debugging test environment
-      run: |
-        docker run --rm -w /tmp/openpilot openpilot /bin/bash -c " \
-        echo 'Current Working Directory:' && pwd && \
-        echo 'Directory Contents:' && ls -la"
+    # - name: Debugging test environment
+    #   run: |
+    #     docker run --rm -w /tmp/openpilot openpilot /bin/bash -c " \
+    #     echo 'Current Working Directory:' && pwd && \
+    #     echo 'Directory Contents:' && ls -la"
 
     - uses: awalsh128/cache-apt-pkgs-action@latest
       with:
