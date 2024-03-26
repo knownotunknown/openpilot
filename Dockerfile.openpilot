@@ -3,32 +3,34 @@ ARG BUILDER_WORKDIR="/tmp/openpilot"
 # Builder stage
 FROM ghcr.io/commaai/openpilot-base:latest as builder
 
-# Use the ARG in the builder stage
 ARG BUILDER_WORKDIR
-
-# Set environment variable
 ENV PYTHONUNBUFFERED 1
 
-# Copy the entire project to a temporary directory for building
 COPY . ${BUILDER_WORKDIR}
-
-# Set the working directory to the temporary directory
 WORKDIR ${BUILDER_WORKDIR}
 
-# Build command
+# Your build command
 RUN /bin/bash -c "scons -j$(nproc)"
 
-# # Final stage
-# FROM ubuntu:20.04
+# Final stage
+FROM ubuntu:20.04
 
-# # Use the ARG in the final stage
-# ARG BUILDER_WORKDIR
+ARG BUILDER_WORKDIR
+WORKDIR ${BUILDER_WORKDIR}
 
-# # Set the working directory in the final image to match the builder's WORKDIR
-# WORKDIR ${BUILDER_WORKDIR}
+# Copy your application code from the builder stage
+COPY --from=builder ${BUILDER_WORKDIR} .
 
-# # Copy from builder's WORKDIR to the WORKDIR of the final image
-# COPY --from=builder ${BUILDER_WORKDIR} ${BUILDER_WORKDIR}
+# Copy the entire pyenv directory from the builder stage
+COPY --from=builder /home/batman/.pyenv /home/batman/.pyenv
+
+# Set necessary pyenv environment variables
+ENV PYENV_ROOT="/home/batman/.pyenv"
+ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
+
+# Initialize pyenv in the final image
+RUN echo 'eval "$(pyenv init --path)"' >> /etc/profile.d/pyenv.sh && \
+    echo 'eval "$(pyenv init -)"' >> /etc/bash.bashrc
 
 # ENV PATH="${BUILDER_WORKDIR}/.venv/bin:$PATH"
 
