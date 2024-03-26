@@ -22,10 +22,10 @@ WORKDIR ${BUILDER_WORKDIR}
 COPY --from=builder ${BUILDER_WORKDIR} .
 
 # Copy the entire pyenv directory from the builder stage
-COPY --from=builder /home/batman/.pyenv /home/batman/.pyenv
+COPY --from=builder /home/batman/pyenv /home/batman/pyenv
 
 # Set necessary pyenv environment variables
-ENV PYENV_ROOT="/home/batman/.pyenv"
+ENV PYENV_ROOT="/home/batman/pyenv"
 ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
 
 # Initialize pyenv in the final image
