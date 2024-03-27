@@ -90,11 +90,11 @@ jobs:
     #   run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
     #   shell: bash
 
-    - name: Display Docker Image Size
-      run: |
-        SIZE=$(docker image inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} --format='{{.Size}}')
-        echo "Image size: $SIZE bytes"
-      shell: bash
+    # - name: Display Docker Image Size
+    #   run: |
+    #     SIZE=$(docker image inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} --format='{{.Size}}')
+    #     echo "Image size: $SIZE bytes"
+    #   shell: bash
 
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
