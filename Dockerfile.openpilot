@@ -16,7 +16,7 @@ COPY . ${BUILDER_WORKDIR}
 WORKDIR ${BUILDER_WORKDIR}
 
 # Build command
-RUN /bin/bash -c "scons -j$(nproc)"
+# RUN /bin/bash -c "scons -j$(nproc)"
 
 # # Final stage
 # FROM ubuntu:20.04
