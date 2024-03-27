@@ -36,7 +36,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
-        
+
     - uses: actions/checkout@v2
     - name: Git LFS Pull
       run: git lfs pull
@@ -61,7 +61,7 @@ jobs:
     - name: Install dependencies
       run: |
         source ~/sconsvenv/bin/activate
-        pip install aiohttp aiortc "casadi==3.6.3" cffi crcmod Cython future-fstrings json-rpc libusb1 numpy "onnx>=1.14.0" psutil pyaudio pycapnp pycryptodome PyJWT pyserial pyzmq requests scons sentry-sdk smbus2 sounddevice sympy websocket_client
+        pip install markdown-it-py timezonefinder setproctitle aiohttp aiortc "casadi==3.6.3" cffi crcmod Cython future-fstrings json-rpc libusb1 numpy "onnx>=1.14.0" psutil pyaudio pycapnp pycryptodome PyJWT pyserial pyzmq requests scons sentry-sdk smbus2 sounddevice sympy websocket_client
         if [ "$(uname -m)" = "aarch64" ]; then
           pip install "onnxruntime>=1.16.3"
         elif [ "$(uname -m)" = "x86_64" ]; then
@@ -71,6 +71,10 @@ jobs:
           pip install spidev
         fi
       shell: bash
+
+#       markdown-it-py = "*"
+# timezonefinder = "*"
+# setproctitle = "*"
 
 
 
