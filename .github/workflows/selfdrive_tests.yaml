@@ -55,10 +55,15 @@ jobs:
     - name: Install dependencies
       run: |
         source ~/sconsvenv/bin/activate
-        python -m pip install --upgrade pip
-        pip install scons
-        pip install numpy  # Removed `--user`
-        pip install pycryptodome
+        pip install aiohttp aiortc "casadi==3.6.3" cffi crcmod Cython future-fstrings json-rpc libusb1 numpy "onnx>=1.14.0" psutil pyaudio pycapnp pycryptodome PyJWT pyserial pyzmq requests scons sentry-sdk smbus2 sounddevice sympy websocket_client
+        if [ "$(uname -m)" = "aarch64" ]; then
+          pip install "onnxruntime>=1.16.3"
+        elif [ "$(uname -m)" = "x86_64" ]; then
+          pip install "onnxruntime-gpu>=1.16.3"
+        fi
+        if [ "$(uname)" = "Linux" ]; then
+          pip install spidev
+        fi
       shell: bash
 
 
