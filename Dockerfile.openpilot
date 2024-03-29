@@ -30,6 +30,8 @@ WORKDIR ${BUILDER_WORKDIR}
 # Copy from builder's WORKDIR to the WORKDIR of the final image
 COPY --from=builder ${BUILDER_WORKDIR} ${BUILDER_WORKDIR}
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-utils \
     alien \
