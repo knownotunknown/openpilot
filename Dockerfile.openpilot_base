@@ -1,5 +1,11 @@
 FROM ubuntu:20.04
 
+COPY . /app
+# COPY . /app
+
+WORKDIR /app
+# WORKDIR /app
+
 ENV PYTHONUNBUFFERED 1
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -82,5 +88,24 @@ RUN cd /tmp && \
     find /home/$USER/pyenv -type d -name ".git" | xargs rm -rf && \
     rm -rf /home/$USER/pyenv/versions/3.11.4/lib/python3.11/test
 
+# RUN apt-get update && \
+#     wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
+#     tar -xf Python-3.11.0.tgz && \
+#     cd Python-3.11.0 && \
+#     ./configure --enable-optimizations && \
+#     make -j 8 && \
+#     make altinstall && \
+#     cd .. && \
+#     rm -rf Python-3.11.0.tgz Python-3.11.0 && \
+#     ln -sf /usr/local/bin/python3.11 /usr/bin/python3 && \
+#     python3 -m pip install --upgrade pip==23.3 && \
+#     pip install poetry==1.6.1 && \
+#     poetry config virtualenvs.in-project true
+
+# RUN cd /tmp && \
+#     poetry install --only main
+
 USER root
 RUN sudo git config --global --add safe.directory /tmp/openpilot
+
+# RUN /bin/bash -c "scons -j$(nproc)"
