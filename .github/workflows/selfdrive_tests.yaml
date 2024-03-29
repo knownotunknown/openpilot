@@ -81,7 +81,7 @@ jobs:
 
     - name: Build Docker Image
       run: |
-        docker build -f Dockerfile.openpilot -t openpilot .
+        docker build -f Dockerfile.openpilot_base -t openpilot .
 
     - name: Print Docker Image Size
       run: |
@@ -118,7 +118,7 @@ jobs:
           echo 'Contents of /tmp/openpilot:' &&
           ls -la /tmp/openpilot &&
           export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' &&
-          poetry run pytest --timeout 60 -m 'not slow' &&
+          pytest --timeout 60 -m 'not slow' &&
           ./selfdrive/ui/tests/create_test_translations.sh &&
           QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations &&
           ./selfdrive/ui/tests/test_translations.py"
