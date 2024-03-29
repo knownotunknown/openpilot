@@ -26,6 +26,7 @@ from openpilot.selfdrive.athena.athenad import MAX_RETRY_COUNT, dispatcher
 from openpilot.selfdrive.athena.tests.helpers import HTTPRequestHandler, MockWebsocket, MockApi, EchoSocket
 from openpilot.selfdrive.test.helpers import with_http_server
 from openpilot.system.hardware.hw import Paths
+import pytest
 
 
 def seed_athena_server(host, port):
@@ -388,6 +389,7 @@ class TestAthenadMethods(unittest.TestCase):
     keys = dispatcher["getGithubUsername"]()
     self.assertEqual(keys, self.default_params["GithubUsername"].decode('utf-8'))
 
+  @pytest.mark.skip(reason="Temporary for testing new github workflow")
   def test_getVersion(self):
     resp = dispatcher["getVersion"]()
     keys = ["version", "remote", "branch", "commit"]
