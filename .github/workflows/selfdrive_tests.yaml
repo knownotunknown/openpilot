@@ -22,7 +22,6 @@ env:
   PYTEST: pytest --continue-on-collection-errors --cov --cov-report=xml --cov-append --durations=0 --durations-min=5 --hypothesis-seed 0 -n logical
 
 jobs:
-  build_release:
   unit_tests:
     name: unit tests
     runs-on: ${{ ((github.repository == 'commaai/openpilot') &&
