@@ -110,6 +110,12 @@ RUN cd /tmp && \
 USER root
 RUN sudo git config --global --add safe.directory /tmp/openpilot
 
+# Use the ARG in the builder stage
+ARG BUILDER_WORKDIR
+
+# Set environment variable
+ENV PYTHONUNBUFFERED 1
+
 # Copy the entire project to a temporary directory for building
 COPY . ${BUILDER_WORKDIR}
 

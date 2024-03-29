@@ -45,7 +45,7 @@ jobs:
 
     - name: Print Docker Image Size
       run: |
-        docker images openpilot --format "{{.Size}}"
+        docker images openpilot-base --format "{{.Size}}"
 
     - name: Run unit tests
       timeout-minutes: 15
