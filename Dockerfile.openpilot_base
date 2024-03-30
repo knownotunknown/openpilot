@@ -10,58 +10,49 @@ WORKDIR /app
 
 ENV PYTHONUNBUFFERED 1
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Set front-end to be noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Install necessary packages and clean up in one layer to reduce image size
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-
-COPY tools/install_ubuntu_dependencies.sh /tmp/tools/
-RUN cd /tmp && \
-    tools/install_ubuntu_dependencies.sh && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/* && \
-    # remove unused architectures from gcc for panda
+    apt-get install -y --no-install-recommends \
+        sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot \
+        apt-utils alien unzip tar curl xz-utils dbus gcc-arm-none-eabi tmux vim lsb-core libx11-6 wget && \
+    sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen && \
+    echo 'LANG=en_US.UTF-8\nLANGUAGE=en_US:en\nLC_ALL=en_US.UTF-8' > /etc/default/locale && \
+    # Clean up
+    rm -rf /var/lib/apt/lists/* /tmp/* && \
+    # Remove unused architectures from gcc for panda
     cd /usr/lib/gcc/arm-none-eabi/9.2.1 && \
-    rm -rf arm/ && \
-    rm -rf thumb/nofp thumb/v6* thumb/v8* thumb/v7+fp thumb/v7-r+fp.sp
+    rm -rf arm/ thumb/nofp thumb/v6* thumb/v8* thumb/v7+fp thumb/v7-r+fp.sp
 
-# Add OpenCL
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    apt-utils \
-    alien \
-    unzip \
-    tar \
-    curl \
-    xz-utils \
-    dbus \
-    gcc-arm-none-eabi \
-    tmux \
-    vim \
-    lsb-core \
-    libx11-6 \
-    wget \
-  && rm -rf /var/lib/apt/lists/*
+# Environment variables for locales
+ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8
 
+# Install Ubuntu dependencies from script and Add OpenCL
+COPY tools/install_ubuntu_dependencies.sh /tmp/tools/
+RUN /tmp/tools/install_ubuntu_dependencies.sh && \
+    # Clean up
+    rm -rf /tmp/tools/install_ubuntu_dependencies.sh
+
+# Set Intel OpenCL driver details
 ARG INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
 ARG INTEL_DRIVER_URL=https://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532
-RUN mkdir -p /tmp/opencl-driver-intel
 
-RUN cd /tmp/opencl-driver-intel && \
-    echo INTEL_DRIVER is $INTEL_DRIVER && \
+# Download and install Intel OpenCL driver
+RUN mkdir -p /tmp/opencl-driver-intel && \
+    cd /tmp/opencl-driver-intel && \
     curl -O $INTEL_DRIVER_URL/$INTEL_DRIVER && \
     tar -xzf $INTEL_DRIVER && \
     for i in $(basename $INTEL_DRIVER .tgz)/rpm/*.rpm; do alien --to-deb $i; done && \
     dpkg -i *.deb && \
-    rm -rf $INTEL_DRIVER $(basename $INTEL_DRIVER .tgz) *.deb && \
     mkdir -p /etc/OpenCL/vendors && \
     echo /opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/libintelocl.so > /etc/OpenCL/vendors/intel.icd && \
-    cd / && \
-    rm -rf /tmp/opencl-driver-intel
+    # Clean up
+    cd / && rm -rf /tmp/opencl-driver-intel
 
 ENV NVIDIA_VISIBLE_DEVICES all
 ENV NVIDIA_DRIVER_CAPABILITIES graphics,utility,compute
@@ -82,7 +73,7 @@ RUN dbus-uuidgen > /etc/machine-id
 # ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
 
 COPY pyproject.toml poetry.lock .python-version /tmp/openpilot/
-COPY tools/install_python_dependencies.sh /tmp/tools/
+# COPY tools/install_python_dependencies.sh /tmp/tools/
 
 # RUN cd /tmp && \
 #     tools/install_python_dependencies.sh && \
@@ -91,19 +82,20 @@ COPY tools/install_python_dependencies.sh /tmp/tools/
 #     find /home/$USER/pyenv -type d -name ".git" | xargs rm -rf && \
 #     rm -rf /home/$USER/pyenv/versions/3.11.4/lib/python3.11/test
 
+# Install dependencies, download, compile and install Python, then cleanup in one RUN command to reduce layers
 RUN apt-get update && \
+    apt-get install -y --no-install-recommends wget build-essential libssl-dev libffi-dev zlib1g-dev && \
     wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
     tar -xf Python-3.11.0.tgz && \
     cd Python-3.11.0 && \
     ./configure --enable-optimizations && \
-    make -j 8 && \
+    make -j$(nproc) && \
     make altinstall && \
-    cd .. && \
-    rm -rf Python-3.11.0.tgz Python-3.11.0 && \
     ln -sf /usr/local/bin/python3.11 /usr/bin/python3 && \
-    python3 -m pip install --upgrade pip==23.3 && \
-    pip install poetry==1.6.1 && \
-    poetry config virtualenvs.in-project true
+    python3 -m pip install --upgrade pip poetry && \
+    poetry config virtualenvs.in-project true && \
+    cd .. && \
+    rm -rf Python-3.11.0.tgz Python-3.11.0 /var/lib/apt/lists/*
 
 RUN cd /tmp/openpilot/ && \
     poetry install --only main
