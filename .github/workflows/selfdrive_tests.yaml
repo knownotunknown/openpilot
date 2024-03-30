@@ -21,6 +21,12 @@ env:
 
   PYTEST: pytest --continue-on-collection-errors --cov --cov-report=xml --cov-append --durations=0 --durations-min=5 --hypothesis-seed 0 -n logical
 
+  IMAGE_NAME: openpilot
+  IMAGE_TAG: latest  # Tag for the Docker image
+  REGISTRY: ghcr.io/${{ github.repository_owner }}  # GitHub Container Registry
+  REBUILD_IMAGE: true
+
+
 jobs:
   unit_tests:
     name: unit tests
@@ -31,9 +37,15 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
-    - uses: ./.github/workflows/setup-with-retry
-      with:
-        docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
+
+    - uses: actions/checkout@v2
+    - name: Git LFS Pull
+      run: git lfs pull
+      shell: bash
+
+    # - uses: ./.github/workflows/setup-with-retry
+    #   with:
+    #     docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
 
     # - name: Build openpilot
     #   timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
@@ -42,6 +54,32 @@ jobs:
       with:
         packages: xhost x11-xserver-utils
         version: 1.0
+
+    - name: Login to GitHub Container Registry
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+      shell: bash
+
+    - name: Pull existing Docker image
+      id: docker_pull
+      if: ${{ env.REBUILD_IMAGE != 'true' }}
+      run: |
+        if docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}; then
+          echo "docker_pull_success=true" >> $GITHUB_ENV
+        else
+          echo "docker_pull_success=false" >> $GITHUB_ENV
+        fi
+      shell: bash
+
+    - name: Build Docker Image using cache
+      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
+      run: |
+        docker build --cache-from ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f Dockerfile.openpilot_base -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+      shell: bash
+
+    - name: Push Docker Image
+      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
+      run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+      shell: bash
 
     - name: Print Docker Image Size
       run: |
@@ -52,7 +90,7 @@ jobs:
       run: |
         source selfdrive/test/setup_xvfb.sh && \
         ${{ env.RUN }} "export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && \
-                        source /tmp/openpilot/.venv/bin/activate && $PYTEST --timeout 60 -m 'not slow' && \
+                        ./.venv/bin/python -m $PYTEST --timeout 60 -m 'not slow' && \
                         ./selfdrive/ui/tests/create_test_translations.sh && \
                         QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations && \
                         ./selfdrive/ui/tests/test_translations.py"

@@ -125,11 +125,21 @@ WORKDIR ${BUILDER_WORKDIR}
 
 RUN /bin/bash -c "source /tmp/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
-FROM ubuntu:20.04
+FROM python:3.11-alpine
 
 ARG BUILDER_WORKDIR
 
 WORKDIR ${BUILDER_WORKDIR}
 
 COPY --from=builder ${BUILDER_WORKDIR} .
+
+RUN apt-get update && \
+    apt-get install -y python3-dev && \
+    pip install --upgrade pip==23.3 && \
+    pip install poetry==1.6.1 && \
+    poetry config virtualenvs.in-project true
+
+RUN poetry install --only main
+
+RUN apk add --no-cache bash
 
