@@ -125,30 +125,11 @@ WORKDIR ${BUILDER_WORKDIR}
 
 RUN /bin/bash -c "source /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
-# FROM ubuntu:20.04
+FROM ubuntu:20.04
 
-# ARG WORKDIR
+ARG BUILDER_WORKDIR
 
-# WORKDIR ${WORKDIR}
+WORKDIR ${BUILDER_WORKDIR}
 
-# COPY --from=builder ${WORKDIR} .
-
-
-# FROM ghcr.io/commaai/openpilot-base:latest
-
-# # Use the ARG in the builder stage
-# ARG BUILDER_WORKDIR
-
-# # Set environment variable
-# ENV PYTHONUNBUFFERED 1
-
-# # Copy the entire project to a temporary directory for building
-# COPY . ${BUILDER_WORKDIR}
-
-# # Set the working directory to the temporary directory
-# WORKDIR ${BUILDER_WORKDIR}
-
-# # Build command
-# # RUN /bin/bash -c "scons -j$(nproc)"
-# RUN /bin/bash -c "scons -j$(nproc)"
+COPY --from=builder ${BUILDER_WORKDIR} .
 
