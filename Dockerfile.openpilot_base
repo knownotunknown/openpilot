@@ -1,6 +1,6 @@
 ARG BUILDER_WORKDIR="/tmp/openpilot"
 
-FROM ubuntu:20.04 as builder
+FROM ubuntu:20.04
 
 COPY . /app
 # COPY . /app
@@ -123,15 +123,15 @@ COPY . ${BUILDER_WORKDIR}
 # Set the working directory to the temporary directory
 WORKDIR ${BUILDER_WORKDIR}
 
-RUN /bin/bash -c "source /tmp/openpilot/.venv/bin/activate && scons -j$(nproc)"
+RUN /bin/bash -c "source /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
-FROM ubuntu:20.04
+# FROM ubuntu:20.04
 
-ARG WORKDIR
+# ARG WORKDIR
 
-WORKDIR ${WORKDIR}
+# WORKDIR ${WORKDIR}
 
-COPY --from=builder ${WORKDIR} .
+# COPY --from=builder ${WORKDIR} .
 
 
 # FROM ghcr.io/commaai/openpilot-base:latest
