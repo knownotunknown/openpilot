@@ -125,13 +125,13 @@ WORKDIR ${BUILDER_WORKDIR}
 
 RUN /bin/bash -c "source /tmp/openpilot/.venv/bin/activate && scons -j$(nproc)"
 
-# FROM ubuntu:20.04
+FROM ubuntu:20.04
 
-# ARG WORKDIR
+ARG WORKDIR
 
-# WORKDIR ${WORKDIR}
+WORKDIR ${WORKDIR}
 
-# COPY --from=builder ${WORKDIR} .
+COPY --from=builder ${WORKDIR} .
 
 
 # FROM ghcr.io/commaai/openpilot-base:latest
