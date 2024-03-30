@@ -1,11 +1,13 @@
-ARG BUILDER_WORKDIR="/tmp/openpilot"
+ARG WORKDIR="/tmp/openpilot"
 
 FROM ubuntu:20.04 as builder
 
-COPY . /app
+ARG WORKDIR
+
+COPY . ${WORKDIR}
 # COPY . /app
 
-WORKDIR /app
+WORKDIR ${WORKDIR}
 # WORKDIR /app
 
 ENV PYTHONUNBUFFERED 1
@@ -105,16 +107,16 @@ USER root
 RUN sudo git config --global --add safe.directory /tmp/openpilot
 
 # Use the ARG in the builder stage
-ARG BUILDER_WORKDIR
+# ARG BUILDER_WORKDIR
 
 # Set environment variable
 ENV PYTHONUNBUFFERED 1
 
 # Copy the entire project to a temporary directory for building
-COPY . ${BUILDER_WORKDIR}
+# COPY . ${BUILDER_WORKDIR}
 
-# Set the working directory to the temporary directory
-WORKDIR ${BUILDER_WORKDIR}
+# # Set the working directory to the temporary directory
+# WORKDIR ${BUILDER_WORKDIR}
 
 RUN /bin/bash -c "source /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
