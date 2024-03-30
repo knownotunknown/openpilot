@@ -1,6 +1,6 @@
 ARG BUILDER_WORKDIR="/tmp/openpilot"
 
-FROM ubuntu:20.04
+FROM ubuntu:20.04 as builder
 
 COPY . /app
 # COPY . /app
@@ -81,7 +81,7 @@ RUN dbus-uuidgen > /etc/machine-id
 # ENV PYENV_ROOT="/home/$USER/pyenv"
 # ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
 
-COPY pyproject.toml poetry.lock .python-version /tmp/
+COPY pyproject.toml poetry.lock .python-version /tmp/openpilot/
 COPY tools/install_python_dependencies.sh /tmp/tools/
 
 # RUN cd /tmp && \
@@ -105,7 +105,7 @@ RUN apt-get update && \
     pip install poetry==1.6.1 && \
     poetry config virtualenvs.in-project true
 
-RUN cd /tmp && \
+RUN cd /tmp/openpilot/ && \
     poetry install --only main
 
 USER root
@@ -123,7 +123,15 @@ COPY . ${BUILDER_WORKDIR}
 # Set the working directory to the temporary directory
 WORKDIR ${BUILDER_WORKDIR}
 
-RUN /bin/bash -c "source /tmp/.venv/bin/activate && scons -j$(nproc)"
+RUN /bin/bash -c "source /tmp/openpilot/.venv/bin/activate && scons -j$(nproc)"
+
+# FROM ubuntu:20.04
+
+# ARG WORKDIR
+
+# WORKDIR ${WORKDIR}
+
+# COPY --from=builder ${WORKDIR} .
 
 
 # FROM ghcr.io/commaai/openpilot-base:latest
