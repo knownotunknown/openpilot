@@ -125,7 +125,7 @@ WORKDIR ${BUILDER_WORKDIR}
 
 RUN /bin/bash -c "source /tmp/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
-FROM python:3.11
+FROM python:3.11-alpine
 
 ARG BUILDER_WORKDIR
 
