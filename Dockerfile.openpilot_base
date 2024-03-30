@@ -120,13 +120,13 @@ ENV PYTHONUNBUFFERED 1
 
 RUN /bin/bash -c "source /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
-FROM python:3.11-alpine
+# FROM python:3.11-alpine
 
-ARG WORKDIR
+# ARG WORKDIR
 
-WORKDIR ${WORKDIR}
+# WORKDIR ${WORKDIR}
 
-COPY --from=builder ${WORKDIR} .
+# COPY --from=builder ${WORKDIR} .
 
 
 # FROM ghcr.io/commaai/openpilot-base:latest
