@@ -118,7 +118,7 @@ WORKDIR ${BUILDER_WORKDIR}
 
 RUN /bin/bash -c "source /tmp/openpilot/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
-FROM ubuntu:20.04
+FROM python:3.11-alpine
 
 ARG WORKDIR
 
