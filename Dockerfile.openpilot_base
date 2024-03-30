@@ -123,7 +123,7 @@ COPY . ${BUILDER_WORKDIR}
 # Set the working directory to the temporary directory
 WORKDIR ${BUILDER_WORKDIR}
 
-RUN /bin/bash -c "scons -j$(nproc)"
+RUN /bin/bash -c "source /tmp/.venv/bin/activate && scons -j$(nproc)"
 
 
 # FROM ghcr.io/commaai/openpilot-base:latest
