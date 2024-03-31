@@ -103,9 +103,8 @@ RUN apt-get update && \
     ln -sf /usr/local/bin/python3.11 /usr/bin/python3 && \
     python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
     pip install --no-cache-dir poetry==1.6.1 && \
-    poetry config virtualenvs.create false
-
-RUN cd /tmp/ && \
+    poetry config virtualenvs.create false && \
+    cd /tmp/ && \
     poetry install --only main
 
 USER root
@@ -150,6 +149,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python3 -m pip install --upgrade pip && \
     pip install poetry==1.6.1 && \
     poetry config virtualenvs.create false && \
+    cd /tmp/ && \
     poetry install --only main
 
 # RUN apk add --no-cache bash
