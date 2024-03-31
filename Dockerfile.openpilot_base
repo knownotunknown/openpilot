@@ -125,7 +125,7 @@ WORKDIR ${BUILDER_WORKDIR}
 
 RUN /bin/bash -c "source /tmp/.venv/bin/activate && scons -j$(nproc) > /dev/null"
 
-FROM python:3.11-alpine
+FROM python:3.11
 
 ARG BUILDER_WORKDIR
 
@@ -133,18 +133,13 @@ WORKDIR ${BUILDER_WORKDIR}
 
 COPY --from=builder ${BUILDER_WORKDIR} .
 
-# Update apk repository and install any necessary system dependencies
-# For example, to install build dependencies for Python packages, you might need build-base
-RUN apk update && \
-    apk add --no-cache build-base
-
-# Install and configure Poetry
-RUN pip install --upgrade pip==23.3 && \
+RUN apt-get update && \
+    apt-get install -y python3-dev && \
+    pip install --upgrade pip==23.3 && \
     pip install poetry==1.6.1 && \
     poetry config virtualenvs.in-project true
 
-# Install Python dependencies defined in pyproject.toml and poetry.lock
 RUN poetry install --only main
 
-RUN apk add --no-cache bash
+# RUN apk add --no-cache bash
 
