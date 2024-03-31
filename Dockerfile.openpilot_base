@@ -82,7 +82,7 @@ RUN dbus-uuidgen > /etc/machine-id
 # ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
 
 COPY pyproject.toml poetry.lock .python-version /tmp/
-COPY tools/install_python_dependencies.sh /tmp/tools/
+# COPY tools/install_python_dependencies.sh /tmp/tools/
 
 # RUN cd /tmp && \
 #     tools/install_python_dependencies.sh && \
@@ -101,8 +101,9 @@ RUN apt-get update && \
     cd .. && \
     rm -rf Python-3.11.0.tgz Python-3.11.0 && \
     ln -sf /usr/local/bin/python3.11 /usr/bin/python3 && \
-    python3 -m pip install --upgrade pip==23.3 && \
-    pip install poetry==1.6.1 && \
+    python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
+    pip install --no-cache-dir poetry==1.6.1 && \
+    poetry config virtualenvs.create false && \
     poetry config virtualenvs.in-project true
 
 RUN cd /tmp/ && \
@@ -123,7 +124,7 @@ COPY . ${BUILDER_WORKDIR}
 # Set the working directory to the temporary directory
 WORKDIR ${BUILDER_WORKDIR}
 
-RUN /bin/bash -c "source /tmp/.venv/bin/activate && scons -j$(nproc) > /dev/null"
+RUN /bin/bash -c "scons -j$(nproc) > /dev/null"
 
 FROM python:3.11
 
@@ -147,13 +148,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzmq3-dev && \
     rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && \
-    apt-get install -y python3-dev && \
-    pip install --upgrade pip==23.3 && \
-    pip install poetry==1.6.1 && \
-    poetry config virtualenvs.in-project true
+COPY --from=builder /usr/local/bin/poetry /usr/local/bin/poetry
 
-RUN poetry install --only main
+RUN poetry config virtualenvs.create false && \
+    poetry install --only main
 
 # RUN apk add --no-cache bash
 
