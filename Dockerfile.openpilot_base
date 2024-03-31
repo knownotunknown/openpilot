@@ -146,6 +146,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzmq3-dev && \
     rm -rf /var/lib/apt/lists/*
 
+COPY pyproject.toml poetry.lock .python-version /tmp/
+
 RUN python3 -m pip install --upgrade pip && \
     pip install poetry==1.6.1 && \
     poetry config virtualenvs.create false && \
