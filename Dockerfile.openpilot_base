@@ -145,6 +145,7 @@ RUN apt-get update && \
     python3-pyaudio \
     portaudio19-dev \
     libssl-dev && \
+    libzmq3-dev \
     rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && \
