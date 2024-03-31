@@ -133,6 +133,20 @@ WORKDIR ${BUILDER_WORKDIR}
 
 COPY --from=builder ${BUILDER_WORKDIR} .
 
+# Don't buffer `stdout`:
+ENV PYTHONUNBUFFERED=1
+# Don't create `.pyc` files:
+ENV PYTHONDONTWRITEBYTECODE=1
+
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    autoconf \
+    python3-pyaudio \
+    portaudio19-dev \
+    libssl-dev && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN apt-get update && \
     apt-get install -y python3-dev && \
     pip install --upgrade pip==23.3 && \
