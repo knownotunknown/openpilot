@@ -138,14 +138,14 @@ ENV PYTHONUNBUFFERED=1
 # Don't create `.pyc` files:
 ENV PYTHONDONTWRITEBYTECODE=1
 
-RUN apt-get update && \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get install -y \
     build-essential \
     autoconf \
     python3-pyaudio \
     portaudio19-dev \
-    libssl-dev && \
-    libzmq3-dev \
+    libssl-dev \
+    libzmq3-dev && \
     rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && \
