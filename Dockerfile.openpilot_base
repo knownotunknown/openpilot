@@ -93,27 +93,18 @@ COPY pyproject.toml poetry.lock .python-version /tmp/
 
 # ./configure --enable-optimizations
 
-# Update and install necessary packages
-RUN apt-get update && \
-    apt-get install -y wget tar make gcc
-
-# Download and install Python
-RUN wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
-    tar -xf Python-3.11.0.tgz && \
-    cd Python-3.11.0 && \
-    ./configure && \
-    make -j 8 && \
-    make altinstall && \
-    cd .. && \
-    rm -rf Python-3.11.0.tgz Python-3.11.0
-
-# Setup Python and install poetry
-RUN ln -sf /usr/local/bin/python3.11 /usr/bin/python3 && \
-    python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
-    pip install --no-cache-dir poetry==1.6.1 && \
-    poetry config virtualenvs.create false
-
-# Run poetry install in the /tmp directory
+RUN apt-get update
+RUN apt-get install -y wget tar make gcc
+RUN wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz
+RUN tar -xf Python-3.11.0.tgz
+RUN cd Python-3.11.0 && ./configure
+RUN cd Python-3.11.0 && make -j 8
+RUN cd Python-3.11.0 && make altinstall
+RUN rm -rf Python-3.11.0.tgz Python-3.11.0
+RUN ln -sf /usr/local/bin/python3.11 /usr/bin/python3
+RUN python3 -m pip install --upgrade --no-cache-dir pip==23.3
+RUN pip install --no-cache-dir poetry==1.6.1
+RUN poetry config virtualenvs.create false
 RUN cd /tmp/ && poetry install --only main
 
 
