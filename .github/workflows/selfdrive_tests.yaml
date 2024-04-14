@@ -98,16 +98,16 @@ jobs:
         fi
       shell: bash
 
-    # - name: Build Docker Image using cache
-    #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE == 'true' }}
-    #   run: |
-    #     docker build --cache-from ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f Dockerfile.openpilot_base -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
-    #   shell: bash
+    - name: Build Docker Image using cache
+      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE == 'true' }}
+      run: |
+        docker build --cache-from ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f Dockerfile.openpilot_base -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+      shell: bash
 
-    # - name: Push Docker Image
-    #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE == 'true' }}
-    #   run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-    #   shell: bash
+    - name: Push Docker Image
+      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE == 'true' }}
+      run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+      shell: bash
 
     - name: Print Docker Image Size
       run: |
