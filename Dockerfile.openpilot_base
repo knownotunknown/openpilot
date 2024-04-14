@@ -122,7 +122,7 @@ COPY . ${BUILDER_WORKDIR}
 # Set the working directory to the temporary directory
 WORKDIR ${BUILDER_WORKDIR}
 
-# RUN /bin/bash -c "scons -j$(nproc) > /dev/null"
+RUN /bin/bash -c "scons -j$(nproc) > /dev/null"
 
 # FROM python:3.11
 
