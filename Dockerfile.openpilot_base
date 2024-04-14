@@ -97,7 +97,7 @@ RUN apt-get update
 RUN apt-get install -y wget tar make gcc
 RUN wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz
 RUN tar -xf Python-3.11.0.tgz
-RUN cd Python-3.11.0
+RUN cd Python-3.11.0 &&
 RUN cd Python-3.11.0 && make -j 8
 RUN cd Python-3.11.0 && make altinstall
 RUN rm -rf Python-3.11.0.tgz Python-3.11.0
