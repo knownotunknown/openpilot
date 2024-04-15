@@ -152,7 +152,7 @@ ARG OPENPILOT_PATH
 WORKDIR ${OPENPILOT_PATH}
 
 COPY --from=builder ${OPENPILOT_PATH} .
-COPY --from=builder /tmp/pyproject.toml /tmp/poetry.lock /tmp/.python-version ./
+COPY --from=builder /tmp/pyproject.toml /tmp/poetry.lock /tmp/.python-version /README.md ./
 
 # Don't buffer `stdout`:
 ENV PYTHONUNBUFFERED=1
