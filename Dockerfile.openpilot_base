@@ -141,7 +141,9 @@ COPY ./body ${OPENPILOT_PATH}/body
 
 WORKDIR ${OPENPILOT_PATH}
 
-RUN scons --cache-readonly -j$(nproc)
+# RUN /bin/bash -c "scons -j$(nproc) > /dev/null"
+
+RUN scons --cache-readonly -j$(nproc) > /dev/null
 
 FROM python:3.11
 
@@ -150,6 +152,7 @@ ARG OPENPILOT_PATH
 WORKDIR ${OPENPILOT_PATH}
 
 COPY --from=builder ${OPENPILOT_PATH} .
+COPY --from=builder /pyproject.toml /poetry.lock /.python-version ./
 
 # Don't buffer `stdout`:
 ENV PYTHONUNBUFFERED=1
