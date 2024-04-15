@@ -141,7 +141,7 @@ COPY . ${OPENPILOT_PATH}
 
 WORKDIR ${OPENPILOT_PATH}
 
-RUN scons --cache-readonly -j$(nproc)
+RUN /bin/bash -c "scons -j$(nproc) > /dev/null"
 
 # FROM python:3.11
 
