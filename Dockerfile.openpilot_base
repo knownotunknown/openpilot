@@ -121,7 +121,7 @@ RUN mkdir -p ${OPENPILOT_PATH}
 
 COPY SConstruct ${OPENPILOT_PATH}
 
-COPY ./openpilot ${OPENPILOT_PATH}/openpilot
+COPY ./openpilot ${OPENPILOT_PATH}
 COPY ./third_party ${OPENPILOT_PATH}/third_party
 COPY ./site_scons ${OPENPILOT_PATH}/site_scons
 COPY ./rednose ${OPENPILOT_PATH}/rednose
