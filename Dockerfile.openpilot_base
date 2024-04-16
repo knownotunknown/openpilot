@@ -121,7 +121,7 @@ RUN mkdir -p ${OPENPILOT_PATH}
 
 COPY SConstruct ${OPENPILOT_PATH}
 
-COPY ./openpilot ${OPENPILOT_PATH}
+COPY ./openpilot ${OPENPILOT_PATH}/openpilot
 COPY ./third_party ${OPENPILOT_PATH}/third_party
 COPY ./site_scons ${OPENPILOT_PATH}/site_scons
 COPY ./rednose ${OPENPILOT_PATH}/rednose
@@ -151,7 +151,15 @@ ARG OPENPILOT_PATH
 
 WORKDIR ${OPENPILOT_PATH}
 
-COPY --from=builder ${OPENPILOT_PATH} .
+COPY --from=builder /tmp/openpilot/third_party /openpilot/third_party
+COPY --from=builder /tmp/openpilot/rednose_repo /openpilot/rednose_repo
+COPY --from=builder /tmp/openpilot/panda /openpilot/panda
+COPY --from=builder /tmp/openpilot/openpilot /openpilot/openpilot
+COPY --from=builder /tmp/openpilot/system /openpilot/system
+COPY --from=builder /tmp/openpilot/tools /openpilot/tools
+COPY --from=builder /tmp/openpilot/cereal /openpilot/cereal
+COPY --from=builder /tmp/openpilot/selfdrive /openpilot/selfdrive
+
 COPY --from=builder /tmp/pyproject.toml /tmp/poetry.lock /tmp/.python-version /tmp/README.md ./
 
 # Don't buffer `stdout`:
