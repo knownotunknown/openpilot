@@ -149,18 +149,20 @@ FROM python:3.11
 
 ARG OPENPILOT_PATH
 
-WORKDIR ${OPENPILOT_PATH}
 
-COPY --from=builder /tmp/openpilot/third_party /openpilot/third_party
-COPY --from=builder /tmp/openpilot/rednose_repo /openpilot/rednose_repo
-COPY --from=builder /tmp/openpilot/panda /openpilot/panda
-COPY --from=builder /tmp/openpilot/openpilot /openpilot/openpilot
-COPY --from=builder /tmp/openpilot/system /openpilot/system
-COPY --from=builder /tmp/openpilot/tools /openpilot/tools
-COPY --from=builder /tmp/openpilot/cereal /openpilot/cereal
-COPY --from=builder /tmp/openpilot/selfdrive /openpilot/selfdrive
+
+COPY --from=builder /tmp/openpilot/third_party tmp/openpilot/third_party
+COPY --from=builder /tmp/openpilot/rednose_repo tmp/openpilot/rednose_repo
+COPY --from=builder /tmp/openpilot/panda tmp/openpilot/panda
+COPY --from=builder /tmp/openpilot/openpilot tmp/openpilot/openpilot
+COPY --from=builder /tmp/openpilot/system tmp/openpilot/system
+COPY --from=builder /tmp/openpilot/tools tmp/openpilot/tools
+COPY --from=builder /tmp/openpilot/cereal tmp/openpilot/cereal
+COPY --from=builder /tmp/openpilot/selfdrive tmp/openpilot/selfdrive
 
 COPY --from=builder /tmp/pyproject.toml /tmp/poetry.lock /tmp/.python-version /tmp/README.md ./
+
+WORKDIR ${OPENPILOT_PATH}
 
 # Don't buffer `stdout`:
 ENV PYTHONUNBUFFERED=1
