@@ -155,7 +155,7 @@ COPY --from=builder ${OPENPILOT_PATH} .
 
 COPY --from=builder /tmp/pyproject.toml /tmp/poetry.lock /tmp/.python-version /tmp/README.md ./
 
-COPY --from=builder /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libcapnp-0.7.0.so /usr/lib/x86_64-linux-gnu/libcapnp-0.7.0.so
 
 # Don't buffer `stdout`:
 ENV PYTHONUNBUFFERED=1
