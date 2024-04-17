@@ -176,8 +176,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     portaudio19-dev \
     libssl-dev \
     wget \
+    update-ca-certificates \
     libzmq3-dev && \
     rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    update-ca-certificates
 
 RUN apt-get update && \
     wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
