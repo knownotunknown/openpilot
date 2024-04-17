@@ -151,7 +151,7 @@ WORKDIR ${OPENPILOT_PATH}
 
 RUN scons --cache-readonly -j$(nproc) > /dev/null
 
-FROM python:3.11
+FROM ubuntu:20.04
 
 ARG OPENPILOT_PATH
 
@@ -178,11 +178,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzmq3-dev && \
     rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m pip install --upgrade pip && \
-    pip3 install --upgrade setuptools && \
-    pip install poetry==1.6.1 && \
+RUN apt-get update && \
+    wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
+    tar -xf Python-3.11.0.tgz && \
+    cd Python-3.11.0 && \
+    ./configure --enable-optimizations && \
+    make -j 8 && \
+    make altinstall && \
+    cd .. && \
+    rm -rf Python-3.11.0.tgz Python-3.11.0 && \
+    ln -sf /usr/local/bin/python3.11 /usr/bin/python3 && \
+    python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
+    pip install --no-cache-dir poetry==1.6.1 && \
     poetry config virtualenvs.create false && \
+    cd /tmp/ && \
     poetry install --only main
 
-RUN apk add --no-cache bash
+# RUN python3 -m pip install --upgrade pip && \
+#     pip3 install --upgrade setuptools && \
+#     pip install poetry==1.6.1 && \
+#     poetry config virtualenvs.create false && \
+#     poetry install --only main
+
+
+
+# RUN apk add --no-cache bash
 
