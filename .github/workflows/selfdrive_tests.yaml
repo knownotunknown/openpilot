@@ -111,6 +111,13 @@ jobs:
     - name: Print Docker Image Size
       run: |
         docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} --format "{{.Size}}"
+      shell: bash
+
+    - name: Print /usr/lib/x86_64-linux-gnu/ contents
+      run: |
+        cd /usr/lib/x86_64-linux-gnu/ &&
+        ls -l
+      shell: bash
 
     # /usr/local/bin/python3.11 -m
 
