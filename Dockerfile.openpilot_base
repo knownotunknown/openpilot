@@ -149,26 +149,11 @@ FROM python:3.11
 
 ARG OPENPILOT_PATH
 
+WORKDIR ${OPENPILOT_PATH}
 
-
-COPY --from=builder ${OPENPILOT_PATH}/openpilot ${OPENPILOT_PATH}/openpilot
-COPY --from=builder ${OPENPILOT_PATH}/third_party ${OPENPILOT_PATH}/third_party
-COPY --from=builder ${OPENPILOT_PATH}/site_scons ${OPENPILOT_PATH}/site_scons
-COPY --from=builder ${OPENPILOT_PATH}/rednose ${OPENPILOT_PATH}/rednose
-COPY --from=builder ${OPENPILOT_PATH}/rednose_repo/site_scons ${OPENPILOT_PATH}/rednose_repo/site_scons
-COPY --from=builder ${OPENPILOT_PATH}/tools ${OPENPILOT_PATH}/tools
-COPY --from=builder ${OPENPILOT_PATH}/release ${OPENPILOT_PATH}/release
-COPY --from=builder ${OPENPILOT_PATH}/common ${OPENPILOT_PATH}/common
-COPY --from=builder ${OPENPILOT_PATH}/opendbc ${OPENPILOT_PATH}/opendbc
-COPY --from=builder ${OPENPILOT_PATH}/cereal ${OPENPILOT_PATH}/cereal
-COPY --from=builder ${OPENPILOT_PATH}/panda ${OPENPILOT_PATH}/panda
-COPY --from=builder ${OPENPILOT_PATH}/selfdrive ${OPENPILOT_PATH}/selfdrive
-COPY --from=builder ${OPENPILOT_PATH}/system ${OPENPILOT_PATH}/system
-COPY --from=builder ${OPENPILOT_PATH}/body ${OPENPILOT_PATH}/body
+COPY --from=builder ${OPENPILOT_PATH} .
 
 COPY --from=builder /tmp/pyproject.toml /tmp/poetry.lock /tmp/.python-version /tmp/README.md ./
-
-WORKDIR ${OPENPILOT_PATH}
 
 # Don't buffer `stdout`:
 ENV PYTHONUNBUFFERED=1
