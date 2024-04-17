@@ -136,7 +136,7 @@ COPY ./selfdrive ${OPENPILOT_PATH}/selfdrive
 COPY ./system ${OPENPILOT_PATH}/system
 COPY ./body ${OPENPILOT_PATH}/body
 
-RUN ls -l /usr/lib/x86_64-linux-gnu/ | grep libzip
+# RUN ls -l /usr/lib/x86_64-linux-gnu/ | grep libzip
 
 COPY find_so_files.sh /usr/local/bin/find_so_files.sh
 RUN chmod +x /usr/local/bin/find_so_files.sh
