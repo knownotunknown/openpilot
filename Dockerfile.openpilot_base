@@ -11,6 +11,14 @@ FROM ubuntu:20.04 as builder
 ENV PYTHONUNBUFFERED 1
 
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Copy the script to the image
+COPY find_so_files.sh /usr/local/bin/find_so_files.sh
+RUN chmod +x /usr/local/bin/find_so_files.sh
+
+# Run the script initially to populate the critical_libs.list
+RUN /usr/local/bin/find_so_files.sh
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot && \
     rm -rf /var/lib/apt/lists/*
@@ -19,13 +27,6 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && loca
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
-
-# Copy the script to the image
-COPY find_so_files.sh /usr/local/bin/find_so_files.sh
-RUN chmod +x /usr/local/bin/find_so_files.sh
-
-# Run the script initially to populate the critical_libs.list
-RUN /usr/local/bin/find_so_files.sh
 
 COPY tools/install_ubuntu_dependencies.sh /tmp/tools/
 RUN cd /tmp && \
@@ -54,49 +55,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
   && rm -rf /var/lib/apt/lists/*
 
-# ARG INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
-# ARG INTEL_DRIVER_URL=https://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532
-# RUN mkdir -p /tmp/opencl-driver-intel
+ARG INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
+ARG INTEL_DRIVER_URL=https://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532
+RUN mkdir -p /tmp/opencl-driver-intel
 
-# RUN cd /tmp/opencl-driver-intel && \
-#     echo INTEL_DRIVER is $INTEL_DRIVER && \
-#     curl -O $INTEL_DRIVER_URL/$INTEL_DRIVER && \
-#     tar -xzf $INTEL_DRIVER && \
-#     for i in $(basename $INTEL_DRIVER .tgz)/rpm/*.rpm; do alien --to-deb $i; done && \
-#     dpkg -i *.deb && \
-#     rm -rf $INTEL_DRIVER $(basename $INTEL_DRIVER .tgz) *.deb && \
-#     mkdir -p /etc/OpenCL/vendors && \
-#     echo /opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/libintelocl.so > /etc/OpenCL/vendors/intel.icd && \
-#     cd / && \
-#     rm -rf /tmp/opencl-driver-intel
+RUN cd /tmp/opencl-driver-intel && \
+    echo INTEL_DRIVER is $INTEL_DRIVER && \
+    curl -O $INTEL_DRIVER_URL/$INTEL_DRIVER && \
+    tar -xzf $INTEL_DRIVER && \
+    for i in $(basename $INTEL_DRIVER .tgz)/rpm/*.rpm; do alien --to-deb $i; done && \
+    dpkg -i *.deb && \
+    rm -rf $INTEL_DRIVER $(basename $INTEL_DRIVER .tgz) *.deb && \
+    mkdir -p /etc/OpenCL/vendors && \
+    echo /opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/libintelocl.so > /etc/OpenCL/vendors/intel.icd && \
+    cd / && \
+    rm -rf /tmp/opencl-driver-intel
 
-# ENV NVIDIA_VISIBLE_DEVICES all
-# ENV NVIDIA_DRIVER_CAPABILITIES graphics,utility,compute
-# ENV QTWEBENGINE_DISABLE_SANDBOX 1
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES graphics,utility,compute
+ENV QTWEBENGINE_DISABLE_SANDBOX 1
 
-# RUN dbus-uuidgen > /etc/machine-id
-
-# ARG USER=batman
-# ARG USER_UID=1000
-# RUN useradd -m -s /bin/bash -u $USER_UID $USER
-# RUN usermod -aG sudo $USER
-# RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-# USER $USER
-
-# ENV POETRY_VIRTUALENVS_CREATE=false
-# ENV PYENV_VERSION=3.11.4
-# ENV PYENV_ROOT="/home/$USER/pyenv"
-# ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
+RUN dbus-uuidgen > /etc/machine-id
 
 COPY pyproject.toml poetry.lock .python-version README.md /tmp/
-# COPY tools/install_python_dependencies.sh /tmp/tools/
-
-# RUN cd /tmp && \
-#     tools/install_python_dependencies.sh && \
-#     rm -rf /tmp/* && \
-#     rm -rf /home/$USER/.cache && \
-#     find /home/$USER/pyenv -type d -name ".git" | xargs rm -rf && \
-#     rm -rf /home/$USER/pyenv/versions/3.11.4/lib/python3.11/test
 
 RUN apt-get update && \
     wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
@@ -124,7 +105,6 @@ ARG OPENPILOT_PATH
 ENV PYTHONUNBUFFERED 1
 
 RUN mkdir -p ${OPENPILOT_PATH}
-# WORKDIR ${OPENPILOT_PATH}
 
 COPY SConstruct ${OPENPILOT_PATH}
 
@@ -143,19 +123,13 @@ COPY ./selfdrive ${OPENPILOT_PATH}/selfdrive
 COPY ./system ${OPENPILOT_PATH}/system
 COPY ./body ${OPENPILOT_PATH}/body
 
-# RUN ls -l /usr/lib/x86_64-linux-gnu/ | grep libzip
 
-
-# Copy the entire project to a temporary directory for building
-# COPY . ${OPENPILOT_PATH}
 
 WORKDIR ${OPENPILOT_PATH}
 
-# RUN /bin/bash -c "scons -j$(nproc) > /dev/null"
+RUN scons --cache-readonly -j$(nproc) > /dev/null
 
 RUN /usr/local/bin/find_so_files.sh
-
-RUN scons --cache-readonly -j$(nproc) > /dev/null
 
 FROM python:3.11
 
@@ -167,7 +141,7 @@ COPY --from=builder ${OPENPILOT_PATH} .
 
 COPY --from=builder /tmp/pyproject.toml /tmp/poetry.lock /tmp/.python-version /tmp/README.md ./
 
-COPY --from=builder /tmp/so_files /usr/lib/x86_64-linux-gnu
+COPY --from=builder /tmp_so_files/so_files /usr/lib/x86_64-linux-gnu
 
 
 # Don't buffer `stdout`:
@@ -189,6 +163,4 @@ RUN python3 -m pip install --upgrade pip && \
     pip install poetry==1.6.1 && \
     poetry config virtualenvs.create false && \
     poetry install --only main
-
-# RUN apk add --no-cache bash
 
