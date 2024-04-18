@@ -131,7 +131,7 @@ RUN scons --cache-readonly -j$(nproc) > /dev/null
 
 RUN /usr/local/bin/find_so_files.sh
 
-FROM python:3.11
+FROM ubuntu:22.04
 
 ARG OPENPILOT_PATH
 
