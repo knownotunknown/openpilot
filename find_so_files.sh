@@ -16,6 +16,8 @@ if [ ! -f "$critical_libs_file" ]; then
     echo "libtest.so" > "$critical_libs_file"  # Add a test entry to the file
     # Additionally try to find and append actual .so files
     find /usr/lib/x86_64-linux-gnu -type f -name "*.so*" -exec basename {} \; >> "$critical_libs_file"
+    # Append new Python .so files to the critical_libs.list
+    find /usr/local/lib/python3.11 -type f -name "*.so*" -exec basename {} \; >> "$base_dir/critical_libs.list"
 else
     echo "File already exists. Checking contents:"
     cat "$critical_libs_file"  # Display the contents for debugging
