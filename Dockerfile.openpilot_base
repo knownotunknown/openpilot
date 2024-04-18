@@ -141,9 +141,6 @@ COPY --from=builder ${OPENPILOT_PATH} .
 
 COPY --from=builder /tmp/pyproject.toml /tmp/poetry.lock /tmp/.python-version /tmp/README.md ./
 
-COPY --from=builder /tmp_so_files/so_files /usr/lib/x86_64-linux-gnu
-
-
 # Don't buffer `stdout`:
 ENV PYTHONUNBUFFERED=1
 # Don't create `.pyc` files:
@@ -163,4 +160,6 @@ RUN python3 -m pip install --upgrade pip && \
     pip install poetry==1.6.1 && \
     poetry config virtualenvs.create false && \
     poetry install --only main
+
+COPY --from=builder /tmp_so_files/so_files /usr/lib/x86_64-linux-gnu
 
