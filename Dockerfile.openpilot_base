@@ -12,9 +12,13 @@ ENV PYTHONUNBUFFERED 1
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Copy the script to the image
-COPY find_so_files.sh /usr/local/bin/find_so_files.sh
-RUN chmod +x /usr/local/bin/find_so_files.sh
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    wget \
+    ca-certificates \
+    && update-ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Run the script initially to populate the critical_libs.list
 RUN /usr/local/bin/find_so_files.sh
@@ -27,6 +31,21 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && loca
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
+
+# Now proceed to download and compile Python
+RUN wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
+    tar -xf Python-3.11.0.tgz && \
+    cd Python-3.11.0 && \
+    ./configure --enable-optimizations && \
+    make -j 8 && \
+    make altinstall && \
+    cd .. && \
+    rm -rf Python-3.11.0.tgz Python-3.11.0 && \
+    ln -sf /usr/local/bin/python3.11 /usr/bin/python3
+
+# Copy the script to the image
+COPY find_so_files.sh /usr/local/bin/find_so_files.sh
+RUN chmod +x /usr/local/bin/find_so_files.sh
 
 COPY tools/install_ubuntu_dependencies.sh /tmp/tools/
 RUN cd /tmp && \
@@ -52,7 +71,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     vim \
     lsb-core \
     libx11-6 \
-    wget \
   && rm -rf /var/lib/apt/lists/*
 
 ARG INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
@@ -79,17 +97,7 @@ RUN dbus-uuidgen > /etc/machine-id
 
 COPY pyproject.toml poetry.lock .python-version README.md /tmp/
 
-RUN apt-get update && \
-    wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
-    tar -xf Python-3.11.0.tgz && \
-    cd Python-3.11.0 && \
-    ./configure --enable-optimizations && \
-    make -j 8 && \
-    make altinstall && \
-    cd .. && \
-    rm -rf Python-3.11.0.tgz Python-3.11.0 && \
-    ln -sf /usr/local/bin/python3.11 /usr/bin/python3 && \
-    python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
+RUN python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
     pip install --no-cache-dir poetry==1.6.1 && \
     poetry config virtualenvs.create false && \
     cd /tmp/ && \
