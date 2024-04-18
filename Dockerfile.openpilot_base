@@ -20,6 +20,9 @@ RUN apt-get update && \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+# Run the script initially to populate the critical_libs.list
+RUN /usr/local/bin/find_so_files.sh
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot && \
     rm -rf /var/lib/apt/lists/*
@@ -43,8 +46,6 @@ RUN wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
 # Copy the script to the image
 COPY find_so_files.sh /usr/local/bin/find_so_files.sh
 RUN chmod +x /usr/local/bin/find_so_files.sh
-# Run the script initially to populate the critical_libs.list
-RUN /usr/local/bin/find_so_files.sh
 
 COPY tools/install_ubuntu_dependencies.sh /tmp/tools/
 RUN cd /tmp && \
