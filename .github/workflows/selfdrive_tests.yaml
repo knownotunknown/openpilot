@@ -82,42 +82,46 @@ jobs:
         packages: xhost x11-xserver-utils
         version: 1.0
 
-    - name: Login to GitHub Container Registry
-      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+    - name: Testing out Docker Compose
+      run: docker compose up --build
       shell: bash
 
-    - name: Pull existing Docker image
-      id: docker_pull
-      if: ${{ env.REBUILD_IMAGE != 'true' }}
-      run: |
-        if docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}; then
-          echo "docker_pull_success=true" >> $GITHUB_ENV
-        else
-          echo "docker_pull_success=false" >> $GITHUB_ENV
-        fi
-      shell: bash
-
-    - name: Build Docker Image using cache
-      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
-      run: |
-        docker build --cache-from ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f Dockerfile.openpilot_base -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
-      shell: bash
-
-    # - name: Push Docker Image
-    #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
-    #   run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+    # - name: Login to GitHub Container Registry
+    #   run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
     #   shell: bash
 
-    - name: Print Docker Image Size
-      run: |
-        docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} --format "{{.Size}}"
-      shell: bash
+    # - name: Pull existing Docker image
+    #   id: docker_pull
+    #   if: ${{ env.REBUILD_IMAGE != 'true' }}
+    #   run: |
+    #     if docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}; then
+    #       echo "docker_pull_success=true" >> $GITHUB_ENV
+    #     else
+    #       echo "docker_pull_success=false" >> $GITHUB_ENV
+    #     fi
+    #   shell: bash
 
-    - name: Print /usr/lib/x86_64-linux-gnu/ contents
-      run: |
-        cd /usr/lib/x86_64-linux-gnu/ &&
-        ls -l
-      shell: bash
+    # - name: Build Docker Image using cache
+    #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
+    #   run: |
+    #     docker build --cache-from ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f Dockerfile.openpilot_base -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+    #   shell: bash
+
+    # # - name: Push Docker Image
+    # #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
+    # #   run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+    # #   shell: bash
+
+    # - name: Print Docker Image Size
+    #   run: |
+    #     docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} --format "{{.Size}}"
+    #   shell: bash
+
+    # - name: Print /usr/lib/x86_64-linux-gnu/ contents
+    #   run: |
+    #     cd /usr/lib/x86_64-linux-gnu/ &&
+    #     ls -l
+    #   shell: bash
 
     # /usr/local/bin/python3.11 -m
 

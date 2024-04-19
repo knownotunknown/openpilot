@@ -1,0 +1,31 @@
+FROM python:3.11
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    autoconf \
+    python3-pyaudio \
+    portaudio19-dev \
+    libssl-dev \
+    libzmq3-dev \
+    libpython3.11-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml poetry.lock .python-version README.md /tmp/
+
+RUN apt-get update && \
+    python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
+    pip install --no-cache-dir poetry==1.6.1 && \
+    poetry config virtualenvs.create false && \
+    cd /tmp/ && \
+    poetry install --only main
+
+RUN ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0 && \
+    ldconfig
+
+ENV LD_LIBRARY_PATH=/usr/local/lib
+
+# RUN ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0 && \
+#     ldconfig

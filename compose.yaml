@@ -1,0 +1,38 @@
+version: '3.9'
+services:
+  python:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    platform: linux/amd64
+    volumes:
+      - python_bin:/usr/local/bin
+      - python_lib:/usr/local/lib
+      - python_include:/usr/local/include
+      - usr_lib:/usr/lib
+    command: tail -f /dev/null  # Keeps the container running
+
+  ubuntu:
+    build:
+      context: .
+      dockerfile: Dockerfile.ubuntu
+    platform: linux/amd64
+    depends_on:
+      - python
+    volumes:
+      - .:/tmp/openpilot
+      - python_bin:/usr/local/bin:ro
+      - python_lib:/usr/local/lib:ro
+      - python_include:/usr/local/include:ro
+      - usr_lib:/usr/lib:ro
+    command: >
+      bash -c "
+        ls -l /usr/local/lib/ &&
+        scons --cache-readonly -j$(nproc) > /dev/null
+      "
+
+volumes:
+  python_bin:
+  python_lib:
+  python_include:
+  usr_lib:  # This is the new volume for /usr/lib
