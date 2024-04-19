@@ -89,5 +89,6 @@ WORKDIR ${OPENPILOT_PATH}
 
 RUN apt-get update && apt-get install -y scons
 
+
 # COPY --from=python /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0
 # RUN ldconfig

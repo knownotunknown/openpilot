@@ -17,6 +17,8 @@ services:
       context: .
       dockerfile: Dockerfile.ubuntu
     platform: linux/amd64
+    environment:
+      - LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
     depends_on:
       - python
     volumes:
@@ -24,15 +26,18 @@ services:
       - python_bin:/usr/local/bin:ro
       - python_lib:/usr/local/lib:ro
       - python_include:/usr/local/include:ro
-      - usr_lib:/usr/lib:ro
+      - usr_lib:/usr/local/lib
     command: >
       bash -c "
-        ls -l /usr/local/lib/ &&
+        echo 'hello world' &&
+        echo "/usr/local/lib" >> /etc/ld.so.conf.d/local.conf &&
+        ldconfig &&
         scons --cache-readonly -j$(nproc) > /dev/null
+        # tail -f /dev/null
       "
 
 volumes:
   python_bin:
   python_lib:
   python_include:
-  usr_lib:  # This is the new volume for /usr/lib
+  usr_lib:
