@@ -1,29 +1,3 @@
-# Stage 1: Python image
-FROM python:3.11 as python
-
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    autoconf \
-    python3-pyaudio \
-    portaudio19-dev \
-    libssl-dev \
-    libzmq3-dev \
-    libpython3.11-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY pyproject.toml poetry.lock .python-version README.md /tmp/
-
-RUN apt-get update && \
-    python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
-    pip install --no-cache-dir poetry==1.6.1 && \
-    poetry config virtualenvs.create false && \
-    cd /tmp/ && \
-    poetry install --only main
-
-# Stage 2: Ubuntu runtime image
 FROM ubuntu:22.04
 
 ENV PYTHONUNBUFFERED=1 \
@@ -59,7 +33,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     lsb-core \
     libx11-6 \
     wget \
-    libicu70 \
     && rm -rf /var/lib/apt/lists/*
 
 ARG INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
@@ -111,13 +84,6 @@ RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu
     dpkg -i libicu66_66.1-2ubuntu2_amd64.deb && \
     rm libicu66_66.1-2ubuntu2_amd64.deb
 
-# Copy necessary files and directories from the Python image to the Ubuntu image
-COPY --from=python /usr/local/bin /usr/local/bin
-COPY --from=python /usr/local/lib /usr/local/lib
-COPY --from=python /usr/local/include /usr/local/include
-COPY --from=python /usr/lib/python3.11 /usr/lib/python3.11
-
-# Update the library cache
 RUN ldconfig
 
-RUN scons --cache-readonly -j$(nproc) > /dev/null
+# COPY --from=python /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0
