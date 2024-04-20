@@ -1,28 +1,50 @@
-FROM ubuntu:20.04
+# Stage 1: Python image
+FROM python:3.11 as python
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
 
-ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    autoconf \
+    python3-pyaudio \
+    portaudio19-dev \
+    libssl-dev \
+    libzmq3-dev \
+    libpython3.11-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml poetry.lock .python-version README.md /tmp/
+
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot && \
-    rm -rf /var/lib/apt/lists/*
+    python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
+    pip install --no-cache-dir poetry==1.6.1 && \
+    poetry config virtualenvs.create false && \
+    cd /tmp/ && \
+    poetry install --only main
 
-RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+# Stage 2: Ubuntu runtime image
+FROM ubuntu:22.04
+
+ENV PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot apt-utils \
+    alien unzip tar curl xz-utils dbus gcc-arm-none-eabi tmux vim lsb-core libx11-6 wget scons && \
+    locale-gen en_US.UTF-8 && \
+    sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    dbus-uuidgen > /etc/machine-id && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY tools/install_ubuntu_dependencies.sh /tmp/tools/
 RUN cd /tmp && \
     tools/install_ubuntu_dependencies.sh && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/* && \
-    # remove unused architectures from gcc for panda
-    cd /usr/lib/gcc/arm-none-eabi/9.2.1 && \
-    rm -rf arm/ && \
-    rm -rf thumb/nofp thumb/v6* thumb/v8* thumb/v7+fp thumb/v7-r+fp.sp
+    rm -rf /tmp/tools
 
-# Add OpenCL
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-utils \
     alien \
@@ -36,12 +58,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     vim \
     lsb-core \
     libx11-6 \
-  && rm -rf /var/lib/apt/lists/*
+    wget \
+    libicu70 \
+    && rm -rf /var/lib/apt/lists/*
 
 ARG INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
 ARG INTEL_DRIVER_URL=https://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532
-RUN mkdir -p /tmp/opencl-driver-intel
 
+RUN mkdir -p /tmp/opencl-driver-intel
 RUN cd /tmp/opencl-driver-intel && \
     echo INTEL_DRIVER is $INTEL_DRIVER && \
     curl -O $INTEL_DRIVER_URL/$INTEL_DRIVER && \
@@ -60,27 +84,38 @@ ENV QTWEBENGINE_DISABLE_SANDBOX 1
 
 RUN dbus-uuidgen > /etc/machine-id
 
-ARG USER=batman
-ARG USER_UID=1000
-RUN useradd -m -s /bin/bash -u $USER_UID $USER
-RUN usermod -aG sudo $USER
-RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-USER $USER
+# ARG OPENPILOT_PATH="/tmp/openpilot"
 
-ENV POETRY_VIRTUALENVS_CREATE=false
-ENV PYENV_VERSION=3.11.4
-ENV PYENV_ROOT="/home/$USER/pyenv"
-ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
+# RUN mkdir -p ${OPENPILOT_PATH}
+# COPY SConstruct ${OPENPILOT_PATH}
+# COPY ./openpilot ${OPENPILOT_PATH}/openpilot
+# COPY ./third_party ${OPENPILOT_PATH}/third_party
+# COPY ./site_scons ${OPENPILOT_PATH}/site_scons
+# COPY ./rednose ${OPENPILOT_PATH}/rednose
+# COPY ./rednose_repo/site_scons ${OPENPILOT_PATH}/rednose_repo/site_scons
+# COPY ./tools ${OPENPILOT_PATH}/tools
+# COPY ./release ${OPENPILOT_PATH}/release
+# COPY ./common ${OPENPILOT_PATH}/common
+# COPY ./opendbc ${OPENPILOT_PATH}/opendbc
+# COPY ./cereal ${OPENPILOT_PATH}/cereal
+# COPY ./panda ${OPENPILOT_PATH}/panda
+# COPY ./selfdrive ${OPENPILOT_PATH}/selfdrive
+# COPY ./system ${OPENPILOT_PATH}/system
+# COPY ./body ${OPENPILOT_PATH}/body
 
-COPY --chown=$USER pyproject.toml poetry.lock .python-version /tmp/
-COPY --chown=$USER tools/install_python_dependencies.sh /tmp/tools/
+# WORKDIR ${OPENPILOT_PATH}
 
-RUN cd /tmp && \
-    tools/install_python_dependencies.sh && \
-    rm -rf /tmp/* && \
-    rm -rf /home/$USER/.cache && \
-    find /home/$USER/pyenv -type d -name ".git" | xargs rm -rf && \
-    rm -rf /home/$USER/pyenv/versions/3.11.4/lib/python3.11/test
+RUN apt-get update && apt-get install -y scons
 
-USER root
-RUN sudo git config --global --add safe.directory /tmp/openpilot
+RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_amd64.deb && \
+    dpkg -i libicu66_66.1-2ubuntu2_amd64.deb && \
+    rm libicu66_66.1-2ubuntu2_amd64.deb
+
+# Copy necessary files and directories from the Python image to the Ubuntu image
+COPY --from=python /usr/local/bin /usr/local/bin
+COPY --from=python /usr/local/lib /usr/local/lib
+COPY --from=python /usr/local/include /usr/local/include
+COPY --from=python /usr/lib/python3.11 /usr/lib/python3.11
+
+# Update the library cache
+RUN ldconfig
