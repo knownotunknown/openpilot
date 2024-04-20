@@ -1,32 +1,23 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
-ENV PYTHONUNBUFFERED 1
-ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot && \
+    apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot apt-utils \
+    alien unzip tar curl xz-utils dbus gcc-arm-none-eabi tmux vim lsb-core libx11-6 wget scons && \
+    locale-gen en_US.UTF-8 && \
+    sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    dbus-uuidgen > /etc/machine-id && \
     rm -rf /var/lib/apt/lists/*
 
-# RUN apt-get remove -y python python-pip && \
-#     rm -rf /usr/local/bin/python* /usr/local/lib/python* /usr/local/include/python*
-
-    # /usr/local/lib/libpython* /usr/local/lib/pkgconfig/python* /usr/local/share/python* /usr/local/share/pkgconfig/python* /usr/local/bin/pip* /usr/local/bin/easy_install* /usr/local/bin/idle* /usr/local/bin/pydoc* /usr/local/bin/2to3* /usr/local/bin/2to3-*
-
-RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
-
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-
 COPY tools/install_ubuntu_dependencies.sh /tmp/tools/
-
 RUN cd /tmp && \
     tools/install_ubuntu_dependencies.sh && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/* && \
-    cd /usr/lib/gcc/arm-none-eabi/9.2.1 && \
-    rm -rf arm/ && \
-    rm -rf thumb/nofp thumb/v6* thumb/v8* thumb/v7+fp thumb/v7-r+fp.sp
+    rm -rf /tmp/tools
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-utils \
