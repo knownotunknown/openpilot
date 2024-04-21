@@ -109,9 +109,9 @@ ARG OPENPILOT_PATH="/tmp/openpilot"
 # COPY ./system ${OPENPILOT_PATH}/system
 # COPY ./body ${OPENPILOT_PATH}/body
 
-COPY . ${OPENPILOT_PATH}
+# COPY . ${OPENPILOT_PATH}
 
-WORKDIR ${OPENPILOT_PATH}
+# WORKDIR ${OPENPILOT_PATH}
 
 RUN apt-get update && apt-get install -y scons
 
@@ -122,4 +122,4 @@ RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu
 # Update the library cache
 RUN ldconfig
 
-RUN scons --cache-readonly -j$(nproc) > /dev/null
+# RUN scons --cache-readonly -j$(nproc) > /dev/null
