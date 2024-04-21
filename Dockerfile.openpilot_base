@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ENV PYTHONUNBUFFERED 1
 
@@ -83,4 +83,9 @@ RUN cd /tmp && \
     rm -rf /home/$USER/pyenv/versions/3.11.4/lib/python3.11/test
 
 USER root
+
+RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_amd64.deb && \
+    dpkg -i libicu66_66.1-2ubuntu2_amd64.deb && \
+    rm libicu66_66.1-2ubuntu2_amd64.deb
+
 RUN sudo git config --global --add safe.directory /tmp/openpilot
