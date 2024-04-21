@@ -187,7 +187,7 @@ jobs:
 
     - name: Retag Docker Image
       run: |
-        docker tag openpilot_base:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        docker tag ${{ env.REGISTRY }}/openpilot_base:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
       shell: bash
 
     - name: Push Docker Image
