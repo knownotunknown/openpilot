@@ -16,7 +16,7 @@ COPY tools/install_ubuntu_dependencies.sh /tmp/tools/
 RUN cd /tmp && \
     tools/install_ubuntu_dependencies.sh && \
     rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/* 
+    rm -rf /tmp/*
 
 # Add OpenCL
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -32,6 +32,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     vim \
     lsb-core \
     libx11-6 \
+    wget \
   && rm -rf /var/lib/apt/lists/*
 
 ARG INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
