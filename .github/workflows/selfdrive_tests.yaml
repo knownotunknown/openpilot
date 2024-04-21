@@ -15,7 +15,7 @@ env:
   AZURE_TOKEN: ${{ secrets.AZURE_COMMADATACI_OPENPILOTCI_TOKEN }}
 
   DOCKER_LOGIN: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-  BUILD: docker run build -t $BASE_IMAGE -f Dockerfile.openpilot_base .
+  BUILD: docker build -t $BASE_IMAGE -f Dockerfile.openpilot_base .
 
   # selfdrive/test/docker_build.sh base
 
