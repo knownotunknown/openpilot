@@ -120,4 +120,4 @@ COPY --from=python /usr/lib/python3.11 /usr/lib/python3.11
 # Update the library cache
 RUN ldconfig
 
-RUN scons --cache-readonly -j$(nproc) > /dev/null
+# RUN scons --cache-readonly -j$(nproc) > /dev/null
