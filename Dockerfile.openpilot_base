@@ -1,5 +1,5 @@
 # Stage 1: Python image
-FROM python:3.11 as python
+FROM python:3.10 as python
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
@@ -24,7 +24,7 @@ RUN apt-get update && \
     poetry install --only main
 
 # Stage 2: Ubuntu runtime image
-FROM ubuntu:22.04
+FROM ubuntu:20.04
 
 ENV PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive \
@@ -115,9 +115,9 @@ ARG OPENPILOT_PATH="/tmp/openpilot"
 
 RUN apt-get update && apt-get install -y scons
 
-RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_amd64.deb && \
-    dpkg -i libicu66_66.1-2ubuntu2_amd64.deb && \
-    rm libicu66_66.1-2ubuntu2_amd64.deb
+# RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_amd64.deb && \
+#     dpkg -i libicu66_66.1-2ubuntu2_amd64.deb && \
+#     rm libicu66_66.1-2ubuntu2_amd64.deb
 
 # Update the library cache
 RUN ldconfig
