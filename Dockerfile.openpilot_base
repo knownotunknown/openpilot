@@ -32,6 +32,11 @@ ENV PYTHONUNBUFFERED=1 \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8
 
+# Copy necessary files and directories from the Python image to the Ubuntu image
+COPY --from=python /usr/local/bin /usr/local/bin
+COPY --from=python /usr/local/lib /usr/local/lib
+COPY --from=python /usr/local/include /usr/local/include
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot apt-utils \
     alien unzip tar curl xz-utils dbus gcc-arm-none-eabi tmux vim lsb-core libx11-6 wget scons && \
@@ -109,21 +114,11 @@ ARG OPENPILOT_PATH="/tmp/openpilot"
 
 RUN apt-get update && apt-get install -y scons
 
-# Copy necessary files and directories from the Python image to the Ubuntu image
-COPY --from=python /usr/local/bin /usr/local/bin
-COPY --from=python /usr/local/lib /usr/local/lib
-COPY --from=python /usr/local/include /usr/local/include
-COPY --from=python /usr/lib/python3.11 /usr/lib/python3.11
-# COPY --from=python /usr/lib/x86_64-linux-gnu/libpython3.11.so.1.0 /usr/lib/x86_64-linux-gnu/libpython3.11.so.1.0
-
-# RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_amd64.deb && \
-#     dpkg -i libicu66_66.1-2ubuntu2_amd64.deb && \
-#     rm libicu66_66.1-2ubuntu2_amd64.deb
+# Create a symbolic link for libpython3.11.so.1.0
+RUN ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0
 
 # Update the library cache
 RUN ldconfig
-
-ENV PATH="/usr/local/bin:${PATH}"
 
 # RUN scons --cache-readonly -j$(nproc) > /dev/null
 
