@@ -105,11 +105,6 @@ jobs:
         chmod +x docker-compose
         sudo mv docker-compose /usr/local/bin/
         docker compose build --parallel
-      shell: bash
-
-    - name: Run Docker Compose
-      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
-      run: |
         compose up --parallel
       shell: bash
 
@@ -136,7 +131,7 @@ jobs:
     - name: Run unit tests
       timeout-minutes: 15
       run: |
-        ${{ env.RUN }} "source selfdrive/test/setup_xvfb.sh && \
+        docker-compose exec ubuntu sh -c "source selfdrive/test/setup_xvfb.sh && \
                         export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && \
                         $PYTEST --timeout 60 -m 'not slow' && \
                         ./selfdrive/ui/tests/create_test_translations.sh && \
