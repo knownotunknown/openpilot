@@ -114,7 +114,7 @@ COPY --from=python /usr/local/bin /usr/local/bin
 COPY --from=python /usr/local/lib /usr/local/lib
 COPY --from=python /usr/local/include /usr/local/include
 COPY --from=python /usr/lib/python3.11 /usr/lib/python3.11
-COPY --from=python /usr/lib/x86_64-linux-gnu/libpython3.11.so.1.0 /usr/lib/x86_64-linux-gnu/libpython3.11.so.1.0
+# COPY --from=python /usr/lib/x86_64-linux-gnu/libpython3.11.so.1.0 /usr/lib/x86_64-linux-gnu/libpython3.11.so.1.0
 
 # RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_amd64.deb && \
 #     dpkg -i libicu66_66.1-2ubuntu2_amd64.deb && \
