@@ -36,6 +36,7 @@ ENV PYTHONUNBUFFERED=1 \
 COPY --from=python /usr/local/bin /usr/local/bin
 COPY --from=python /usr/local/lib /usr/local/lib
 COPY --from=python /usr/local/include /usr/local/include
+COPY --from=python /usr/lib/x86_64-linux-gnu/libffi.so.6 /usr/lib/x86_64-linux-gnu/libffi.so.6
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot apt-utils \
@@ -64,7 +65,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     lsb-core \
     libx11-6 \
     wget \
-    libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 ARG INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
@@ -120,6 +120,6 @@ RUN ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0
 # Update the library cache
 RUN ldconfig
 
-RUN scons --cache-readonly -j$(nproc) > /dev/null
+# RUN scons --cache-readonly -j$(nproc) > /dev/null
 
 RUN sudo git config --global --add safe.directory /tmp/openpilot
