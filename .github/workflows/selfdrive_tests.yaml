@@ -101,10 +101,10 @@ jobs:
     - name: Build Docker Image using cache
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
-        mkdir -p ~/.docker/cli-plugins
-        curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
-        chmod +x ~/.docker/cli-plugins/docker-compose
-        compose build --parallel
+        curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o docker-compose
+        chmod +x docker-compose
+        sudo mv docker-compose /usr/local/bin/
+        docker compose build --parallel
       shell: bash
 
     - name: Run Docker Compose
