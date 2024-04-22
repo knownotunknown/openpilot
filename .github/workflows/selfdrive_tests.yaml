@@ -101,7 +101,7 @@ jobs:
     - name: Build Docker Image using cache
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
-        docker-compose up --build --parallel
+        docker-compose build --parallel
         docker-compose exec ubuntu sh -c "ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0 && ldconfig && bash"
       shell: bash
 
