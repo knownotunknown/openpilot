@@ -1,72 +1,4 @@
-# # Use an official Ubuntu base image
-# FROM ubuntu:20.04
-
-# # Set a non-interactive shell environment to avoid stuck builds on user inputs
-# ENV DEBIAN_FRONTEND=noninteractive
-
-# # Install required packages for building Python and handling other OS-level operations
-
-# RUN apt-get update && apt-get install -y \
-#     build-essential \
-#     wget \
-#     libssl-dev \
-#     libffi-dev \
-#     zlib1g-dev \
-#     liblzma-dev \
-#     libbz2-dev \
-#     libreadline-dev \
-#     libsqlite3-dev \
-#     tk-dev \
-#     libncurses5-dev \
-#     libncursesw5-dev \
-#     xz-utils \
-#     build-essential \
-#     autoconf \
-#     python3-pyaudio \
-#     portaudio19-dev \
-#     libssl-dev \
-#     libzmq3-dev \
-#     && rm -rf /var/lib/apt/lists/*
-
-# # Download, compile, and install Python
-# RUN wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz \
-#     && tar -xf Python-3.11.0.tgz \
-#     && cd Python-3.11.0 \
-#     && ./configure --enable-optimizations \
-#     && make -j 8 \
-#     && make altinstall \
-#     && cd .. \
-#     && rm -rf Python-3.11.0.tgz Python-3.11.0
-
-# # Symlink python3.11 to python3 to make it the default Python version
-# RUN ln -sf /usr/local/bin/python3.11 /usr/bin/python3
-
-# # Upgrade pip and install Poetry
-# RUN python3 -m pip install --upgrade pip \
-#     && pip install poetry
-
-# # Copy the Python project files to /tmp directory
-# COPY pyproject.toml poetry.lock .python-version README.md /tmp/
-
-# # Set the working directory
-# WORKDIR /tmp
-
-# RUN poetry lock --no-update
-
-# # Configure Poetry to not create a virtual environment and install dependencies
-# RUN poetry config virtualenvs.create false \
-#     && poetry install --only main
-
-# # Set the environment variable for dynamic linker/loader
-# ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-
-
-
-
-
-
-
-FROM python:3.11
+FROM python:3.11-buster
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
@@ -78,7 +10,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     portaudio19-dev \
     libssl-dev \
     libzmq3-dev \
-    libpython3.11-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml poetry.lock .python-version README.md /tmp/
@@ -89,11 +20,3 @@ RUN apt-get update && \
     poetry config virtualenvs.create false && \
     cd /tmp/ && \
     poetry install --only main
-
-# RUN ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0 && \
-#     ldconfig
-
-# ENV LD_LIBRARY_PATH=/usr/local/lib
-
-# RUN ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0 && \
-#     ldconfig

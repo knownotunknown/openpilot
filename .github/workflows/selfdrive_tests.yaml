@@ -101,7 +101,8 @@ jobs:
     - name: Build Docker Image using cache
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
-        docker build --cache-from ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f Dockerfile.openpilot_base -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+        docker-compose up --build --parallel
+        docker-compose exec ubuntu sh -c "ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0 && ldconfig && bash"
       shell: bash
 
     # - name: Push Docker Image
@@ -116,7 +117,7 @@ jobs:
 
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
-      run: ${{ env.RUN }} "scons -j$(nproc)"
+      run: docker-compose exec ubuntu sh -c "scons -j$(nproc)"
 
     - name: Run unit tests
       timeout-minutes: 15

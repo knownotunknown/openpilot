@@ -3,50 +3,30 @@ services:
   python:
     build:
       context: .
-      dockerfile: Dockerfile.python
+      dockerfile: python.Dockerfile
     platform: linux/amd64
     volumes:
-      - python_bin:/usr/local/bin
-      - python_lib:/usr/local/lib
-      - python_include:/usr/local/include
-      - usr_lib:/usr/lib
-    command: tail -f /dev/null  # Keeps the container running
+      - python_usr_local_bin:/usr/local/bin
+      - python_usr_local_lib:/usr/local/lib
+      - python_usr_local_include:/usr/local/include
+      - python_libffi:/usr/lib/x86_64-linux-gnu/libffi.so.6
+    command: tail -f /dev/null
 
   ubuntu:
     build:
       context: .
-      dockerfile: Dockerfile.ubuntu
+      dockerfile: ubuntu.Dockerfile
     platform: linux/amd64
-    depends_on:
-      - python
     volumes:
-      - .:/tmp/openpilot
-      - usr_lib:/usr/lib
-      - python_bin:/usr/local/bin
-      - python_lib:/usr/local/lib
-      - python_include:/usr/local/include
-    command: >
-      bash -c "
-        echo 'hello world' &&
-        tail -f /dev/null
-        # scons --cache-readonly -j$(nproc) > /dev/null
-        # echo '/usr/local/lib' >> /etc/ld.so.conf.d/local.conf &&
-        # ldconfig &&
-      "
+      - ./:/tmp/openpilot
+      - python_usr_local_bin:/usr/local/bin
+      - python_usr_local_lib:/usr/local/lib
+      - python_usr_local_include:/usr/local/include
+      - python_libffi:/usr/lib/x86_64-linux-gnu/libffi.so.6
+    command: tail -f /dev/null
 
 volumes:
-  python_bin:
-  python_lib:
-  python_include:
-  usr_lib:
-
-      # - usr_lib:/usr/lib:ro
-      # - python_bin:/usr/local/bin:ro
-      # - python_lib:/usr/local/lib:ro
-      # - python_include:/usr/local/include:ro
-
-
-      #       - python_bin:/usr/local/bin
-      # - python_lib:/usr/local/lib
-      # - python_include:/usr/local/include
-      # - usr_lib:/usr/lib
+  python_usr_local_bin:
+  python_usr_local_lib:
+  python_usr_local_include:
+  python_libffi:
