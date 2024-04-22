@@ -34,9 +34,8 @@ ENV PYTHONUNBUFFERED=1 \
 
 # Copy necessary files and directories from the Python image to the Ubuntu image
 COPY --from=python /usr/local/bin /usr/local/bin
-COPY --from=python /usr/local/lib /usr/local/lib
-COPY --from=python /usr/local/include /usr/local/include
-COPY --from=python /usr/lib/python3.11 /usr/lib/python3.11
+COPY --from=python /usr/local/lib/python3.11 /usr/local/lib/python3.11
+COPY --from=python /usr/local/include/python3.11 /usr/local/include/python3.11
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot apt-utils \
@@ -121,6 +120,8 @@ RUN apt-get update && apt-get install -y scons
 
 # Update the library cache
 RUN ldconfig
+
+ENV PATH="/usr/local/bin:${PATH}"
 
 # RUN scons --cache-readonly -j$(nproc) > /dev/null
 
