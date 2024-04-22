@@ -98,6 +98,10 @@ jobs:
         fi
       shell: bash
 
+    - name: Login to GitHub Container Registry
+      run: echo ${{ secrets.REGISTRY_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+      shell: bash
+
     - name: Build Docker Image using cache
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
