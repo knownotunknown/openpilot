@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     portaudio19-dev \
     libssl-dev \
     libzmq3-dev \
-    libpython3.11-dev \
+    # libpython3.11-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml poetry.lock .python-version README.md /tmp/
