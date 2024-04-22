@@ -98,10 +98,27 @@ jobs:
         fi
       shell: bash
 
+    - name: Docker compose install
+      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
+      run: |
+        curl -L https://raw.githubusercontent.com/docker/compose-cli/main/scripts/install/install_linux.sh | sh
+      shell: bash
+
     - name: Build Docker Image using cache
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
-        docker-compose build --parallel
+        compose build --parallel
+      shell: bash
+
+    - name: Run Docker Compose
+      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
+      run: |
+        compose up --parallel
+      shell: bash
+
+    - name: Python linking
+      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
+      run: |
         docker-compose exec ubuntu sh -c "ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0 && ldconfig && bash"
       shell: bash
 
@@ -110,10 +127,10 @@ jobs:
     #   run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
     #   shell: bash
 
-    - name: Print Docker Image Size
-      run: |
-        docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} --format "{{.Size}}"
-      shell: bash
+    # - name: Print Docker Image Size
+    #   run: |
+    #     docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} --format "{{.Size}}"
+    #   shell: bash
 
     - name: Build openpilot
       timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
@@ -128,6 +145,7 @@ jobs:
                         ./selfdrive/ui/tests/create_test_translations.sh && \
                         QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations && \
                         ./selfdrive/ui/tests/test_translations.py"
+
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v3
       with:
