@@ -120,6 +120,6 @@ RUN ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0
 # Update the library cache
 RUN ldconfig
 
-# RUN scons --cache-readonly -j$(nproc) > /dev/null
+RUN scons --cache-readonly -j$(nproc) > /dev/null
 
 RUN sudo git config --global --add safe.directory /tmp/openpilot
