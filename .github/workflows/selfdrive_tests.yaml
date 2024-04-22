@@ -101,11 +101,8 @@ jobs:
     - name: Build Docker Image using cache
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
-        curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o docker-compose
-        chmod +x docker-compose
-        sudo mv docker-compose /usr/local/bin/
-        docker compose build --parallel
-        compose up --parallel
+        docker-compose pull --parallel
+        docker-compose up
       shell: bash
 
     - name: Python linking

@@ -1,9 +1,8 @@
 version: '3.9'
+
 services:
   python:
-    build:
-      context: .
-      dockerfile: Dockerfile.python
+    image: ghcr.io/knownotunknown/python
     platform: linux/amd64
     volumes:
       - python_usr_local_bin:/usr/local/bin
@@ -13,9 +12,7 @@ services:
     command: tail -f /dev/null
 
   ubuntu:
-    build:
-      context: .
-      dockerfile: Dockerfile.ubuntu
+    image: ghcr.io/knownotunknown/ubuntu
     platform: linux/amd64
     volumes:
       - ./:/tmp/openpilot
