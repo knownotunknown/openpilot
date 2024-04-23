@@ -1,0 +1,47 @@
+# Stage 1: Build stage
+FROM python:3.11-slim AS build
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Install build dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    autoconf \
+    portaudio19-dev \
+    libssl-dev \
+    libzmq3-dev \
+    libpython3.11-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy and install Python dependencies
+COPY pyproject.toml poetry.lock .python-version README.md /tmp/
+RUN apt-get update && \
+    python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
+    pip install --no-cache-dir poetry==1.6.1 && \
+    poetry config virtualenvs.create false && \
+    cd /tmp/ && \
+    poetry install --only main
+
+# Stage 2: Runtime stage
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Install runtime dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libportaudio2 \
+    libssl-dev \
+    libzmq5 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy installed packages from the build stage
+COPY --from=build /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=build /usr/local/bin /usr/local/bin
+
+# Copy your application code
+COPY . /app
+WORKDIR /app

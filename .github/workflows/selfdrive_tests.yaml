@@ -105,15 +105,13 @@ jobs:
     - name: Build Docker Image using cache
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
-        docker pull ghcr.io/knownotunknown/python:latest
-        # docker-compose pull --parallel
-        # docker-compose up -d
+        docker-compose pull --parallel
+        docker-compose up -d
       shell: bash
 
-    - name: Print Docker Image Size
+    - name: Testing pull speed of multi-stage openpilot_base speed
       run: |
-        # docker images ghcr.io/knownotunknown/ubuntu:latest --format "{{.Size}}"
-        docker images ghcr.io/knownotunknown/python:latest --format "{{.Size}}"
+        docker pull ghcr.io/knownotunknown/openpilot_base:latest
       shell: bash
 
     - name: Python linking
