@@ -106,7 +106,7 @@ jobs:
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
         docker-compose pull --parallel
-        docker-compose up
+        docker-compose up -d
       shell: bash
 
     - name: Python linking
