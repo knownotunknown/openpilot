@@ -1,15 +1,15 @@
 version: '3.9'
 
 services:
-  python:
-    image: ghcr.io/knownotunknown/python:latest
-    platform: linux/amd64
-    volumes:
-      - python_usr_local_bin:/usr/local/bin
-      - python_usr_local_lib:/usr/local/lib
-      - python_usr_local_include:/usr/local/include
-      - python_libffi:/usr/lib/x86_64-linux-gnu
-    command: tail -f /dev/null
+  # python:
+  #   image: ghcr.io/knownotunknown/python:latest
+  #   platform: linux/amd64
+  #   volumes:
+  #     - python_usr_local_bin:/usr/local/bin
+  #     - python_usr_local_lib:/usr/local/lib
+  #     - python_usr_local_include:/usr/local/include
+  #     - python_libffi:/usr/lib/x86_64-linux-gnu
+  #   command: tail -f /dev/null
 
   ubuntu:
     image: ghcr.io/knownotunknown/ubuntu:latest

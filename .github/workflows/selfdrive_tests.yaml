@@ -112,7 +112,9 @@ jobs:
     - name: Python linking
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
-        docker-compose exec ubuntu sh -c "ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0 && ldconfig"
+        # docker-compose exec ubuntu sh -c "ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0 && ldconfig"
+        docker-compose exec ubuntu sh -c "echo hello"
+
       shell: bash
 
     # - name: Push Docker Image
