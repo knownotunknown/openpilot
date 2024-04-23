@@ -105,8 +105,14 @@ jobs:
     - name: Build Docker Image using cache
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
-        docker-compose pull --parallel
-        docker-compose up -d
+        docker pull ghcr.io/knownotunknown/ubuntu:latest
+        # docker-compose pull --parallel
+        # docker-compose up -d
+      shell: bash
+
+    - name: Print Docker Image Size
+      run: |
+        docker images ghcr.io/knownotunknown/ubuntu:latest --format "{{.Size}}"
       shell: bash
 
     - name: Python linking
