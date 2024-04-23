@@ -105,7 +105,7 @@ jobs:
     - name: Build Docker Image using cache
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
-        docker pull ghcr.io/knownotunknown/ubuntu:latest
+        docker pull ghcr.io/knownotunknown/ubuntu:latest & docker pull ghcr.io/knownotunknown/python:latest
         # docker-compose pull --parallel
         # docker-compose up -d
       shell: bash
