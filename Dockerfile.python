@@ -1,16 +1,17 @@
-FROM python:3.11-buster
+FROM python:3.11-buster AS build
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     build-essential \
     autoconf \
-    python3-pyaudio \
     portaudio19-dev \
     libssl-dev \
     libzmq3-dev \
-    && rm -rf /var/lib/apt/lists/*
+    alien && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml poetry.lock .python-version README.md /tmp/
 
@@ -20,3 +21,38 @@ RUN apt-get update && \
     poetry config virtualenvs.create false && \
     cd /tmp/ && \
     poetry install --only main
+
+# Install OpenCL in the builder Python image
+ARG INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
+ARG INTEL_DRIVER_URL=https://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532
+
+RUN mkdir -p /tmp/opencl-driver-intel && \
+    cd /tmp/opencl-driver-intel && \
+    echo INTEL_DRIVER is $INTEL_DRIVER && \
+    curl -O $INTEL_DRIVER_URL/$INTEL_DRIVER && \
+    tar -xzf $INTEL_DRIVER && \
+    for i in $(basename $INTEL_DRIVER .tgz)/rpm/*.rpm; do alien --to-deb $i; done && \
+    dpkg -i *.deb && \
+    rm -rf $INTEL_DRIVER $(basename $INTEL_DRIVER .tgz) *.deb && \
+    mkdir -p /etc/OpenCL/vendors && \
+    echo /opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/libintelocl.so > /etc/OpenCL/vendors/intel.icd
+
+# Stage 2: Slim stage
+FROM python:3.11-slim-buster as python
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+COPY --from=build /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=build /usr/local/bin /usr/local/bin
+
+# Copy OpenCL files from the builder Python image to the slim Python image
+COPY --from=build /opt/intel /opt/intel
+COPY --from=build /etc/OpenCL/vendors/intel.icd /etc/OpenCL/vendors/intel.icd
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libportaudio2 \
+    libssl1.1 \
+    libzmq5 && \
+    rm -rf /var/lib/apt/lists/*
