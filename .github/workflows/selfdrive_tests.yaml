@@ -102,12 +102,12 @@ jobs:
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       shell: bash
 
-    - name: Build Docker Image using cache
-      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
-      run: |
-        docker-compose pull --parallel
-        docker-compose up -d
-      shell: bash
+    # - name: Build Docker Image using cache
+    #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
+    #   run: |
+    #     docker-compose pull --parallel
+    #     docker-compose up -d
+    #   shell: bash
 
     - name: Testing pull speed of multi-stage openpilot_base speed
       run: |
