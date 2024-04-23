@@ -105,8 +105,6 @@ jobs:
     - name: Build Docker Image using cache
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
-        docker pull ${{ env.REGISTRY }}/python:latest
-        docker pull ${{ env.REGISTRY }}/ubuntu:latest
         docker-compose pull --parallel
         docker-compose up
       shell: bash
