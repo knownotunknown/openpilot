@@ -8,7 +8,7 @@ services:
       - python_usr_local_bin:/usr/local/bin
       - python_usr_local_lib:/usr/local/lib
       - python_usr_local_include:/usr/local/include
-      - python_libffi:/usr/lib/x86_64-linux-gnu/libffi.so.6
+      - python_libffi:/usr/lib/x86_64-linux-gnu
     command: tail -f /dev/null
 
   ubuntu:
@@ -19,7 +19,7 @@ services:
       - python_usr_local_bin:/usr/local/bin
       - python_usr_local_lib:/usr/local/lib
       - python_usr_local_include:/usr/local/include
-      - python_libffi:/usr/lib/x86_64-linux-gnu/libffi.so.6
+      - python_libffi:/usr/lib/x86_64-linux-gnu
     command: tail -f /dev/null
 
 volumes:
