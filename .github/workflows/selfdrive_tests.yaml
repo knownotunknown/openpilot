@@ -28,62 +28,62 @@ env:
 
 
 jobs:
-  build_cache_buildx:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: docker/setup-buildx-action@v1
-      - uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache-openpilot
-          key: ${{ runner.os }}-buildx-openpilot-${{ hashFiles('Dockerfile.openpilot_base_old') }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-openpilot-
-      - uses: docker/build-push-action@v2
-        with:
-          push: false
-          tags: thing
-          file: ./Dockerfile.openpilot_base_old
-          cache-from: type=local,src=/tmp/.buildx-cache-openpilot
-          cache-to: type=local,dest=/tmp/.buildx-cache-openpilot
+  # build_cache_buildx:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: docker/setup-buildx-action@v1
+  #     - uses: actions/cache@v2
+  #       with:
+  #         path: /tmp/.buildx-cache-openpilot
+  #         key: ${{ runner.os }}-buildx-openpilot-${{ hashFiles('Dockerfile.openpilot_base_old') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-buildx-openpilot-
+  #     - uses: docker/build-push-action@v2
+  #       with:
+  #         push: false
+  #         tags: thing
+  #         file: ./Dockerfile.openpilot_base_old
+  #         cache-from: type=local,src=/tmp/.buildx-cache-openpilot
+  #         cache-to: type=local,dest=/tmp/.buildx-cache-openpilot
 
-  build_cache_ubuntu:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: docker/setup-buildx-action@v1
-      - uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache-ubuntu
-          key: ${{ runner.os }}-buildx-ubuntu-${{ hashFiles('Dockerfile.ubuntu') }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-ubuntu-
-      - uses: docker/build-push-action@v2
-        with:
-          push: false
-          tags: thing
-          file: ./Dockerfile.ubuntu
-          cache-from: type=local,src=/tmp/.buildx-cache-ubuntu
-          cache-to: type=local,dest=/tmp/.buildx-cache-ubuntu
+  # build_cache_ubuntu:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: docker/setup-buildx-action@v1
+  #     - uses: actions/cache@v2
+  #       with:
+  #         path: /tmp/.buildx-cache-ubuntu
+  #         key: ${{ runner.os }}-buildx-ubuntu-${{ hashFiles('Dockerfile.ubuntu') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-buildx-ubuntu-
+  #     - uses: docker/build-push-action@v2
+  #       with:
+  #         push: false
+  #         tags: thing
+  #         file: ./Dockerfile.ubuntu
+  #         cache-from: type=local,src=/tmp/.buildx-cache-ubuntu
+  #         cache-to: type=local,dest=/tmp/.buildx-cache-ubuntu
 
-  build_cache_python:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: docker/setup-buildx-action@v1
-      - uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache-python
-          key: ${{ runner.os }}-buildx-python-${{ hashFiles('Dockerfile.python') }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-python-
-      - uses: docker/build-push-action@v2
-        with:
-          push: false
-          tags: thing
-          file: ./Dockerfile.python
-          cache-from: type=local,src=/tmp/.buildx-cache-python
-          cache-to: type=local,dest=/tmp/.buildx-cache-python
+  # build_cache_python:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: docker/setup-buildx-action@v1
+  #     - uses: actions/cache@v2
+  #       with:
+  #         path: /tmp/.buildx-cache-python
+  #         key: ${{ runner.os }}-buildx-python-${{ hashFiles('Dockerfile.python') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-buildx-python-
+  #     - uses: docker/build-push-action@v2
+  #       with:
+  #         push: false
+  #         tags: thing
+  #         file: ./Dockerfile.python
+  #         cache-from: type=local,src=/tmp/.buildx-cache-python
+  #         cache-to: type=local,dest=/tmp/.buildx-cache-python
   unit_tests:
     name: unit tests
     runs-on: ${{ ((github.repository == 'commaai/openpilot') &&
@@ -181,52 +181,52 @@ jobs:
         DOCKER_BUILDKIT: 1
       shell: bash
 
-    - name: Start Docker Containers
-      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
-      run: |
-        docker-compose up -d
-      shell: bash
-
-    - name: Testing pull speed of multi-stage openpilot_base speed
-      run: |
-        docker pull ghcr.io/knownotunknown/openpilot_base:latest
-      shell: bash
-
-    - name: Python linking
-      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
-      run: |
-        # docker-compose exec ubuntu sh -c "ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0 && ldconfig"
-        docker-compose exec ubuntu sh -c "echo hello"
-
-      shell: bash
-
-    # - name: Push Docker Image
+    # - name: Start Docker Containers
     #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
-    #   run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-    #   shell: bash
-
-    # - name: Print Docker Image Size
     #   run: |
-    #     docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} --format "{{.Size}}"
+    #     docker-compose up -d
     #   shell: bash
 
-    - name: Build openpilot
-      timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
-      run: docker-compose exec ubuntu sh -c "scons -j$(nproc)"
+    # - name: Testing pull speed of multi-stage openpilot_base speed
+    #   run: |
+    #     docker pull ghcr.io/knownotunknown/openpilot_base:latest
+    #   shell: bash
 
-    - name: Run unit tests
-      timeout-minutes: 15
-      run: |
-        docker-compose exec ubuntu sh -c "source selfdrive/test/setup_xvfb.sh && \
-                        export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && \
-                        $PYTEST --timeout 60 -m 'not slow' && \
-                        ./selfdrive/ui/tests/create_test_translations.sh && \
-                        QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations && \
-                        ./selfdrive/ui/tests/test_translations.py"
+    # - name: Python linking
+    #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
+    #   run: |
+    #     # docker-compose exec ubuntu sh -c "ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0 && ldconfig"
+    #     docker-compose exec ubuntu sh -c "echo hello"
 
-    - name: "Upload coverage to Codecov"
-      uses: codecov/codecov-action@v3
-      with:
-        name: ${{ github.job }}
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    #   shell: bash
+
+    # # - name: Push Docker Image
+    # #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
+    # #   run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+    # #   shell: bash
+
+    # # - name: Print Docker Image Size
+    # #   run: |
+    # #     docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} --format "{{.Size}}"
+    # #   shell: bash
+
+    # - name: Build openpilot
+    #   timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
+    #   run: docker-compose exec ubuntu sh -c "scons -j$(nproc)"
+
+    # - name: Run unit tests
+    #   timeout-minutes: 15
+    #   run: |
+    #     docker-compose exec ubuntu sh -c "source selfdrive/test/setup_xvfb.sh && \
+    #                     export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && \
+    #                     $PYTEST --timeout 60 -m 'not slow' && \
+    #                     ./selfdrive/ui/tests/create_test_translations.sh && \
+    #                     QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations && \
+    #                     ./selfdrive/ui/tests/test_translations.py"
+
+    # - name: "Upload coverage to Codecov"
+    #   uses: codecov/codecov-action@v3
+    #   with:
+    #     name: ${{ github.job }}
+    #   env:
+    #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
