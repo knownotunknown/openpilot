@@ -35,17 +35,18 @@ jobs:
       - uses: docker/setup-buildx-action@v1
       - uses: actions/cache@v2
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile') }}
+          path: /tmp/.buildx-cache-openpilot
+          key: ${{ runner.os }}-buildx-openpilot-${{ hashFiles('Dockerfile.openpilot_base_old') }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            ${{ runner.os }}-buildx-openpilot-
       - uses: docker/build-push-action@v2
         with:
           push: false
           tags: thing
           file: ./Dockerfile.openpilot_base_old
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
+          cache-from: type=local,src=/tmp/.buildx-cache-openpilot
+          cache-to: type=local,dest=/tmp/.buildx-cache-openpilot
+
   build_cache_ubuntu:
     runs-on: ubuntu-latest
     steps:
@@ -53,17 +54,18 @@ jobs:
       - uses: docker/setup-buildx-action@v1
       - uses: actions/cache@v2
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile') }}
+          path: /tmp/.buildx-cache-ubuntu
+          key: ${{ runner.os }}-buildx-ubuntu-${{ hashFiles('Dockerfile.ubuntu') }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            ${{ runner.os }}-buildx-ubuntu-
       - uses: docker/build-push-action@v2
         with:
           push: false
           tags: thing
           file: ./Dockerfile.ubuntu
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
+          cache-from: type=local,src=/tmp/.buildx-cache-ubuntu
+          cache-to: type=local,dest=/tmp/.buildx-cache-ubuntu
+
   build_cache_python:
     runs-on: ubuntu-latest
     steps:
@@ -71,17 +73,17 @@ jobs:
       - uses: docker/setup-buildx-action@v1
       - uses: actions/cache@v2
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile') }}
+          path: /tmp/.buildx-cache-python
+          key: ${{ runner.os }}-buildx-python-${{ hashFiles('Dockerfile.python') }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            ${{ runner.os }}-buildx-python-
       - uses: docker/build-push-action@v2
         with:
           push: false
           tags: thing
           file: ./Dockerfile.python
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
+          cache-from: type=local,src=/tmp/.buildx-cache-python
+          cache-to: type=local,dest=/tmp/.buildx-cache-python
   unit_tests:
     name: unit tests
     runs-on: ${{ ((github.repository == 'commaai/openpilot') &&
@@ -162,6 +164,28 @@ jobs:
     #     docker-compose pull --parallel
     #     docker-compose up -d
     #   shell: bash
+
+    - name: Cache Docker layers
+      uses: actions/cache@v2
+      with:
+        path: /var/lib/docker
+        key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-docker-
+
+    - name: Pull Docker Images using cache
+      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
+      run: |
+        docker-compose pull --parallel
+      env:
+        DOCKER_BUILDKIT: 1
+      shell: bash
+
+    - name: Start Docker Containers
+      if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
+      run: |
+        docker-compose up -d
+      shell: bash
 
     - name: Testing pull speed of multi-stage openpilot_base speed
       run: |
