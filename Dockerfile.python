@@ -1,5 +1,4 @@
 FROM python:3.11-buster AS build
-
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
@@ -10,22 +9,22 @@ RUN apt-get update && \
     portaudio19-dev \
     libssl-dev \
     libzmq3-dev \
-    alien && \
-    rm -rf /var/lib/apt/lists/*
+    alien \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml poetry.lock .python-version README.md /tmp/
 
-RUN apt-get update && \
-    python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
+RUN python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
     pip install --no-cache-dir poetry==1.6.1 && \
     poetry config virtualenvs.create false && \
     cd /tmp/ && \
-    poetry install --only main
+    poetry install --only main && \
+    rm -rf /root/.cache/pip
 
 # Install OpenCL in the builder Python image
 ARG INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
 ARG INTEL_DRIVER_URL=https://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532
-
 RUN mkdir -p /tmp/opencl-driver-intel && \
     cd /tmp/opencl-driver-intel && \
     echo INTEL_DRIVER is $INTEL_DRIVER && \
@@ -39,7 +38,6 @@ RUN mkdir -p /tmp/opencl-driver-intel && \
 
 # Stage 2: Slim stage
 FROM python:3.11-slim-buster as python
-
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
@@ -54,5 +52,6 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     libportaudio2 \
     libssl1.1 \
-    libzmq5 && \
-    rm -rf /var/lib/apt/lists/*
+    libzmq5 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*

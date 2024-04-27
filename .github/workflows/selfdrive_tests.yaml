@@ -176,9 +176,10 @@ jobs:
     - name: Pull Docker Images using cache
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
-        docker-compose pull --parallel
+        docker-compose pull --parallel --cache-from type=local,src=/docker-compose-cache
       env:
         DOCKER_BUILDKIT: 1
+        DOCKER_BUILDKIT_CACHE_DIR: /docker-compose-cache
       shell: bash
 
     # - name: Start Docker Containers
