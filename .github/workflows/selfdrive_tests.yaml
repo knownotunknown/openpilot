@@ -168,7 +168,7 @@ jobs:
     - name: Cache Docker layers
       uses: actions/cache@v2
       with:
-        path: /var/lib/docker
+        path: /docker-compose-cache
         key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yml') }}
         restore-keys: |
           ${{ runner.os }}-docker-
