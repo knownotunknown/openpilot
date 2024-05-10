@@ -28,62 +28,6 @@ env:
 
 
 jobs:
-  # build_cache_buildx:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: docker/setup-buildx-action@v1
-  #     - uses: actions/cache@v2
-  #       with:
-  #         path: /tmp/.buildx-cache-openpilot
-  #         key: ${{ runner.os }}-buildx-openpilot-${{ hashFiles('Dockerfile.openpilot_base_old') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-buildx-openpilot-
-  #     - uses: docker/build-push-action@v2
-  #       with:
-  #         push: false
-  #         tags: thing
-  #         file: ./Dockerfile.openpilot_base_old
-  #         cache-from: type=local,src=/tmp/.buildx-cache-openpilot
-  #         cache-to: type=local,dest=/tmp/.buildx-cache-openpilot
-
-  # build_cache_ubuntu:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: docker/setup-buildx-action@v1
-  #     - uses: actions/cache@v2
-  #       with:
-  #         path: /tmp/.buildx-cache-ubuntu
-  #         key: ${{ runner.os }}-buildx-ubuntu-${{ hashFiles('Dockerfile.ubuntu') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-buildx-ubuntu-
-  #     - uses: docker/build-push-action@v2
-  #       with:
-  #         push: false
-  #         tags: thing
-  #         file: ./Dockerfile.ubuntu
-  #         cache-from: type=local,src=/tmp/.buildx-cache-ubuntu
-  #         cache-to: type=local,dest=/tmp/.buildx-cache-ubuntu
-
-  # build_cache_python:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: docker/setup-buildx-action@v1
-  #     - uses: actions/cache@v2
-  #       with:
-  #         path: /tmp/.buildx-cache-python
-  #         key: ${{ runner.os }}-buildx-python-${{ hashFiles('Dockerfile.python') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-buildx-python-
-  #     - uses: docker/build-push-action@v2
-  #       with:
-  #         push: false
-  #         tags: thing
-  #         file: ./Dockerfile.python
-  #         cache-from: type=local,src=/tmp/.buildx-cache-python
-  #         cache-to: type=local,dest=/tmp/.buildx-cache-python
   unit_tests:
     name: unit tests
     runs-on: ${{ ((github.repository == 'commaai/openpilot') &&
@@ -139,6 +83,62 @@ jobs:
     #   run: docker compose up --build
     #   shell: bash
 
+    - name: Build Docker Image
+      run: |
+        docker build -t openpilot_base .
+      shell: bash
+
+    - name: Push to Docker Hub
+      if: env.REBUILD_IMAGE == 'true'
+      run: |
+        docker tag openpilot_base openpilot/openpilot_base:latest
+        docker push openpilot/openpilot_base:latest
+      shell: bash
+
+    - name: Push to GitHub Container Registry
+      if: env.REBUILD_IMAGE == 'true'
+      run: |
+        docker tag openpilot_base ghcr.io/knownotunknown/openpilot_base:latest
+        docker push ghcr.io/knownotunknown/openpilot_base:latest
+      shell: bash
+
+    - name: Push to Azure Container Registry
+      if: env.REBUILD_IMAGE == 'true'
+      run: |
+        docker tag openpilot_base openpilotci.azurecr.io/openpilot_base:latest
+        docker push openpilotci.azurecr.io/openpilot_base:latest
+      shell: bash
+
+    - name: Login to Docker Hub
+      run: echo ${{ secrets.DOCKER_HUB_PAT }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+      shell: bash
+
+    - name: Login to GitHub Container Registry
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+      shell: bash
+
+    - name: Login to Azure Container Registry
+      run: echo ${{ secrets.AZURE_TOKEN }} | docker login openpilotci.azurecr.io -u ${{ secrets.AZURE_USERNAME }} --password-stdin
+      shell: bash
+
+    - name: Pull from Docker Hub
+      if: env.REBUILD_IMAGE == 'false'
+      run: |
+        time docker pull openpilot/openpilot_base:latest
+      shell: bash
+
+    - name: Pull from GitHub Container Registry
+      if: env.REBUILD_IMAGE == 'false'
+      run: |
+        time docker pull ghcr.io/knownotunknown/openpilot_base:latest
+      shell: bash
+
+    - name: Pull from Azure Container Registry
+      if: env.REBUILD_IMAGE == 'false'
+      run: |
+        time docker pull openpilotci.azurecr.io/openpilot_base:latest
+      shell: bash
+
     - name: Login to GitHub Container Registry
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       shell: bash
@@ -157,21 +157,6 @@ jobs:
     - name: Login to GitHub Container Registry
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       shell: bash
-
-    # - name: Build Docker Image using cache
-    #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
-    #   run: |
-    #     docker-compose pull --parallel
-    #     docker-compose up -d
-    #   shell: bash
-
-    - name: Cache Docker layers
-      uses: actions/cache@v2
-      with:
-        path: /docker-compose-cache
-        key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yml') }}
-        restore-keys: |
-          ${{ runner.os }}-docker-
 
     - name: Pull Docker Images using cache
       if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
