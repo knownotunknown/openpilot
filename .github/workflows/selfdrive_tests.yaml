@@ -83,6 +83,18 @@ jobs:
     #   run: docker compose up --build
     #   shell: bash
 
+    - name: Login to Docker Hub
+      run: echo ${{ secrets.KNOWNOTUNKNOWN_DOCKER_HUB_PAT }} | docker login -u ${{ secrets.KNOWNOTUNKNOWN_DOCKER_HUB_USERNAME }} --password-stdin
+      shell: bash
+
+    - name: Login to GitHub Container Registry
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+      shell: bash
+
+    - name: Login to Azure Container Registry
+      run: echo ${{ secrets.AZURE_TOKEN }} | docker login openpilotci.azurecr.io -u ${{ secrets.AZURE_USERNAME }} --password-stdin
+      shell: bash
+
     - name: Build Docker Image
       run: |
         docker build -f Dockerfile.ubuntu -t openpilot_base .
@@ -107,18 +119,6 @@ jobs:
       run: |
         docker tag openpilot_base openpilotci.azurecr.io/openpilot_base:latest
         docker push openpilotci.azurecr.io/openpilot_base:latest
-      shell: bash
-
-    - name: Login to Docker Hub
-      run: echo ${{ secrets.KNOWNOTUNKNOWN_DOCKER_HUB_PAT }} | docker login -u ${{ secrets.KNOWNOTUNKNOWN_DOCKER_HUB_USERNAME }} --password-stdin
-      shell: bash
-
-    - name: Login to GitHub Container Registry
-      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
-      shell: bash
-
-    - name: Login to Azure Container Registry
-      run: echo ${{ secrets.AZURE_TOKEN }} | docker login openpilotci.azurecr.io -u ${{ secrets.AZURE_USERNAME }} --password-stdin
       shell: bash
 
     - name: Pull from Docker Hub
