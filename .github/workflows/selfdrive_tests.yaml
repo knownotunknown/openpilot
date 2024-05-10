@@ -24,7 +24,7 @@ env:
   IMAGE_NAME: openpilot
   IMAGE_TAG: latest  # Tag for the Docker image
   REGISTRY: ghcr.io/${{ github.repository_owner }}  # GitHub Container Registry
-  REBUILD_IMAGE: true
+  REBUILD_IMAGE: false
 
 
 jobs:
@@ -91,9 +91,9 @@ jobs:
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       shell: bash
 
-    - name: Login to Azure Container Registry
-      run: echo ${{ secrets.AZURE_TOKEN }} | docker login openpilotci.azurecr.io -u ${{ secrets.AZURE_USERNAME }} --password-stdin
-      shell: bash
+    # - name: Login to Azure Container Registry
+    #   run: echo ${{ secrets.AZURE_TOKEN }} | docker login openpilotci.azurecr.io -u ${{ secrets.AZURE_USERNAME }} --password-stdin
+    #   shell: bash
 
     - name: Build Docker Image
       run: |
@@ -114,12 +114,12 @@ jobs:
         docker push ghcr.io/knownotunknown/openpilot_base:latest
       shell: bash
 
-    - name: Push to Azure Container Registry
-      if: env.REBUILD_IMAGE == 'true'
-      run: |
-        docker tag openpilot_base openpilotci.azurecr.io/openpilot_base:latest
-        docker push openpilotci.azurecr.io/openpilot_base:latest
-      shell: bash
+    # - name: Push to Azure Container Registry
+    #   if: env.REBUILD_IMAGE == 'true'
+    #   run: |
+    #     docker tag openpilot_base openpilotci.azurecr.io/openpilot_base:latest
+    #     docker push openpilotci.azurecr.io/openpilot_base:latest
+    #   shell: bash
 
     - name: Pull from Docker Hub
       if: env.REBUILD_IMAGE == 'false'
@@ -133,11 +133,11 @@ jobs:
         time docker pull ghcr.io/knownotunknown/openpilot_base:latest
       shell: bash
 
-    - name: Pull from Azure Container Registry
-      if: env.REBUILD_IMAGE == 'false'
-      run: |
-        time docker pull openpilotci.azurecr.io/openpilot_base:latest
-      shell: bash
+    # - name: Pull from Azure Container Registry
+    #   if: env.REBUILD_IMAGE == 'false'
+    #   run: |
+    #     time docker pull openpilotci.azurecr.io/openpilot_base:latest
+    #   shell: bash
 
     - name: Login to GitHub Container Registry
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
