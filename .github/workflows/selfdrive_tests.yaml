@@ -110,7 +110,7 @@ jobs:
       shell: bash
 
     - name: Login to Docker Hub
-      run: echo ${{ secrets.DOCKER_HUB_PAT }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+      run: echo ${{ secrets.KNOWNOTUNKNOWN_DOCKER_HUB_PAT }} | docker login -u ${{ secrets.KNOWNOTUNKNOWN_DOCKER_HUB_USERNAME }} --password-stdin
       shell: bash
 
     - name: Login to GitHub Container Registry
