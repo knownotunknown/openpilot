@@ -85,7 +85,7 @@ jobs:
 
     - name: Build Docker Image
       run: |
-        docker build -t openpilot_base .
+        docker build -f Dockerfile.ubuntu -t openpilot_base .
       shell: bash
 
     - name: Push to Docker Hub
