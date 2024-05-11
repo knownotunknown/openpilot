@@ -103,8 +103,8 @@ jobs:
     - name: Push to Docker Hub
       if: env.REBUILD_IMAGE == 'true'
       run: |
-        docker tag openpilot_base openpilot/openpilot_base:latest
-        docker push openpilot/openpilot_base:latest
+        docker tag openpilot_base knownotunknown/openpilot_base:latest
+        docker push knownotunknown/openpilot_base:latest
       shell: bash
 
     - name: Push to GitHub Container Registry
