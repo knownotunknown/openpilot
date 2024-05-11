@@ -147,7 +147,7 @@ jobs:
       id: docker_pull
       if: ${{ env.REBUILD_IMAGE != 'true' }}
       run: |
-        if docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}; then
+        if docker pull ghcr.io/knownotunknown/openpilot_base:latest; then
           echo "docker_pull_success=true" >> $GITHUB_ENV
         else
           echo "docker_pull_success=false" >> $GITHUB_ENV
