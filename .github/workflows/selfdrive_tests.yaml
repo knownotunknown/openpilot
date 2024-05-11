@@ -121,17 +121,17 @@ jobs:
     #     docker push openpilotci.azurecr.io/openpilot_base:latest
     #   shell: bash
 
-    # - name: Pull from Docker Hub
-    #   if: env.REBUILD_IMAGE == 'false'
-    #   run: |
-    #     time docker pull knownotunknown/openpilot_base:latest
-    #   shell: bash
-
-    - name: Pull from GitHub Container Registry
+    - name: Pull from Docker Hub
       if: env.REBUILD_IMAGE == 'false'
       run: |
-        time docker pull ghcr.io/knownotunknown/openpilot_base:latest
+        time docker pull knownotunknown/openpilot_base:latest
       shell: bash
+
+    # - name: Pull from GitHub Container Registry
+    #   if: env.REBUILD_IMAGE == 'false'
+    #   run: |
+    #     time docker pull ghcr.io/knownotunknown/openpilot_base:latest
+    #   shell: bash
 
     # - name: Pull from Azure Container Registry
     #   if: env.REBUILD_IMAGE == 'false'
