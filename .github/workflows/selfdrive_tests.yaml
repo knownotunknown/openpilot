@@ -76,7 +76,7 @@ jobs:
 
     - uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: xhost x11-xserver-utils
+        packages: build-essential autoconf portaudio19-dev libssl-dev libzmq3-dev alien
         version: 1.0
 
     - id: cache-python-dep
