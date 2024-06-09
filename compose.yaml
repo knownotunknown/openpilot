@@ -3,6 +3,8 @@ version: '3.9'
 services:
   python:
     image: knownotunknown/openpilot_ubuntu:latest
+    build:
+      dockerfile: Dockerfile.ubuntu
     platform: linux/amd64
     volumes:
       - python_usr_local_bin:/usr/local/bin
@@ -13,6 +15,8 @@ services:
 
   ubuntu:
     image: knownotunknown/openpilot_python:latest
+    build:
+      dockerfile: Dockerfile.python
     platform: linux/amd64
     volumes:
       - ./:/tmp/openpilot
