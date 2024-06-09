@@ -2,10 +2,10 @@ version: '3.9'
 
 services:
   python:
-    image: knownotunknown/openpilot_ubuntu:latest
+    image: knownotunknown/openpilot_python:latest
     build:
       context: .
-      dockerfile: Dockerfile.ubuntu
+      dockerfile: Dockerfile.python
     platform: linux/amd64
     volumes:
       - python_usr_local_bin:/usr/local/bin
@@ -15,7 +15,7 @@ services:
     command: tail -f /dev/null
 
   ubuntu:
-    image: knownotunknown/openpilot_python:latest
+    image: knownotunknown/openpilot_ubuntu:latest
     build:
       context: .
       dockerfile: Dockerfile.python
