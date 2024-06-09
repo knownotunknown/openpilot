@@ -134,7 +134,7 @@ jobs:
     - name: Pull from Docker Hub with docker-compose
       if: env.REBUILD_IMAGE == 'false'
       run: |
-        docker-compose up
+        docker-compose up -d
       shell: bash
 
 
