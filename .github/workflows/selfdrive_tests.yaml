@@ -24,7 +24,7 @@ env:
   IMAGE_NAME: openpilot
   IMAGE_TAG: latest  # Tag for the Docker image
   REGISTRY: ghcr.io/${{ github.repository_owner }}  # GitHub Container Registry
-  REBUILD_IMAGE: false
+  REBUILD_IMAGE: true
 
 
 jobs:
@@ -115,17 +115,17 @@ jobs:
     #   shell: bash
 
 
-    - name: Pull from Docker Hub
-      if: env.REBUILD_IMAGE == 'false'
-      run: |
-        docker pull knownotunknown/openpilot_base:latest
-      shell: bash
-
-    # - name: Pull from Docker Hub with docker-compose
+    # - name: Pull from Docker Hub
     #   if: env.REBUILD_IMAGE == 'false'
     #   run: |
-    #     docker-compose up -d
+    #     docker pull knownotunknown/openpilot_base:latest
     #   shell: bash
+
+    - name: Pull from Docker Hub with docker-compose
+      if: env.REBUILD_IMAGE == 'false'
+      run: |
+        docker-compose up -d
+      shell: bash
 
 
     # - name: Build openpilot
