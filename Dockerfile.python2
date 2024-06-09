@@ -43,5 +43,5 @@ COPY --from=build /usr/local/lib/python3.11/site-packages /usr/local/lib/python3
 COPY --from=build /usr/local/bin /usr/local/bin
 
 # Copy your application code
-COPY . /app
-WORKDIR /app
+# COPY . /app
+# WORKDIR /app

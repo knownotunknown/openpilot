@@ -24,7 +24,14 @@ env:
   IMAGE_NAME: openpilot
   IMAGE_TAG: latest  # Tag for the Docker image
   REGISTRY: ghcr.io/${{ github.repository_owner }}  # GitHub Container Registry
-  REBUILD_IMAGE: false
+
+  GITLAB_REGISTRY: registry.gitlab.com/${{ secrets.GITLAB_USERNAME }}/openpilot_ci
+  GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
+  GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+
+  REBUILD_IMAGE: true
+
+
 
 
 jobs:
@@ -130,6 +137,10 @@ jobs:
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       shell: bash
 
+    - name: Login to GitLab Container Registry
+      run: echo ${{ secrets.GITLAB_TOKEN }} | docker login ${{ env.GITLAB_REGISTRY }} -u ${{ secrets.GITLAB_USERNAME }} --password-stdin
+      shell: bash
+
     - name: Build Docker Image
       if: env.REBUILD_IMAGE == 'true'
       run: |
@@ -146,29 +157,14 @@ jobs:
         docker push knownotunknown/openpilot_python:latest
       shell: bash
 
-    # - name: Push to GitHub Container Registry
-    #   if: env.REBUILD_IMAGE == 'true'
-    #   run: |
-    #     docker tag openpilot_base ghcr.io/knownotunknown/openpilot_base:latest
-    #     docker push ghcr.io/knownotunknown/openpilot_base:latest
-    #   shell: bash
-
-
-    # - name: Pull ubuntu from Docker Hub
-    #   if: env.REBUILD_IMAGE == 'false'
-    #   run: |
-    #     docker pull knownotunknown/openpilot_ubuntu:latest
-    #     image_size=$(docker images --format "{{.Size}}" knownotunknown/openpilot_ubuntu:latest)
-    #     echo "Image size: $image_size"
-    #   shell: bash
-
-    # - name: Pull python from Docker Hub
-    #   if: env.REBUILD_IMAGE == 'false'
-    #   run: |
-    #     docker pull knownotunknown/openpilot_python:latest
-    #     image_size=$(docker images --format "{{.Size}}" knownotunknown/openpilot_python:latest)
-    #     echo "Image size: $image_size"
-    #   shell: bash
+    - name: Push to GitLab Container Registry
+      if: env.REBUILD_IMAGE == 'true'
+      run: |
+        docker tag openpilot_ubuntu ${{ env.GITLAB_REGISTRY }}:openpilot_ubuntu-latest
+        docker tag openpilot_python ${{ env.GITLAB_REGISTRY }}:openpilot_python-latest
+        docker push ${{ env.GITLAB_REGISTRY }}:openpilot_ubuntu-latest
+        docker push ${{ env.GITLAB_REGISTRY }}:openpilot_python-latest
+      shell: bash
 
     - name: Pull from Docker Hub with docker-compose
       if: env.REBUILD_IMAGE == 'false'
@@ -176,49 +172,12 @@ jobs:
         docker pull knownotunknown/openpilot_python:latest
       shell: bash
 
-
-    # - name: Build openpilot
-    #   timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
-    #   run: ${{ env.RUN }} "scons -j$(nproc)"
-
-    # - name: Run unit tests
-    #   timeout-minutes: 15
-    #   run: |
-    #     ${{ env.RUN }} "source selfdrive/test/setup_xvfb.sh && \
-    #                     export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && \
-    #                     $PYTEST --timeout 60 -m 'not slow' && \
-    #                     ./selfdrive/ui/tests/create_test_translations.sh && \
-    #                     QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations && \
-    #                     ./selfdrive/ui/tests/test_translations.py"
-
-    # - name: Start Docker Containers
-    #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
-    #   run: |
-    #     docker-compose up -d
-    #   shell: bash
-
-    # - name: Testing pull speed of multi-stage openpilot_base speed
-    #   run: |
-    #     docker pull ghcr.io/knownotunknown/openpilot_base:latest
-    #   shell: bash
-
-    # - name: Python linking
-    #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
-    #   run: |
-    #     # docker-compose exec ubuntu sh -c "ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0 && ldconfig"
-    #     docker-compose exec ubuntu sh -c "echo hello"
-
-    #   shell: bash
-
-    # # - name: Push Docker Image
-    # #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
-    # #   run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-    # #   shell: bash
-
-    # # - name: Print Docker Image Size
-    # #   run: |
-    # #     docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} --format "{{.Size}}"
-    # #   shell: bash
+    - name: Pull from GitLab Container Registry
+      if: env.REBUILD_IMAGE == 'false'
+      run: |
+        docker pull ${{ env.GITLAB_REGISTRY }}:openpilot_ubuntu-latest
+        docker pull ${{ env.GITLAB_REGISTRY }}:openpilot_python-latest
+      shell: bash
 
     # - name: Build openpilot
     #   timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
