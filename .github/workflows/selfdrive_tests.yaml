@@ -101,8 +101,8 @@ jobs:
     - name: Push to Docker Hub
       if: env.REBUILD_IMAGE == 'true'
       run: |
-        docker tag openpilot_ubuntu knownotunknown/ubuntu:latest
-        docker tag openpilot_python knownotunknown/python:latest
+        docker tag openpilot_ubuntu knownotunknown/openpilot_ubuntu:latest
+        docker tag openpilot_python knownotunknown/openpilot_python:latest
         docker push knownotunknown/openpilot_ubuntu:latest
         docker push knownotunknown/openpilot_python:latest
       shell: bash
