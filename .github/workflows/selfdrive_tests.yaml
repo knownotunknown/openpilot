@@ -160,10 +160,10 @@ jobs:
     - name: Push to GitLab Container Registry
       if: env.REBUILD_IMAGE == 'true'
       run: |
-        docker tag openpilot_ubuntu ${{ env.GITLAB_REGISTRY }}:openpilot_ubuntu-latest
-        docker tag openpilot_python ${{ env.GITLAB_REGISTRY }}:openpilot_python-latest
-        docker push ${{ env.GITLAB_REGISTRY }}:openpilot_ubuntu-latest
-        docker push ${{ env.GITLAB_REGISTRY }}:openpilot_python-latest
+        docker tag openpilot_ubuntu ${{ env.GITLAB_REGISTRY }}/openpilot_ci/speedup/openpilot_ubuntu-latest
+        docker tag openpilot_python ${{ env.GITLAB_REGISTRY }}/openpilot_ci/speedup/openpilot_python-latest
+        docker push ${{ env.GITLAB_REGISTRY }}/openpilot_ci/speedup/openpilot_ubuntu-latest
+        docker push ${{ env.GITLAB_REGISTRY }}/openpilot_ci/speedup/openpilot_python-latest
       shell: bash
 
     - name: Pull from Docker Hub with docker-compose
