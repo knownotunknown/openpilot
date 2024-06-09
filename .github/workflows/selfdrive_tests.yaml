@@ -29,7 +29,7 @@ env:
   GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
   GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
 
-  REBUILD_IMAGE: true
+  REBUILD_IMAGE: false
 
 
 
