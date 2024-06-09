@@ -115,21 +115,21 @@ jobs:
     #   shell: bash
 
 
-    - name: Pull ubuntu from Docker Hub
-      if: env.REBUILD_IMAGE == 'false'
-      run: |
-        docker pull knownotunknown/openpilot_ubuntu:latest
-        image_size=$(docker images --format "{{.Size}}" knownotunknown/openpilot_ubuntu:latest)
-        echo "Image size: $image_size"
-      shell: bash
+    # - name: Pull ubuntu from Docker Hub
+    #   if: env.REBUILD_IMAGE == 'false'
+    #   run: |
+    #     docker pull knownotunknown/openpilot_ubuntu:latest
+    #     image_size=$(docker images --format "{{.Size}}" knownotunknown/openpilot_ubuntu:latest)
+    #     echo "Image size: $image_size"
+    #   shell: bash
 
-    - name: Pull python from Docker Hub
-      if: env.REBUILD_IMAGE == 'false'
-      run: |
-        docker pull knownotunknown/openpilot_python:latest
-        image_size=$(docker images --format "{{.Size}}" knownotunknown/openpilot_python:latest)
-        echo "Image size: $image_size"
-      shell: bash
+    # - name: Pull python from Docker Hub
+    #   if: env.REBUILD_IMAGE == 'false'
+    #   run: |
+    #     docker pull knownotunknown/openpilot_python:latest
+    #     image_size=$(docker images --format "{{.Size}}" knownotunknown/openpilot_python:latest)
+    #     echo "Image size: $image_size"
+    #   shell: bash
 
     - name: Pull from Docker Hub with docker-compose
       if: env.REBUILD_IMAGE == 'false'
