@@ -134,7 +134,7 @@ jobs:
     - name: Pull from Docker Hub with docker-compose
       if: env.REBUILD_IMAGE == 'false'
       run: |
-        docker-compose pull --parallel
+        docker pull --parallel knownotunknown/openpilot_ubuntu:latest knownotunknown/openpilot_python:latest
         docker-compose up
       shell: bash
 
