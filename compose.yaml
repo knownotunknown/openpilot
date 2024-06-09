@@ -4,6 +4,7 @@ services:
   python:
     image: knownotunknown/openpilot_ubuntu:latest
     build:
+      context: .
       dockerfile: Dockerfile.ubuntu
     platform: linux/amd64
     volumes:
@@ -16,6 +17,7 @@ services:
   ubuntu:
     image: knownotunknown/openpilot_python:latest
     build:
+      context: .
       dockerfile: Dockerfile.python
     platform: linux/amd64
     volumes:
