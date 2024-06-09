@@ -175,8 +175,8 @@ jobs:
     - name: Pull from GitLab Container Registry
       if: env.REBUILD_IMAGE == 'false'
       run: |
-        docker pull ${{ env.GITLAB_REGISTRY }}:openpilot_ubuntu-latest
-        docker pull ${{ env.GITLAB_REGISTRY }}:openpilot_python-latest
+        docker pull registry.gitlab.com/openpilot_ci/speedup/openpilot_ubuntu-latest
+        docker pull registry.gitlab.com/openpilot_ci/speedup/openpilot_python-latest
       shell: bash
 
     # - name: Build openpilot
