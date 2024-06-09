@@ -134,10 +134,10 @@ jobs:
     - name: Pull from Docker Hub with docker-compose
       if: env.REBUILD_IMAGE == 'false'
       run: |
-        docker pull knownotunknown/openpilot_python:latest
         docker pull knownotunknown/openpilot_ubuntu:latest
       shell: bash
 
+        # docker pull knownotunknown/openpilot_python:latest
 
     # - name: Build openpilot
     #   timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
