@@ -134,7 +134,7 @@ jobs:
     - name: Pull from Docker Hub with docker-compose
       if: env.REBUILD_IMAGE == 'false'
       run: |
-        docker pull ghcr.io/knownotunknown/ubuntu:latest & docker pull ghcr.io/knownotunknown/python:latest
+        docker pull knownotunknown/openpilot_python:latest & docker pull knownotunknown/openpilot_ubuntu:latest
       shell: bash
 
 
