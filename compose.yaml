@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   python:
-    image: ghcr.io/knownotunknown/python:latest
+    image: knownotunknown/openpilot_python:latest
     platform: linux/amd64
     volumes:
       - python_usr_local_bin:/usr/local/bin
@@ -12,7 +12,7 @@ services:
     command: tail -f /dev/null
 
   ubuntu:
-    image: ghcr.io/knownotunknown/ubuntu:latest
+    image: knownotunknown/openpilot_ubuntu:latest
     platform: linux/amd64
     volumes:
       - ./:/tmp/openpilot
