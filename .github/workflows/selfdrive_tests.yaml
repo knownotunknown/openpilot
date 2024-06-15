@@ -77,18 +77,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildx-python-
 
-    - name: Build Python Docker image
-      run: |
-        mkdir -p /tmp/.buildx-cache-python
-        docker buildx build --cache-to type=local,dest=/tmp/.buildx-cache-python --cache-from type=local,src=/tmp/.buildx-cache-python -f Dockerfile.python -t my-python-image --load .
-
     - name: Run Ubuntu container in detached mode
       run: |
         docker run -d --name ubuntu-container my-ubuntu-image
-
-    - name: Run Python container in detached mode
-      run: |
-        docker run -d --name python-container my-python-image
 
     - name: Check package sizes
       run: |
