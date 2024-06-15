@@ -54,39 +54,44 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@v3
 
-    - name: Cache Docker layers for Ubuntu image
-      uses: actions/cache@v3
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
       with:
-        path: /tmp/.buildx-cache-ubuntu
-        key: ${{ runner.os }}-buildx-ubuntu-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-ubuntu-
-
-    - name: Build Ubuntu Docker image
-      run: |
-        mkdir -p /tmp/.buildx-cache-ubuntu
-        docker buildx build --cache-to type=local,dest=/tmp/.buildx-cache-ubuntu --cache-from type=local,src=/tmp/.buildx-cache-ubuntu -f Dockerfile.ubuntu -t my-ubuntu-image --load .
-
-    - name: Cache Docker layers for Python image
-      uses: actions/cache@v3
-      with:
-        path: /tmp/.buildx-cache-python
-        key: ${{ runner.os }}-buildx-python-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-python-
-
-    - name: Run Ubuntu container in detached mode
-      run: |
-        docker run -d --name ubuntu-container my-ubuntu-image
+        context: .
+        file: Dockerfile.ubuntu
+        push: false
+        tags: user/app:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
     - name: Check package sizes
       run: |
+        sudo apt-get update
         sudo apt-get install --dry-run autoconf build-essential ca-certificates casync clang cmake make cppcheck libtool gcc-arm-none-eabi bzip2 liblzma-dev libarchive-dev libbz2-dev capnproto libcapnp-dev curl libcurl4-openssl-dev git git-lfs ffmpeg libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libavfilter-dev libeigen3-dev libffi-dev libglew-dev libgles2-mesa-dev libglfw3-dev libglib2.0-0 libncurses5-dev libncursesw5-dev libomp-dev libopencv-dev libpng16-16 libportaudio2 libssl-dev libsqlite3-dev libusb-1.0-0-dev libzmq3-dev libsystemd-dev locales opencl-headers ocl-icd-libopencl1 ocl-icd-opencl-dev clinfo portaudio19-dev qml-module-qtquick2 qtmultimedia5-dev qtlocation5-dev qtpositioning5-dev qttools5-dev-tools libqt5sql5-sqlite libqt5svg5-dev libqt5charts5-dev libqt5serialbus5-dev  libqt5x11extras5-dev libreadline-dev libdw1 valgrind libavresample-dev qt5-default python-dev 2>&1 | awk '/After this operation, / {print}'
       shell: bash
 
-      # build cache
+    - name: Calculate installed package sizes
+      run: |
+        sudo apt-get install -y autoconf build-essential ca-certificates casync clang cmake make cppcheck libtool gcc-arm-none-eabi bzip2 liblzma-dev libarchive-dev libbz2-dev capnproto libcapnp-dev curl libcurl4-openssl-dev git git-lfs ffmpeg libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libavfilter-dev libeigen3-dev libffi-dev libglew-dev libgles2-mesa-dev libglfw3-dev libglib2.0-0 libncurses5-dev libncursesw5-dev libomp-dev libopencv-dev libpng16-16 libportaudio2 libssl-dev libsqlite3-dev libusb-1.0-0-dev libzmq3-dev libsystemd-dev locales opencl-headers ocl-icd-libopencl1 ocl-icd-opencl-dev clinfo portaudio19-dev qml-module-qtquick2 qtmultimedia5-dev qtlocation5-dev qtpositioning5-dev qttools5-dev-tools libqt5sql5-sqlite libqt5svg5-dev libqt5charts5-dev libqt5serialbus5-dev  libqt5x11extras5-dev libreadline-dev libdw1 valgrind libavresample-dev qt5-default python-dev
+        echo "Installed Ubuntu Packages:"
+        dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
+        echo "Total size of installed Ubuntu packages (KB):"
+        dpkg-query -Wf '${Installed-Size}\t${Package}\n' | awk '{sum += $1} END {print sum/1024 " MB"}'
+      shell: bash
+
+    - name: Calculate Python package sizes
+      run: |
+        python -m pip install poetry==1.6.1
+        python -m poetry install --no-root
+        echo "Installed Python Packages:"
+        python -m pip list --format=columns
+        echo "Total size of installed Python packages:"
+        python -m pip list --format=columns | awk 'NR>2 {print $1}' | xargs pip show | awk '/Location: /{loc=$2}/^Size: /{sum+=$2} END {print sum/1024/1024 " MB"}'
+      shell: bash
+
+    # build cache
     - id: date
       shell: bash
       run: echo "CACHE_COMMIT_DATE=$(git log -1 --pretty='format:%cd' --date=format:'%Y-%m-%d-%H:%M')" >> $GITHUB_ENV
@@ -108,18 +113,49 @@ jobs:
         find . -type f -executable -not -perm 755 -exec chmod 755 {} \;
         find . -type f -not -executable -not -perm 644 -exec chmod 644 {} \;
 
-    # - uses: ./.github/workflows/setup-with-retry
-    #   with:
-    #     docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
-
     - uses: awalsh128/cache-apt-pkgs-action@latest
       with:
         packages: build-essential autoconf portaudio19-dev libssl-dev libzmq3-dev alien
         version: 1.0
 
-    # - name: Testing out Docker Compose
-    #   run: docker compose up --build
-    #   shell: bash
+    - id: cache-python-dep
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ github.workspace }}/.venv
+        key: poetry-cache-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock')}}
+    - id: setup-python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION}}
+    - id: cache-poetry-package
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.Python3_ROOT_DIR }}/lib/python3.11/site-packages
+        key: poetry-pip-${{ env.PYTHON_VERSION }}
+    - id: poetry-setup
+      shell: bash
+      if: steps.cache-poetry-package.outputs.cache-hit != 'true'
+      run: pip install poetry==1.6.1
+    - id: pre-poetry-install
+      shell: bash
+      if: steps.cache-python-dep.outputs.cache-hit != true
+      run: rm -rf ~/.cache/virtualenvs/*
+    - id: poetry-install
+      shell: bash
+      run: |
+          python -m poetry config virtualenvs.in-project true
+          echo "PYTHONPATH=${{ github.workspace }}" > ${{ github.workspace }}/.env
+          python -m poetry self add poetry-dotenv-plugin@^0.1.0
+          python -m poetry install --no-root
+    - id: restore-scons-cache
+      uses: actions/cache@v3
+      with:
+        path: /tmp/scons_cache
+        key: ${{ inputs.cache_key_prefix }}-${{ env.CACHE_COMMIT_DATE }}-${{ github.sha }}
+        restore-keys: |
+          ${{ inputs.cache_key_prefix }}-${{ env.CACHE_COMMIT_DATE }}-
+          ${{ inputs.cache_key_prefix }}-
 
     - name: Login to Docker Hub
       run: echo ${{ secrets.KNOWNOTUNKNOWN_DOCKER_HUB_PAT }} | docker login -u ${{ secrets.KNOWNOTUNKNOWN_DOCKER_HUB_USERNAME }} --password-stdin
@@ -137,8 +173,7 @@ jobs:
       if: env.REBUILD_IMAGE == 'true'
       run: |
         docker build -f Dockerfile.ubuntu -t openpilot_ubuntu .
-        docker build -f Dockerfile.python -t openpilot_python .
-      shell: bash
+        docker build
 
     - name: Push to Docker Hub
       if: env.REBUILD_IMAGE == 'true'
