@@ -66,7 +66,8 @@ jobs:
 
     - name: Build Ubuntu Docker image
       run: |
-        docker buildx build --cache-to type=local,dest=/tmp/.buildx-cache-ubuntu --cache-from type=local,src=/tmp/.buildx-cache-ubuntu -f Dockerfile.ubuntu -t my-ubuntu-image .
+        mkdir -p /tmp/.buildx-cache-ubuntu
+        docker buildx build --cache-to type=local,dest=/tmp/.buildx-cache-ubuntu --cache-from type=local,src=/tmp/.buildx-cache-ubuntu -f Dockerfile.ubuntu -t my-ubuntu-image --load .
 
     - name: Cache Docker layers for Python image
       uses: actions/cache@v3
@@ -78,7 +79,8 @@ jobs:
 
     - name: Build Python Docker image
       run: |
-        docker buildx build --cache-to type=local,dest=/tmp/.buildx-cache-python --cache-from type=local,src=/tmp/.buildx-cache-python -f Dockerfile.python -t my-python-image .
+        mkdir -p /tmp/.buildx-cache-python
+        docker buildx build --cache-to type=local,dest=/tmp/.buildx-cache-python --cache-from type=local,src=/tmp/.buildx-cache-python -f Dockerfile.python -t my-python-image --load .
 
     - name: Run Ubuntu container in detached mode
       run: |
