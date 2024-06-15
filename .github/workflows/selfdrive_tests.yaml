@@ -54,24 +54,26 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v2
 
-    - name: Build and push Docker image (Ubuntu)
+    - name: Build Docker image (Ubuntu)
       uses: docker/build-push-action@v4
       with:
         context: .
         file: Dockerfile.ubuntu
         push: false
+        load: true
         tags: user/app:ubuntu
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-    - name: Build and push Docker image (Python)
+    - name: Build Docker image (Python)
       uses: docker/build-push-action@v4
       with:
         context: .
         file: Dockerfile.python
         push: false
+        load: true
         tags: user/app:python
         cache-from: type=gha
         cache-to: type=gha,mode=max
