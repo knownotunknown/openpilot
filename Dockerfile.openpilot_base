@@ -125,3 +125,6 @@ RUN ldconfig
 # RUN scons --cache-readonly -j$(nproc) > /dev/null
 
 RUN sudo git config --global --add safe.directory /tmp/openpilot
+
+COPY run_openpilot.sh /run_openpilot.sh
+RUN chmod +x /run_openpilot.sh

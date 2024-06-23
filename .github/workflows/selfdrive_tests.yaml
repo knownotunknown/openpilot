@@ -11,13 +11,10 @@ concurrency:
 
 env:
   PYTHONWARNINGS: error
-  BASE_IMAGE: openpilot-base
   AZURE_TOKEN: ${{ secrets.AZURE_COMMADATACI_OPENPILOTCI_TOKEN }}
 
   DOCKER_LOGIN: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
   BUILD: selfdrive/test/docker_build.sh base
-
-  RUN: docker run --shm-size 1G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -v $GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit -v $GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache -v $GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache -v $GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache ghcr.io/knownotunknown/openpilot:latest /bin/bash -c
 
   PYTEST: pytest --continue-on-collection-errors --cov --cov-report=xml --cov-append --durations=0 --durations-min=5 --hypothesis-seed 0 -n logical
 
@@ -25,7 +22,6 @@ env:
   IMAGE_TAG: latest  # Tag for the Docker image
   REGISTRY: ghcr.io/${{ github.repository_owner }}  # GitHub Container Registry
   REBUILD_IMAGE: true
-
 
 jobs:
   unit_tests:
@@ -70,18 +66,16 @@ jobs:
         find . -type f -executable -not -perm 755 -exec chmod 755 {} \;
         find . -type f -not -executable -not -perm 644 -exec chmod 644 {} \;
 
-    # - uses: ./.github/workflows/setup-with-retry
-    #   with:
-    #     docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
-
     - uses: awalsh128/cache-apt-pkgs-action@latest
       with:
         packages: xhost x11-xserver-utils
         version: 1.0
 
-    # - name: Testing out Docker Compose
-    #   run: docker compose up --build
-    #   shell: bash
+    - name: Install Docker Slim
+      run: |
+        curl -L https://downloads.dockerslim.com/releases/1.38.0/dist_linux.tar.gz | tar -xzv
+        sudo mv dist_linux/docker-slim /usr/local/bin/docker-slim
+      shell: bash
 
     - name: Login to GitHub Container Registry
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
@@ -104,29 +98,20 @@ jobs:
         docker build --cache-from ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f Dockerfile.openpilot_base -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
       shell: bash
 
-    # - name: Push Docker Image
-    #   if: env.docker_pull_success == 'false' || ${{ env.REBUILD_IMAGE != 'true' }}
-    #   run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-    #   shell: bash
-
     - name: Print Docker Image Size
       run: |
         docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} --format "{{.Size}}"
       shell: bash
 
-    - name: Build openpilot
-      timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
-      run: ${{ env.RUN }} "scons -j$(nproc)"
-
-    - name: Run unit tests
-      timeout-minutes: 15
+    - name: Slim Docker Image
       run: |
-        ${{ env.RUN }} "source selfdrive/test/setup_xvfb.sh && \
-                        export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg' && \
-                        $PYTEST --timeout 60 -m 'not slow' && \
-                        ./selfdrive/ui/tests/create_test_translations.sh && \
-                        QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations && \
-                        ./selfdrive/ui/tests/test_translations.py"
+        docker-slim build --include-path /tmp/openpilot --entrypoint /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --mount "$GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit" --mount "$GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache" --mount "$GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache" --mount "$GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache" --tag openpilot-slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+      shell: bash
+
+    - name: Run and Test Slimmed Docker Image
+      run: |
+        docker run --shm-size 1G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -v $GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit -v $GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache -v $GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache -v $GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache openpilot-slim /run_openpilot.sh
+
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v3
       with:
