@@ -131,7 +131,7 @@ jobs:
 
     - name: Slim Docker Image
       run: |
-        docker-slim build --include-path /tmp/openpilot --entrypoint /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --mount "$GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit" --mount "$GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache" --mount "$GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache" --mount "$GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache" --tag openpilot-slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        slim build --include-path /tmp/openpilot --entrypoint /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --mount "$GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit" --mount "$GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache" --mount "$GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache" --mount "$GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache" --tag openpilot-slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
       shell: bash
 
     - name: Run and Test Slimmed Docker Image
