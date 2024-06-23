@@ -1,18 +1,17 @@
-# Stage 1: Python image
-FROM python:3.11 as python
+FROM python:3.11-buster AS build
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     build-essential \
     autoconf \
-    python3-pyaudio \
     portaudio19-dev \
     libssl-dev \
     libzmq3-dev \
-    libpython3.11-dev \
-    && rm -rf /var/lib/apt/lists/*
+    alien && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml poetry.lock .python-version README.md /tmp/
 
@@ -23,8 +22,43 @@ RUN apt-get update && \
     cd /tmp/ && \
     poetry install --only main
 
-# Stage 2: Ubuntu runtime image
-FROM ubuntu:22.04
+# Install OpenCL in the builder Python image
+ARG INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
+ARG INTEL_DRIVER_URL=https://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532
+
+RUN mkdir -p /tmp/opencl-driver-intel && \
+    cd /tmp/opencl-driver-intel && \
+    echo INTEL_DRIVER is $INTEL_DRIVER && \
+    curl -O $INTEL_DRIVER_URL/$INTEL_DRIVER && \
+    tar -xzf $INTEL_DRIVER && \
+    for i in $(basename $INTEL_DRIVER .tgz)/rpm/*.rpm; do alien --to-deb $i; done && \
+    dpkg -i *.deb && \
+    rm -rf $INTEL_DRIVER $(basename $INTEL_DRIVER .tgz) *.deb && \
+    mkdir -p /etc/OpenCL/vendors && \
+    echo /opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/libintelocl.so > /etc/OpenCL/vendors/intel.icd
+
+# Stage 2: Slim stage
+FROM python:3.11-slim-buster as python
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+COPY --from=build /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=build /usr/local/bin /usr/local/bin
+
+# Copy OpenCL files from the builder Python image to the slim Python image
+COPY --from=build /opt/intel /opt/intel
+COPY --from=build /etc/OpenCL/vendors/intel.icd /etc/OpenCL/vendors/intel.icd
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libportaudio2 \
+    libssl1.1 \
+    libzmq5 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Stage 3: Ubuntu runtime image
+FROM ubuntu:20.04
 
 ENV PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive \
@@ -36,11 +70,33 @@ ENV PYTHONUNBUFFERED=1 \
 COPY --from=python /usr/local/bin /usr/local/bin
 COPY --from=python /usr/local/lib /usr/local/lib
 COPY --from=python /usr/local/include /usr/local/include
-COPY --from=python /usr/lib/python3.11 /usr/lib/python3.11
+COPY --from=python /usr/lib/x86_64-linux-gnu/libffi.so.6 /usr/lib/x86_64-linux-gnu/libffi.so.6
+
+# Copy OpenCL files from the slim Python image to the Ubuntu image
+COPY --from=python /opt/intel /opt/intel
+COPY --from=python /etc/OpenCL/vendors/intel.icd /etc/OpenCL/vendors/intel.icd
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot apt-utils \
-    alien unzip tar curl xz-utils dbus gcc-arm-none-eabi tmux vim lsb-core libx11-6 wget scons && \
+    apt-get install -y --no-install-recommends \
+        sudo \
+        tzdata \
+        locales \
+        ssh \
+        pulseaudio \
+        xvfb \
+        x11-xserver-utils \
+        gnome-screenshot \
+        apt-utils \
+        unzip \
+        curl \
+        xz-utils \
+        dbus \
+        gcc-arm-none-eabi \
+        tmux \
+        vim \
+        lsb-core \
+        libx11-6 \
+        scons && \
     locale-gen en_US.UTF-8 && \
     sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     dbus-uuidgen > /etc/machine-id && \
@@ -50,39 +106,6 @@ COPY tools/install_ubuntu_dependencies.sh /tmp/tools/
 RUN cd /tmp && \
     tools/install_ubuntu_dependencies.sh && \
     rm -rf /tmp/tools
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    apt-utils \
-    alien \
-    unzip \
-    tar \
-    curl \
-    xz-utils \
-    dbus \
-    gcc-arm-none-eabi \
-    tmux \
-    vim \
-    lsb-core \
-    libx11-6 \
-    wget \
-    libicu70 \
-    && rm -rf /var/lib/apt/lists/*
-
-ARG INTEL_DRIVER=l_opencl_p_18.1.0.015.tgz
-ARG INTEL_DRIVER_URL=https://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/15532
-
-RUN mkdir -p /tmp/opencl-driver-intel
-RUN cd /tmp/opencl-driver-intel && \
-    echo INTEL_DRIVER is $INTEL_DRIVER && \
-    curl -O $INTEL_DRIVER_URL/$INTEL_DRIVER && \
-    tar -xzf $INTEL_DRIVER && \
-    for i in $(basename $INTEL_DRIVER .tgz)/rpm/*.rpm; do alien --to-deb $i; done && \
-    dpkg -i *.deb && \
-    rm -rf $INTEL_DRIVER $(basename $INTEL_DRIVER .tgz) *.deb && \
-    mkdir -p /etc/OpenCL/vendors && \
-    echo /opt/intel/opencl_compilers_and_libraries_18.1.0.015/linux/compiler/lib/intel64_lin/libintelocl.so > /etc/OpenCL/vendors/intel.icd && \
-    cd / && \
-    rm -rf /tmp/opencl-driver-intel
 
 ENV NVIDIA_VISIBLE_DEVICES all
 ENV NVIDIA_DRIVER_CAPABILITIES graphics,utility,compute
@@ -109,19 +132,14 @@ COPY ./selfdrive ${OPENPILOT_PATH}/selfdrive
 COPY ./system ${OPENPILOT_PATH}/system
 COPY ./body ${OPENPILOT_PATH}/body
 
-COPY . ${OPENPILOT_PATH}
-
 WORKDIR ${OPENPILOT_PATH}
 
-RUN apt-get update && apt-get install -y scons
-
-RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu66_66.1-2ubuntu2_amd64.deb && \
-    dpkg -i libicu66_66.1-2ubuntu2_amd64.deb && \
-    rm libicu66_66.1-2ubuntu2_amd64.deb
+# Create a symbolic link for libpython3.11.so.1.0
+RUN ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0
 
 # Update the library cache
 RUN ldconfig
 
-RUN scons --cache-readonly -j$(nproc) > /dev/null
-
 RUN sudo git config --global --add safe.directory /tmp/openpilot
+
+RUN scons --cache-readonly -j$(nproc) > /dev/null
