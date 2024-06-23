@@ -77,6 +77,18 @@ jobs:
         sudo mv dist_linux/docker-slim /usr/local/bin/docker-slim
       shell: bash
 
+    - name: Verify Docker Slim Installation
+      run: |
+        if command -v docker-slim &> /dev/null
+        then
+            echo "Docker Slim is installed, version:"
+            docker-slim --version
+        else
+            echo "Docker Slim is not installed correctly"
+            exit 1
+        fi
+      shell: bash
+
     - name: Login to GitHub Container Registry
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       shell: bash
