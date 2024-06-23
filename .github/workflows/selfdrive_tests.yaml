@@ -71,20 +71,34 @@ jobs:
         packages: xhost x11-xserver-utils
         version: 1.0
 
-    - name: Install Docker Slim
+    - name: Install and Verify Slim Toolkit
       run: |
-        curl -L https://downloads.dockerslim.com/releases/1.38.0/dist_linux.tar.gz | tar -xzv
-        sudo mv dist_linux/docker-slim /usr/local/bin/docker-slim
-      shell: bash
+        # Download the latest Linux binaries
+        curl -L -o ds.tar.gz https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
 
-    - name: Verify Docker Slim Installation
-      run: |
-        if command -v docker-slim &> /dev/null
+        # Extract the package
+        tar -xvf ds.tar.gz
+
+        # Move binaries to /usr/local/bin
+        sudo mv dist_linux/slim /usr/local/bin/
+        sudo mv dist_linux/slim-sensor /usr/local/bin/
+
+        # Verify installation
+        if command -v slim &> /dev/null && command -v slim-sensor &> /dev/null
         then
-            echo "Docker Slim is installed, version:"
-            docker-slim --version
+            echo "Slim Toolkit is installed successfully:"
+            slim --version
+            echo "Slim-sensor is available at: $(which slim-sensor)"
         else
-            echo "Docker Slim is not installed correctly"
+            echo "Slim Toolkit installation failed"
+            exit 1
+        fi
+
+        # Check if sensor file exists
+        if [ -f "/usr/local/bin/slim-sensor" ]; then
+            echo "slim-sensor file exists"
+        else
+            echo "slim-sensor file is missing"
             exit 1
         fi
       shell: bash
