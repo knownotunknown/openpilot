@@ -131,12 +131,12 @@ jobs:
 
     - name: Slim Docker Image
       run: |
-        slim build --include-path /tmp/openpilot --entrypoint /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --mount "$GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit" --mount "$GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache" --mount "$GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache" --tag openpilot-slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        slim build --include-path /tmp/openpilot --entrypoint /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --tag openpilot-slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
       shell: bash
 
     - name: Run and Test Slimmed Docker Image
       run: |
-        docker run --shm-size 1G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -v $GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit -v $GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache -v $GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache openpilot-slim /run_openpilot.sh
+        docker run --shm-size 1G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID openpilot-slim /run_openpilot.sh
       shell: bash
 
     - name: "Upload coverage to Codecov"
