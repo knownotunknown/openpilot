@@ -129,10 +129,10 @@ jobs:
         docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} --format "{{.Size}}"
       shell: bash
 
-    # - name: Slim Docker Image
-    #   run: |
-    #     slim build --include-path /tmp/openpilot --preserve-path /lib/x86_64-linux-gnu --entrypoint /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --http-probe=false --tag openpilot-slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-    #   shell: bash
+    - name: Slim Docker Image
+      run: |
+        slim build --include-path /tmp/openpilot --preserve-path /lib/x86_64-linux-gnu --exec /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot --http-probe=false --tag openpilot-slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+      shell: bash
 
     - name: Run and Test Slimmed Docker Image
       run: |
