@@ -134,90 +134,33 @@ jobs:
     #     slim build --exec /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot --http-probe=false --tag openpilot-slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
     #   shell: bash
 
-    # - name: Run and Test Slimmed Docker Image
-    #   run: |
-    #     docker run --shm-size 1G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} /run_openpilot.sh
-    #   shell: bash
-
-    # - name: Run Command 1
-    #   run: |
-    #     docker run \
-    #       -v "$PWD:/tmp/openpilot" \
-    #       -w /tmp/openpilot \
-    #       ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-    #       /run_openpilot.sh
-    #   continue-on-error: true
-
-    - name: Run Command 2
+    - name: Run and Test Slimmed Docker Image
       run: |
-        docker run --shm-size 1G \
-          -v "$PWD:/tmp/openpilot" \
-          -w /tmp/openpilot \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-          /run_openpilot.sh
-      continue-on-error: true
+        slim build --exec /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot \
+          --env CI=1 \
+          --env PRE_COMMIT_HOME=/tmp/pre-commit \
+          --env PYTHONWARNINGS=error \
+          --env FILEREADER_CACHE=1 \
+          --env PYTHONPATH=/tmp/openpilot \
+          --env NUM_JOBS \
+          --env JOB_ID \
+          --env GITHUB_ACTION \
+          --env GITHUB_REF \
+          --env GITHUB_HEAD_REF \
+          --env GITHUB_SHA \
+          --env GITHUB_REPOSITORY \
+          --env GITHUB_RUN_ID \
+          --http-probe=false \
+          --continue-after=exec \
+          --tag openpilot_slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+      shell: bash
 
-    - name: Run Command 3
+    - name: Print Docker Image Size
       run: |
-        docker run --shm-size 1G \
-          -v "$PWD:/tmp/openpilot" \
-          -w /tmp/openpilot \
-          -e CI=1 \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-          /run_openpilot.sh
-      continue-on-error: true
+        docker images openpilot_slim --format "{{.Size}}"
+      shell: bash
 
-    - name: Run Command 4
-      run: |
-        docker run --shm-size 1G \
-          -v "$PWD:/tmp/openpilot" \
-          -w /tmp/openpilot \
-          -e CI=1 \
-          -e PRE_COMMIT_HOME=/tmp/pre-commit \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-          /run_openpilot.sh
-      continue-on-error: true
-
-    - name: Run Command 5
-      run: |
-        docker run --shm-size 1G \
-          -v "$PWD:/tmp/openpilot" \
-          -w /tmp/openpilot \
-          -e CI=1 \
-          -e PRE_COMMIT_HOME=/tmp/pre-commit \
-          -e PYTHONWARNINGS=error \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-          /run_openpilot.sh
-      continue-on-error: true
-
-    - name: Run Command 6
-      run: |
-        docker run --shm-size 1G \
-          -v "$PWD:/tmp/openpilot" \
-          -w /tmp/openpilot \
-          -e CI=1 \
-          -e PRE_COMMIT_HOME=/tmp/pre-commit \
-          -e PYTHONWARNINGS=error \
-          -e FILEREADER_CACHE=1 \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-          /run_openpilot.sh
-      continue-on-error: true
-
-    - name: Run Command 7
-      run: |
-        docker run --shm-size 1G \
-          -v "$PWD:/tmp/openpilot" \
-          -w /tmp/openpilot \
-          -e CI=1 \
-          -e PRE_COMMIT_HOME=/tmp/pre-commit \
-          -e PYTHONWARNINGS=error \
-          -e FILEREADER_CACHE=1 \
-          -e PYTHONPATH=/tmp/openpilot \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-          /run_openpilot.sh
-      continue-on-error: true
-
-    - name: Run Command 8
+    - name: docker run
       run: |
         docker run --shm-size 1G \
           -v "$PWD:/tmp/openpilot" \
@@ -235,7 +178,7 @@ jobs:
           -e GITHUB_SHA \
           -e GITHUB_REPOSITORY \
           -e GITHUB_RUN_ID \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+          openpilot_slim \
           /run_openpilot.sh
       continue-on-error: true
 
