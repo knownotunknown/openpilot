@@ -178,7 +178,7 @@ jobs:
           -e GITHUB_SHA \
           -e GITHUB_REPOSITORY \
           -e GITHUB_RUN_ID \
-          openpilot_base \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
           /run_openpilot.sh
       continue-on-error: true
 
