@@ -133,7 +133,7 @@ jobs:
     #   run: |
     #     slim build --exec /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot --http-probe=false --tag openpilot-slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
     #   shell: bash
-    
+
     - name: Run and Test Slimmed Docker Image
       run: |
         slim build --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot \
@@ -205,8 +205,7 @@ jobs:
           -e GITHUB_RUN_ID \
           -e DISPLAY=:99 \
           -v /tmp/.X11-unix:/tmp/.X11-unix \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-          /run_openpilot.sh
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
       continue-on-error: true
 
     - name: "Upload coverage to Codecov"
