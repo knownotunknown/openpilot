@@ -133,12 +133,14 @@ jobs:
     #   run: |
     #     slim build --exec /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot --http-probe=false --tag openpilot-slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
     #   shell: bash
+    #           -v "$PWD:/tmp/openpilot" \
+    #           -w /tmp/openpilot \
+
+
 
     - name: docker run
       run: |
         source selfdrive/test/setup_xvfb.sh && docker run --shm-size 1G \
-          -v "$PWD:/tmp/openpilot" \
-          -w /tmp/openpilot \
           -e CI=1 \
           -e PRE_COMMIT_HOME=/tmp/pre-commit \
           -e PYTHONWARNINGS=error \
