@@ -157,7 +157,6 @@ jobs:
           --tag openpilot_slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
       shell: bash
 
-
     - name: Print Docker Image Size
       run: |
         docker images openpilot_slim --format "{{.Size}}"

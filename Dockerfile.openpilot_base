@@ -127,4 +127,6 @@ RUN ldconfig
 RUN sudo git config --global --add safe.directory /tmp/openpilot
 
 COPY run_openpilot.sh /run_openpilot.sh
+COPY build_openpilot.sh /build_openpilot.sh
+
 RUN chmod +x /run_openpilot.sh
