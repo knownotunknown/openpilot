@@ -109,7 +109,7 @@ COPY ./selfdrive ${OPENPILOT_PATH}/selfdrive
 COPY ./system ${OPENPILOT_PATH}/system
 COPY ./body ${OPENPILOT_PATH}/body
 
-COPY . ${OPENPILOT_PATH}
+# COPY . ${OPENPILOT_PATH}
 
 WORKDIR ${OPENPILOT_PATH}
 
