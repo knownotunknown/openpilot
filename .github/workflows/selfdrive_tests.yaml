@@ -136,7 +136,7 @@ jobs:
 
     - name: Run and Test Slimmed Docker Image
       run: |
-        slim build --exec /build_openpilot.sh --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot \
+        slim build --exec 60 --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot \
           --env CI=1 \
           --env PRE_COMMIT_HOME=/tmp/pre-commit \
           --env PYTHONWARNINGS=error \
@@ -182,8 +182,7 @@ jobs:
           -e GITHUB_RUN_ID \
           -e DISPLAY=:99 \
           -v /tmp/.X11-unix:/tmp/.X11-unix \
-          openpilot_slim \
-          /build_openpilot.sh
+          openpilot_slim
       continue-on-error: true
 
     - name: docker run
