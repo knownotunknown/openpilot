@@ -3,9 +3,6 @@
 # Build openpilot
 scons -j$(nproc)
 
-# Set up xvfb
-source selfdrive/test/setup_xvfb.sh
-
 # Export MAPBOX_TOKEN
 export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg'
 

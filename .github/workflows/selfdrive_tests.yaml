@@ -134,6 +134,30 @@ jobs:
     #     slim build --exec /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot --http-probe=false --tag openpilot-slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
     #   shell: bash
 
+    - name: docker run
+      run: |
+        source selfdrive/test/setup_xvfb.sh && docker run --shm-size 1G \
+          -v "$PWD:/tmp/openpilot" \
+          -w /tmp/openpilot \
+          -e CI=1 \
+          -e PRE_COMMIT_HOME=/tmp/pre-commit \
+          -e PYTHONWARNINGS=error \
+          -e FILEREADER_CACHE=1 \
+          -e PYTHONPATH=/tmp/openpilot \
+          -e NUM_JOBS \
+          -e JOB_ID \
+          -e GITHUB_ACTION \
+          -e GITHUB_REF \
+          -e GITHUB_HEAD_REF \
+          -e GITHUB_SHA \
+          -e GITHUB_REPOSITORY \
+          -e GITHUB_RUN_ID \
+          -e DISPLAY=:99 \
+          -v /tmp/.X11-unix:/tmp/.X11-unix \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+          /run_openpilot.sh
+      continue-on-error: true
+
     - name: Run and Test Slimmed Docker Image
       run: |
         slim build --exec /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot \
@@ -150,6 +174,8 @@ jobs:
           --env GITHUB_SHA \
           --env GITHUB_REPOSITORY \
           --env GITHUB_RUN_ID \
+          --env DISPLAY=:99 \
+          --mount-volumes /tmp/.X11-unix:/tmp/.X11-unix \
           --http-probe=false \
           --continue-after=exec \
           --tag openpilot_slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
@@ -159,28 +185,6 @@ jobs:
       run: |
         docker images openpilot_slim --format "{{.Size}}"
       shell: bash
-
-    - name: docker run
-      run: |
-        docker run --shm-size 1G \
-          -v "$PWD:/tmp/openpilot" \
-          -w /tmp/openpilot \
-          -e CI=1 \
-          -e PRE_COMMIT_HOME=/tmp/pre-commit \
-          -e PYTHONWARNINGS=error \
-          -e FILEREADER_CACHE=1 \
-          -e PYTHONPATH=/tmp/openpilot \
-          -e NUM_JOBS \
-          -e JOB_ID \
-          -e GITHUB_ACTION \
-          -e GITHUB_REF \
-          -e GITHUB_HEAD_REF \
-          -e GITHUB_SHA \
-          -e GITHUB_REPOSITORY \
-          -e GITHUB_RUN_ID \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
-          /run_openpilot.sh
-      continue-on-error: true
 
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v3
