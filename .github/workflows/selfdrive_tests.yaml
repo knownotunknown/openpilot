@@ -178,7 +178,7 @@ jobs:
           -e GITHUB_SHA \
           -e GITHUB_REPOSITORY \
           -e GITHUB_RUN_ID \
-          openpilot_slim \
+          openpilot_base \
           /run_openpilot.sh
       continue-on-error: true
 
