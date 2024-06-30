@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Build openpilot
-scons -j$(nproc)
-
 # Export MAPBOX_TOKEN
 export MAPBOX_TOKEN='pk.eyJ1Ijoiam5ld2IiLCJhIjoiY2xxNW8zZXprMGw1ZzJwbzZneHd2NHljbSJ9.gV7VPRfbXFetD-1OVF0XZg'
 

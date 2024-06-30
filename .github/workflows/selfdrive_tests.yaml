@@ -136,7 +136,7 @@ jobs:
 
     - name: Run and Test Slimmed Docker Image
       run: |
-        slim build --exec /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot \
+        slim build --exec /build_openpilot.sh --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot \
           --env CI=1 \
           --env PRE_COMMIT_HOME=/tmp/pre-commit \
           --env PYTHONWARNINGS=error \
@@ -162,7 +162,7 @@ jobs:
         docker images openpilot_slim --format "{{.Size}}"
       shell: bash
 
-    - name: docker run
+    - name: docker build openpilot
       run: |
         source selfdrive/test/setup_xvfb.sh && docker run --shm-size 1G \
           -v "$PWD:/tmp/openpilot" \
@@ -183,6 +183,30 @@ jobs:
           -e DISPLAY=:99 \
           -v /tmp/.X11-unix:/tmp/.X11-unix \
           openpilot_slim \
+          /build_openpilot.sh
+      continue-on-error: true
+
+    - name: docker run
+      run: |
+        source selfdrive/test/setup_xvfb.sh && docker run --shm-size 1G \
+          -v "$PWD:/tmp/openpilot" \
+          -w /tmp/openpilot \
+          -e CI=1 \
+          -e PRE_COMMIT_HOME=/tmp/pre-commit \
+          -e PYTHONWARNINGS=error \
+          -e FILEREADER_CACHE=1 \
+          -e PYTHONPATH=/tmp/openpilot \
+          -e NUM_JOBS \
+          -e JOB_ID \
+          -e GITHUB_ACTION \
+          -e GITHUB_REF \
+          -e GITHUB_HEAD_REF \
+          -e GITHUB_SHA \
+          -e GITHUB_REPOSITORY \
+          -e GITHUB_RUN_ID \
+          -e DISPLAY=:99 \
+          -v /tmp/.X11-unix:/tmp/.X11-unix \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
           /run_openpilot.sh
       continue-on-error: true
 
