@@ -133,10 +133,10 @@ jobs:
     #   run: |
     #     slim build --exec /run_openpilot.sh --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot --http-probe=false --tag openpilot-slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
     #   shell: bash
-
+    
     - name: Run and Test Slimmed Docker Image
       run: |
-        slim build --exec 60 --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot \
+        slim build --mount "$PWD:/tmp/openpilot" --workdir /tmp/openpilot \
           --env CI=1 \
           --env PRE_COMMIT_HOME=/tmp/pre-commit \
           --env PYTHONWARNINGS=error \
@@ -153,7 +153,7 @@ jobs:
           --env DISPLAY=:99 \
           --mount /tmp/.X11-unix:/tmp/.X11-unix \
           --http-probe=false \
-          --continue-after=exec \
+          --continue-after=60 \
           --tag openpilot_slim ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
       shell: bash
 
