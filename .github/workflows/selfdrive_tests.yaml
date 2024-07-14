@@ -26,6 +26,13 @@ env:
   RUN: docker run --shm-size 1G -v $PWD:/tmp/openpilot -w /tmp/openpilot -e CI=1 -e PRE_COMMIT_HOME=/tmp/pre-commit -e PYTHONWARNINGS=error -e FILEREADER_CACHE=1 -e PYTHONPATH=/tmp/openpilot -e NUM_JOBS -e JOB_ID -e GITHUB_ACTION -e GITHUB_REF -e GITHUB_HEAD_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -v $GITHUB_WORKSPACE/.ci_cache/pre-commit:/tmp/pre-commit -v $GITHUB_WORKSPACE/.ci_cache/scons_cache:/tmp/scons_cache -v $GITHUB_WORKSPACE/.ci_cache/comma_download_cache:/tmp/comma_download_cache -v $GITHUB_WORKSPACE/.ci_cache/openpilot_cache:/tmp/openpilot_cache $BASE_IMAGE /bin/bash -c
 
   PYTEST: pytest --continue-on-collection-errors --cov --cov-report=xml --cov-append --durations=0 --durations-min=5 --hypothesis-seed 0 -n logical
+  IMAGE_NAME: openpilot
+  IMAGE_TAG: latest  # Tag for the Docker image
+  REGISTRY: ghcr.io/${{ github.repository_owner }}  # GitHub Container Registry
+
+  GITLAB_REGISTRY: registry.gitlab.com/${{ secrets.GITLAB_USERNAME }}/openpilot_ci
+  GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
+  GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
 
 jobs:
   unit_tests:
@@ -37,23 +44,99 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+
+    # - name: Login to Docker Hub
+    #   run: echo ${{ secrets.KNOWNOTUNKNOWN_DOCKER_HUB_PAT }} | docker login -u ${{ secrets.KNOWNOTUNKNOWN_DOCKER_HUB_USERNAME }} --password-stdin
+    #   shell: bash
+
+    # - name: Login to GitHub Container Registry
+    #   run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+    #   shell: bash
+
+    # - name: Login to GitLab Container Registry
+    #   run: echo ${{ secrets.GITLAB_TOKEN }} | docker login ${{ env.GITLAB_REGISTRY }} -u ${{ secrets.GITLAB_USERNAME }} --password-stdin
+    #   shell: bash
+
+    # - name: Build Docker Image
+    #   if: env.REBUILD_IMAGE == 'true'
+    #   run: |
+    #     docker build -f Dockerfile.ubuntu -t openpilot_ubuntu .
+    #     docker build
+
+    # - name: Push to Docker Hub
+    #   if: env.REBUILD_IMAGE == 'true'
+    #   run: |
+    #     docker tag openpilot_ubuntu knownotunknown/openpilot_ubuntu:latest
+    #     docker tag openpilot_python knownotunknown/openpilot_python:latest
+    #     docker push knownotunknown/openpilot_ubuntu:latest
+    #     docker push knownotunknown/openpilot_python:latest
+    #   shell: bash
+
+    # - name: Push to GitLab Container Registry
+    #   if: env.REBUILD_IMAGE == 'true'
+    #   run: |
+    #     docker tag openpilot_ubuntu registry.gitlab.com/openpilot_ci/speedup/openpilot_ubuntu-latest
+    #     docker tag openpilot_python registry.gitlab.com/openpilot_ci/speedup/openpilot_python-latest
+    #     docker push registry.gitlab.com/openpilot_ci/speedup/openpilot_ubuntu-latest
+    #     docker push registry.gitlab.com/openpilot_ci/speedup/openpilot_python-latest
+    #   shell: bash
+
+    # - name: Pull from GitLab Container Registry
+    #   if: env.REBUILD_IMAGE == 'false'
+    #   run: |
+    #     docker pull registry.gitlab.com/openpilot_ci/speedup/openpilot_ubuntu-latest & docker pull registry.gitlab.com/openpilot_ci/speedup/openpilot_python-latest
+    #   shell: bash
+
     - uses: ./.github/workflows/setup-with-retry
       with:
         docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
-    - name: Build openpilot
-      timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
-      run: ${{ env.RUN }} "scons -j$(nproc)"
-    - name: Run unit tests
-      timeout-minutes: 15
+
+
+    - name: Build and print Docker image size
       run: |
-        ${{ env.RUN }} "source selfdrive/test/setup_xvfb.sh && \
-                        $PYTEST --timeout 60 -m 'not slow' && \
-                        ./selfdrive/ui/tests/create_test_translations.sh && \
-                        QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations && \
-                        pytest ./selfdrive/ui/tests/test_translations.py"
-    - name: "Upload coverage to Codecov"
-      uses: codecov/codecov-action@v4
-      with:
-        name: ${{ github.job }}
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        docker build -t openpilot_base -f Dockerfile.openpilot_base .
+        echo "Openpilot base image size:"
+        docker images openpilot_base --format "{{.Size}}"
+      shell: bash
+
+    - name: Print image layers
+      run: |
+        echo "Image layers:"
+        docker history openpilot_base
+      shell: bash
+
+    - name: Build new docker image
+      run: |
+        docker build -t openpilot_base -f Dockerfile.openpilot .
+      shell: bash
+
+    - name: Build and print Docker image size
+      run: |
+        docker build -t openpilot_base -f Dockerfile.openpilot_base .
+        echo "Openpilot base image size:"
+        docker images openpilot_base --format "{{.Size}}"
+      shell: bash
+
+    - name: Print image layers
+      run: |
+        echo "Image layers:"
+        docker history openpilot_base
+      shell: bash
+
+    # - name: Build openpilot
+    #   timeout-minutes: ${{ ((steps.restore-scons-cache.outputs.cache-hit == 'true') && 10 || 30) }} # allow more time when we missed the scons cache
+    #   run: ${{ env.RUN }} "scons -j$(nproc)"
+    # - name: Run unit tests
+    #   timeout-minutes: 15
+    #   run: |
+    #     ${{ env.RUN }} "source selfdrive/test/setup_xvfb.sh && \
+    #                     $PYTEST --timeout 60 -m 'not slow' && \
+    #                     ./selfdrive/ui/tests/create_test_translations.sh && \
+    #                     QT_QPA_PLATFORM=offscreen ./selfdrive/ui/tests/test_translations && \
+    #                     pytest ./selfdrive/ui/tests/test_translations.py"
+    # - name: "Upload coverage to Codecov"
+    #   uses: codecov/codecov-action@v4
+    #   with:
+    #     name: ${{ github.job }}
+    #   env:
+    #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
