@@ -14,7 +14,7 @@ RUN apt-get update && \
     alien && \
     rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml poetry.lock README.md /tmp/
+COPY pyproject.toml README.md /tmp/
 
 RUN apt-get update && \
     python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
