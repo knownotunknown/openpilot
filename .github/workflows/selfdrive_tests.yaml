@@ -105,11 +105,6 @@ jobs:
     #     docker history openpilot_base
     #   shell: bash
 
-    - name: Build new docker image
-      run: |
-        docker build -t openpilot_base_new -f Dockerfile.openpilot .
-      shell: bash
-
     - name: Build and print Docker image size
       run: |
         docker build -t openpilot_base -f Dockerfile.openpilot_base_new .
