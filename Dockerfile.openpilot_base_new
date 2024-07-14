@@ -11,17 +11,18 @@ RUN apt-get update && \
     portaudio19-dev \
     libssl-dev \
     libzmq3-dev \
-    alien && \
-    rm -rf /var/lib/apt/lists/*
+    alien \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml README.md /tmp/
+COPY pyproject.toml /tmp/
 
-RUN apt-get update && \
-    python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
-    pip install --no-cache-dir poetry==1.6.1 && \
-    poetry config virtualenvs.create false && \
-    cd /tmp/ && \
-    poetry install --only main
+RUN python3 -m pip install --upgrade pip && \
+    pip install --no-cache-dir build && \
+    cd /tmp && \
+    python -m build --wheel --no-isolation && \
+    pip install --no-cache-dir dist/*.whl
 
 # Install OpenCL
 RUN mkdir -p /tmp/opencl-driver-intel && \
