@@ -82,13 +82,25 @@ RUN apt-get update && \
     libx11-6 \
     wget \
     git \
+    libffi7 \
     libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
+RUN ls -l /usr/lib/x86_64-linux-gnu/libffi.so*
+RUN ldconfig -p | grep libffi
+
+RUN wget https://github.com/libffi/libffi/releases/download/v3.3/libffi-3.3.tar.gz && \
+    tar -xzvf libffi-3.3.tar.gz && \
+    cd libffi-3.3 && \
+    ./configure && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf libffi-3.3 libffi-3.3.tar.gz
+
 RUN ldconfig
 
-RUN ln -s /usr/lib/x86_64-linux-gnu/libffi.so.8 /usr/lib/x86_64-linux-gnu/libffi.so.7
-RUN ldconfig
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
 
