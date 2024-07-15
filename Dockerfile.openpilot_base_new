@@ -82,7 +82,13 @@ RUN apt-get update && \
     libx11-6 \
     wget \
     git \
+    libffi-dev \
     && rm -rf /var/lib/apt/lists/*
+
+RUN ldconfig
+
+RUN ln -s /usr/lib/x86_64-linux-gnu/libffi.so.8 /usr/lib/x86_64-linux-gnu/libffi.so.7
+RUN ldconfig
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
 
