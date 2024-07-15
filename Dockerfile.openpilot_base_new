@@ -1,5 +1,5 @@
 # Stage 1: Build stage
-FROM python:3.11-bullseye AS build
+FROM python:3.11-bookworm AS build
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
@@ -14,6 +14,7 @@ RUN apt-get update && \
     alien \
     curl \
     wget \
+    libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml poetry.lock .python-version README.md /tmp/
@@ -59,7 +60,7 @@ ENV PYTHONUNBUFFERED=1 \
 COPY --from=build /usr/local /usr/local
 COPY --from=build /opt/intel /opt/intel
 COPY --from=build /etc/OpenCL /etc/OpenCL
-COPY --from=build /usr/lib/x86_64-linux-gnu/libffi.so.7 /usr/lib/x86_64-linux-gnu/libffi.so.7
+COPY --from=build /usr/lib/x86_64-linux-gnu/libffi.so.8 /usr/lib/x86_64-linux-gnu/libffi.so.8
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -88,6 +89,7 @@ RUN apt-get update && \
     libportaudio2 \
     libssl3 \
     libzmq5 \
+    libffi8 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
