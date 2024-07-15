@@ -94,9 +94,9 @@ jobs:
 
     - name: Build and print Docker image size
       run: |
-        docker build -t openpilot_base -f Dockerfile.openpilot_base .
+        docker build -t openpilot-base -f Dockerfile.openpilot_base .
         echo "Openpilot base image size:"
-        docker images openpilot_base --format "{{.Size}}"
+        docker images openpilot-base --format "{{.Size}}"
       shell: bash
 
     # - name: Print image layers
