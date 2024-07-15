@@ -19,10 +19,9 @@ RUN apt-get update && \
 COPY pyproject.toml /tmp/
 
 RUN python3 -m pip install --upgrade pip && \
-    pip install --no-cache-dir build && \
+    pip install --no-cache-dir build hatchling && \
     cd /tmp && \
-    python -m build --wheel --no-isolation && \
-    pip install --no-cache-dir dist/*.whl
+    pip install --no-cache-dir -e .
 
 # Install OpenCL
 RUN mkdir -p /tmp/opencl-driver-intel && \
