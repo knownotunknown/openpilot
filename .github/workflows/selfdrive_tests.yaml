@@ -87,9 +87,9 @@ jobs:
     #     docker pull registry.gitlab.com/openpilot_ci/speedup/openpilot_ubuntu-latest & docker pull registry.gitlab.com/openpilot_ci/speedup/openpilot_python-latest
     #   shell: bash
 
-    # - uses: ./.github/workflows/setup-with-retry
-    #   with:
-    #     docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
+    - uses: ./.github/workflows/setup-with-retry
+      with:
+        docker_hub_pat: ${{ secrets.DOCKER_HUB_PAT }}
 
 
     # - name: Build and print Docker image size
