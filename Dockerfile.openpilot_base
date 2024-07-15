@@ -127,11 +127,10 @@ RUN apt-get update && \
 
 COPY pyproject.toml README.md /tmp/
 
-RUN python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
-    pip install --no-cache-dir poetry==1.6.1 && \
-    poetry config virtualenvs.create false && \
+RUN python3 -m pip install --upgrade --no-cache-dir pip && \
+    pip install --no-cache-dir build && \
     cd /tmp/ && \
-    poetry install --only main
+    pip install -e .
 
 # Install OpenCL
 RUN mkdir -p /tmp/opencl-driver-intel && \
