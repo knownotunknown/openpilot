@@ -107,7 +107,7 @@
 # # RUN scons --cache-readonly -j$(nproc)
 
 # Stage 1: Build stage
-FROM python:3.11-bullseye AS build
+FROM python:3.11-bookworm AS build
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
@@ -122,14 +122,16 @@ RUN apt-get update && \
     alien \
     curl \
     wget \
+    libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml /tmp/
+COPY pyproject.toml poetry.lock .python-version README.md /tmp/
 
-RUN python3 -m pip install --upgrade pip && \
-    pip install --no-cache-dir build hatchling && \
-    cd /tmp && \
-    pip install --no-cache-dir -e .
+RUN python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
+    pip install --no-cache-dir poetry==1.6.1 && \
+    poetry config virtualenvs.create false && \
+    cd /tmp/ && \
+    poetry install --only main
 
 # Install OpenCL
 RUN mkdir -p /tmp/opencl-driver-intel && \
@@ -166,6 +168,7 @@ ENV PYTHONUNBUFFERED=1 \
 COPY --from=build /usr/local /usr/local
 COPY --from=build /opt/intel /opt/intel
 COPY --from=build /etc/OpenCL /etc/OpenCL
+COPY --from=build /usr/lib/x86_64-linux-gnu/libffi.so.8 /usr/lib/x86_64-linux-gnu/libffi.so.8
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -190,6 +193,11 @@ RUN apt-get update && \
     libx11-6 \
     wget \
     git \
+    scons \
+    libportaudio2 \
+    libssl3 \
+    libzmq5 \
+    libffi8 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
@@ -232,6 +240,12 @@ RUN INSTALL_EXTRA_PACKAGES=no /tmp/tools/install_ubuntu_dependencies.sh && \
 # COPY ./body ${OPENPILOT_PATH}/body
 
 # WORKDIR ${OPENPILOT_PATH}
+
+# Create a symbolic link for libpython3.11.so.1.0
+RUN ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0
+
+# Update the library cache
+RUN ldconfig
 
 RUN git config --global --add safe.directory /tmp/openpilot
 
