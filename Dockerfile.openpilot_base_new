@@ -16,12 +16,13 @@ RUN apt-get update && \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml /tmp/
+COPY pyproject.toml poetry.lock .python-version README.md /tmp/
 
-RUN python3 -m pip install --upgrade pip && \
-    pip install --no-cache-dir build hatchling && \
-    cd /tmp && \
-    pip install --no-cache-dir -e .
+RUN python3 -m pip install --upgrade --no-cache-dir pip==23.3 && \
+    pip install --no-cache-dir poetry==1.6.1 && \
+    poetry config virtualenvs.create false && \
+    cd /tmp/ && \
+    poetry install --only main
 
 # Install OpenCL
 RUN mkdir -p /tmp/opencl-driver-intel && \
@@ -58,6 +59,7 @@ ENV PYTHONUNBUFFERED=1 \
 COPY --from=build /usr/local /usr/local
 COPY --from=build /opt/intel /opt/intel
 COPY --from=build /etc/OpenCL /etc/OpenCL
+COPY --from=build /usr/lib/x86_64-linux-gnu/libffi.so.7 /usr/lib/x86_64-linux-gnu/libffi.so.7
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -82,25 +84,11 @@ RUN apt-get update && \
     libx11-6 \
     wget \
     git \
-    libffi7 \
-    libffi-dev \
+    scons \
+    libportaudio2 \
+    libssl3 \
+    libzmq5 \
     && rm -rf /var/lib/apt/lists/*
-
-RUN ls -l /usr/lib/x86_64-linux-gnu/libffi.so*
-RUN ldconfig -p | grep libffi
-
-RUN wget https://github.com/libffi/libffi/releases/download/v3.3/libffi-3.3.tar.gz && \
-    tar -xzvf libffi-3.3.tar.gz && \
-    cd libffi-3.3 && \
-    ./configure && \
-    make && \
-    make install && \
-    cd .. && \
-    rm -rf libffi-3.3 libffi-3.3.tar.gz
-
-RUN ldconfig
-
-ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
 
@@ -142,6 +130,12 @@ RUN INSTALL_EXTRA_PACKAGES=no /tmp/tools/install_ubuntu_dependencies.sh && \
 # COPY ./body ${OPENPILOT_PATH}/body
 
 # WORKDIR ${OPENPILOT_PATH}
+
+# Create a symbolic link for libpython3.11.so.1.0
+RUN ln -s /usr/local/lib/libpython3.11.so.1.0 /usr/lib/libpython3.11.so.1.0
+
+# Update the library cache
+RUN ldconfig
 
 RUN git config --global --add safe.directory /tmp/openpilot
 
