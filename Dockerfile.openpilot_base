@@ -85,15 +85,15 @@
 
 # Base stage for building dependencies
 # Base stage for building dependencies
+# Base stage for building dependencies
 FROM ubuntu:24.04 AS builder
 
 ENV PYTHONUNBUFFERED 1
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install necessary build dependencies
+# Install necessary build dependencies for Python
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot \
-    apt-utils alien unzip tar curl xz-utils dbus gcc-arm-none-eabi tmux vim libx11-6 wget && \
+    apt-get install -y --no-install-recommends sudo tzdata locales curl xz-utils dbus gcc-arm-none-eabi vim wget && \
     rm -rf /var/lib/apt/lists/*
 
 # Setup locale
@@ -193,7 +193,4 @@ USER $USER
 
 USER root
 RUN sudo git config --global --add safe.directory /tmp/openpilot
-
-# Build the project
-RUN scons --cache-readonly -j$(nproc)
 
