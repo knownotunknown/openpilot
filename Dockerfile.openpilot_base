@@ -84,6 +84,7 @@
 # RUN sudo git config --global --add safe.directory /tmp/openpilot
 
 # Base stage for building dependencies
+# Base stage for building dependencies
 FROM ubuntu:24.04 AS builder
 
 ENV PYTHONUNBUFFERED 1
@@ -178,7 +179,6 @@ ARG USER_UID=1001
 RUN useradd -m -s /bin/bash -u $USER_UID $USER
 RUN usermod -aG sudo $USER
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-USER $USER
 
 # Set environment variables for NVIDIA and QT
 ENV NVIDIA_VISIBLE_DEVICES all
@@ -186,7 +186,14 @@ ENV NVIDIA_DRIVER_CAPABILITIES graphics,utility,compute
 ENV QTWEBENGINE_DISABLE_SANDBOX 1
 
 # Set up dbus
+USER root
 RUN dbus-uuidgen > /etc/machine-id
+
+USER $USER
 
 USER root
 RUN sudo git config --global --add safe.directory /tmp/openpilot
+
+# Build the project
+RUN scons --cache-readonly -j$(nproc)
+
