@@ -87,12 +87,12 @@ jobs:
     #     docker pull registry.gitlab.com/openpilot_ci/speedup/openpilot_ubuntu-latest & docker pull registry.gitlab.com/openpilot_ci/speedup/openpilot_python-latest
     #   shell: bash
 
-    - name: Build and print Docker image size
-      run: |
-        docker build -t openpilot-base -f Dockerfile.openpilot_base .
-        echo "Openpilot base image size:"
-        docker images openpilot-base --format "{{.Size}}"
-      shell: bash
+    # - name: Build and print Docker image size
+    #   run: |
+    #     docker build -t openpilot-base -f Dockerfile.openpilot_base .
+    #     echo "Openpilot base image size:"
+    #     docker images openpilot-base --format "{{.Size}}"
+    #   shell: bash
 
     - uses: ./.github/workflows/setup-with-retry
       with:
