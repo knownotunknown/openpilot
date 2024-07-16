@@ -66,7 +66,6 @@ ARG USER_UID=1001
 RUN useradd -m -s /bin/bash -u $USER_UID $USER
 RUN usermod -aG sudo $USER
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-USER $USER
 
 COPY --chown=$USER pyproject.toml uv.lock /tmp/
 COPY --chown=$USER tools/install_python_dependencies.sh /tmp/tools/
@@ -74,8 +73,13 @@ COPY --chown=$USER tools/install_python_dependencies.sh /tmp/tools/
 ENV VIRTUAL_ENV=/home/$USER/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+# Install curl as root
+USER root
 RUN apt-get update && apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/*
+
+# Switch back to the user
+USER $USER
 
 RUN cd /tmp && \
     if ! command -v "uv" > /dev/null 2>&1; then \
