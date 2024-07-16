@@ -289,8 +289,9 @@ RUN . $VIRTUAL_ENV/bin/activate && \
     pip install --upgrade pip && \
     cd /tmp && \
     tools/install_python_dependencies.sh && \
-    pip install parameterized && \
     rm -rf /tmp/* ~/.cache
+
+RUN . $VIRTUAL_ENV/bin/activate && scons --version
 
 # Stage 2: Final stage
 FROM ubuntu:24.04
