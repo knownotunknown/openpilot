@@ -1,8 +1,8 @@
 FROM ubuntu:24.04
 
 ENV PYTHONUNBUFFERED 1
-
 ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends sudo tzdata locales ssh pulseaudio xvfb x11-xserver-utils gnome-screenshot && \
     rm -rf /var/lib/apt/lists/*
@@ -73,8 +73,40 @@ COPY --chown=$USER tools/install_python_dependencies.sh /tmp/tools/
 
 ENV VIRTUAL_ENV=/home/$USER/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN apt-get update && apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN cd /tmp && \
-    tools/install_python_dependencies.sh && \
+    if ! command -v "uv" > /dev/null 2>&1; then \
+      echo "installing uv..."; \
+      curl -LsSf https://astral.sh/uv/install.sh | sh; \
+      UV_BIN='$HOME/.cargo/env'; \
+      ADD_PATH_CMD=". \"$UV_BIN\""; \
+      eval $ADD_PATH_CMD; \
+    fi && \
+    echo "updating uv..."; \
+    for i in $(seq 1 5); do \
+      if uv self update; then \
+        break; \
+      else \
+        sleep 2; \
+      fi; \
+    done && \
+    echo "installing python packages..."; \
+    uv --no-cache sync --all-extras && \
+    source .venv/bin/activate && \
+    echo "PYTHONPATH=${PWD}" > /tmp/.env && \
+    if [[ "$(uname)" == 'Darwin' ]]; then \
+      echo "# msgq doesn't work on mac" >> /tmp/.env; \
+      echo "export ZMQ=1" >> /tmp/.env; \
+      echo "export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES" >> /tmp/.env; \
+    fi && \
+    if [ "$(uname)" != "Darwin" ] && [ -e "/tmp/.git" ]; then \
+      echo "pre-commit hooks install..."; \
+      pre-commit install; \
+      git submodule foreach pre-commit install; \
+    fi && \
     mkdir -p $VIRTUAL_ENV && \
     cp -r /tmp/.venv/* $VIRTUAL_ENV && \
     rm -rf /tmp/* && \
@@ -82,4 +114,3 @@ RUN cd /tmp && \
 
 USER root
 RUN sudo git config --global --add safe.directory /tmp/openpilot
-
